@@ -1,6 +1,6 @@
 # Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
 
-[![CI](https://github.com/user/text2sql-qlora/actions/workflows/ci.yml/badge.svg)](https://github.com/user/text2sql-qlora/actions)
+[![CI](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions/workflows/ci.yml/badge.svg)](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -57,8 +57,8 @@ Evaluated on an unseen 10% database-level validation split (`val.jsonl`):
 | | 3 Epochs | `0.3580` | |
 
 ### 3. Statistical Significance (McNemar Paired Test)
-- **System A vs. System C**: $p = 9.31 	imes 10^-2$
-- **System B vs. System C**: $p = 9.31 	imes 10^-2$
+- **System A vs. System C**: p = 0.0931 (No statistically significant difference)
+- **System B vs. System C**: p = 0.0931 (No statistically significant difference)
 
 ---
 
@@ -86,8 +86,8 @@ The service employs a multi-layered guardrail: AST validation with `sqlglot` and
 
 ### 1. Installation
 ```bash
-git clone https://github.com/user/text2sql-qlora.git
-cd text2sql-qlora
+git clone https://github.com/AshokSingodia-Codes/fine-tuned-text2sql.git
+cd fine-tuned-text2sql
 python -m venv .venv
 source .venv/bin/activate  # Or .venv\Scripts\activate on Windows
 make setup

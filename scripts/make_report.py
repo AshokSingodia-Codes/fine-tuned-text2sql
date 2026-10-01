@@ -39,7 +39,7 @@ def generate_all_reports() -> None:
     # 1. Generate comprehensive README.md
     readme_content = f"""# Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
 
-[![CI](https://github.com/user/text2sql-qlora/actions/workflows/ci.yml/badge.svg)](https://github.com/user/text2sql-qlora/actions)
+[![CI](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions/workflows/ci.yml/badge.svg)](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -125,8 +125,8 @@ The service employs a multi-layered guardrail: AST validation with `sqlglot` and
 
 ### 1. Installation
 ```bash
-git clone https://github.com/user/text2sql-qlora.git
-cd text2sql-qlora
+git clone https://github.com/AshokSingodia-Codes/fine-tuned-text2sql.git
+cd fine-tuned-text2sql
 python -m venv .venv
 source .venv/bin/activate  # Or .venv\\Scripts\\activate on Windows
 make setup

@@ -67,7 +67,7 @@ export default function Header() {
           </div>
 
           <a
-            href="https://github me/text2sql-qlora"
+            href="https://github.com/AshokSingodia-Codes/fine-tuned-text2sql"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors border border-slate-700/60"
