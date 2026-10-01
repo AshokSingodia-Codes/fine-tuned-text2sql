@@ -1,0 +1,38 @@
+# Data, model weights, and heavy artifacts
+data/
+models/
+third_party/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.db
+reports/*.jsonl
+reports/*.db
+
+# Frontend build & node_modules
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Python environments and secrets
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# Tracking and cache directories
+mlruns/
+wandb/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.coverage
+htmlcov/
+*.log

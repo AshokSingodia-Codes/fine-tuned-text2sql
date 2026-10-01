@@ -1,0 +1,27 @@
+Metadata-Version: 2.4
+Name: t2s
+Version: 0.1.0
+Summary: Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
+# Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
+
+An end-to-end Text-to-SQL system with QLoRA fine-tuning, GGUF quantization, and a read-only SQL safety layer.
+
+## Setup
+
+```bash
+python -m venv .venv
+# On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pip install -e .
+```
+
+## Commands
+
+- `make test` : Run pytest test suite
+- `make lint` : Run ruff lint checks
+- `make serve` : Start FastAPI serving backend
+- `make ui` : Start Streamlit UI

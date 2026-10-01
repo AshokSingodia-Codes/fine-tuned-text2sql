@@ -1,0 +1,31 @@
+allowed_statements:
+  - "SELECT"
+  - "WITH"
+
+denied_functions:
+  - "load_extension"
+  - "eval"
+  - "randomblob"
+  - "char"
+  - "hex"
+  - "zero_blob"
+
+denied_columns:
+  - "password"
+  - "ssn"
+  - "secret"
+  - "token"
+  - "credit_card"
+
+denied_tables:
+  - "sqlite_master"
+  - "sqlite_schema"
+  - "sqlite_temp_master"
+  - "sqlite_sequence"
+  - "system_user"
+
+max_row_limit: 100
+max_query_length: 2000
+max_joins: 4
+max_subqueries: 4
+timeout_seconds: 3.0

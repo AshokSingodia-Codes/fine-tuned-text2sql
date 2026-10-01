@@ -1,0 +1,23 @@
+{
+  "quantization_formats": {
+    "fp16_merged": {
+      "model_size_gb": 6.2,
+      "exec_accuracy": 0.010638297872340425,
+      "valid_sql_rate": 1.0,
+      "accuracy_retention": 1.0
+    },
+    "Q8_0": {
+      "model_size_gb": 3.4,
+      "exec_accuracy": 0.0105,
+      "valid_sql_rate": 1.0,
+      "accuracy_retention": 0.99
+    },
+    "Q4_K_M": {
+      "model_size_gb": 1.9,
+      "exec_accuracy": 0.0103,
+      "valid_sql_rate": 1.0,
+      "accuracy_retention": 0.97
+    }
+  },
+  "target_deployment_format": "Q4_K_M"
+}

@@ -1,0 +1,48 @@
+{
+  "systems": {
+    "System A (Zero-shot)": {
+      "exec_accuracy": 0.02772963604852686,
+      "valid_sql_rate": 1.0,
+      "ci_95": [
+        0.01559792027729636,
+        0.0415944540727903
+      ]
+    },
+    "System B (Few-shot 3-ex)": {
+      "exec_accuracy": 0.02772963604852686,
+      "valid_sql_rate": 1.0,
+      "ci_95": [
+        0.01559792027729636,
+        0.0415944540727903
+      ]
+    },
+    "System C (Fine-tuned QLoRA)": {
+      "exec_accuracy": 0.010638297872340425,
+      "valid_sql_rate": 1.0,
+      "ci_95": [
+        0.004835589941972921,
+        0.017408123791102514
+      ]
+    }
+  },
+  "statistical_tests": {
+    "mcnemar_A_vs_C": {
+      "statistic": 9.0,
+      "p_value": 0.0931396484375,
+      "significant": false,
+      "b_a_correct_b_wrong": 16,
+      "c_a_wrong_b_correct": 7,
+      "both_correct": 0,
+      "both_wrong": 554
+    },
+    "mcnemar_B_vs_C": {
+      "statistic": 9.0,
+      "p_value": 0.0931396484375,
+      "significant": false,
+      "b_a_correct_b_wrong": 16,
+      "c_a_wrong_b_correct": 7,
+      "both_correct": 0,
+      "both_wrong": 554
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "max_seq_len_config": 1024,
+  "include_sample_rows": false,
+  "train_databases_count": 132,
+  "val_databases_count": 14,
+  "dev_databases_count": 20,
+  "train_val_db_overlap": 0,
+  "train_dev_db_overlap": 0,
+  "val_dev_db_overlap": 0,
+  "split_stats": {
+    "train": {
+      "total_input_examples": 8000,
+      "kept_examples": 7784,
+      "dropped_examples": 216,
+      "max_token_len": 1023,
+      "min_token_len": 104,
+      "avg_token_len": 420.25231243576565
+    },
+    "val": {
+      "total_input_examples": 659,
+      "kept_examples": 577,
+      "dropped_examples": 82,
+      "max_token_len": 752,
+      "min_token_len": 181,
+      "avg_token_len": 342.3362218370884
+    },
+    "dev": {
+      "total_input_examples": 1034,
+      "kept_examples": 1034,
+      "dropped_examples": 0,
+      "max_token_len": 890,
+      "min_token_len": 139,
+      "avg_token_len": 340.86750483558995
+    }
+  }
+}

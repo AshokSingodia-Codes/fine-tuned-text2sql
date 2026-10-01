@@ -1,0 +1,17 @@
+seed: 42
+paths:
+  raw_data_dir: "data/raw/spider"
+  processed_data_dir: "data/processed"
+  reports_dir: "reports"
+  models_dir: "models"
+split:
+  val_db_ratio: 0.10
+model:
+  base_model_name: "Qwen/Qwen2.5-Coder-3B-Instruct"
+  fallback_model_name: "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+  max_seq_len: 1024
+generation:
+  do_sample: false
+  temperature: 0.0
+  max_new_tokens: 256
+  include_sample_rows: false

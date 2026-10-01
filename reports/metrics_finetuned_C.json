@@ -1,0 +1,20 @@
+{
+  "system_name": "System C (Fine-tuned QLoRA)",
+  "predictions_file": "reports\\predictions_C.jsonl",
+  "total_examples": 1034,
+  "internal_eval": {
+    "exec_accuracy": 0.010638297872340425,
+    "valid_sql_rate": 1.0,
+    "exact_match_accuracy": 0.0,
+    "confidence_interval_95": {
+      "mean": 0.010638297872340425,
+      "ci_low": 0.004835589941972921,
+      "ci_high": 0.017408123791102514
+    }
+  },
+  "official_eval": {
+    "exec_accuracy": 0.0,
+    "hardness_breakdown": {},
+    "raw_output": ""
+  }
+}

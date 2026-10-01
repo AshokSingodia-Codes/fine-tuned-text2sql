@@ -1,0 +1,201 @@
+{
+  "total_evaluated": 1034,
+  "error_categories_breakdown": {
+    "syntax_error": 1023,
+    "correct": 11
+  },
+  "comparison_diff_with_baseline_A": {
+    "fixed_count": 7,
+    "broken_count": 16,
+    "both_correct_count": 0,
+    "both_wrong_count": 554,
+    "fixed_questions": [
+      {
+        "index": 147,
+        "db_id": "car_1",
+        "question": "How many car models were produced by the maker with full name American Motor Company?",
+        "gold": "SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 148,
+        "db_id": "car_1",
+        "question": "What is the number of car models created by the car maker American Motor Company?",
+        "gold": "SELECT count(*) FROM CAR_MAKERS AS T1 JOIN MODEL_LIST AS T2 ON T1.Id  =  T2.Maker WHERE T1.FullName  =  'American Motor Company';",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 359,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "How many paragraphs for the document with name 'Summer Show'?",
+        "gold": "SELECT count(*) FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_ID  =  T2.document_ID WHERE T2.document_name  =  'Summer Show'",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 360,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "Count the number of paragraphs in the document named 'Summer Show'.",
+        "gold": "SELECT count(*) FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_ID  =  T2.document_ID WHERE T2.document_name  =  'Summer Show'",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 428,
+        "db_id": "museum_visit",
+        "question": "How many museums were opened after 2013 or before 2008?",
+        "gold": "SELECT count(*) FROM museum WHERE open_year  >  2013 OR open_year  <  2008",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 439,
+        "db_id": "wta_1",
+        "question": "Find the highest rank of losers in all matches.",
+        "gold": "SELECT min(loser_rank) FROM matches",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 440,
+        "db_id": "wta_1",
+        "question": "What is the best rank of losers across all matches?",
+        "gold": "SELECT min(loser_rank) FROM matches",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      }
+    ],
+    "broken_questions": [
+      {
+        "index": 15,
+        "db_id": "concert_singer",
+        "question": "What are the locations and names of all stations with capacity between 5000 and 10000?",
+        "gold": "SELECT LOCATION ,  name FROM stadium WHERE capacity BETWEEN 5000 AND 10000",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 16,
+        "db_id": "concert_singer",
+        "question": "What is the maximum capacity and the average of all stadiums ?",
+        "gold": "select max(capacity), average from stadium",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 54,
+        "db_id": "pets_1",
+        "question": "How many dog pets are raised by female students?",
+        "gold": "SELECT count(*) FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T2.petid  =  T3.petid WHERE T1.sex  =  'F' AND T3.pettype  =  'dog'",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 81,
+        "db_id": "pets_1",
+        "question": "Find the first name and gender of student who have more than one pet.",
+        "gold": "SELECT T1.fname ,  T1.sex FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid GROUP BY T1.stuid HAVING count(*)  >  1",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 212,
+        "db_id": "flight_2",
+        "question": "How many flights fly from Aberdeen to Ashley?",
+        "gold": "SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRPORTS AS T2 ON T1.DestAirport  =  T2.AirportCode JOIN AIRPORTS AS T3 ON T1.SourceAirport  =  T3.AirportCode WHERE T2.City  =  \"Ashley\" AND T3.City  =  \"Aberdeen\"",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 213,
+        "db_id": "flight_2",
+        "question": "How many flights does airline 'JetBlue Airways' have?",
+        "gold": "SELECT count(*) FROM FLIGHTS AS T1 JOIN AIRLINES AS T2 ON T1.Airline  =  T2.uid WHERE T2.Airline = \"JetBlue Airways\"",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 232,
+        "db_id": "flight_2",
+        "question": "What is the abbreviation of the airilne has the fewest flights and what country is it in?",
+        "gold": "SELECT T1.Abbreviation ,  T1.Country FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline GROUP BY T1.Airline ORDER BY count(*) LIMIT 1",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 233,
+        "db_id": "flight_2",
+        "question": "What are airlines that have some flight departing from airport 'AHD'?",
+        "gold": "SELECT T1.Airline FROM AIRLINES AS T1 JOIN FLIGHTS AS T2 ON T1.uid  =  T2.Airline WHERE T2.SourceAirport  =  \"AHD\"",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 344,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "Return the code of the template type that is most commonly used in documents.",
+        "gold": "SELECT T1.template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id GROUP BY T1.template_type_code ORDER BY count(*) DESC LIMIT 1",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 345,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "Show all template type codes that are not used by any document.",
+        "gold": "SELECT template_type_code FROM Templates EXCEPT SELECT template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.template_id  =  T2.template_id",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 348,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "What are the type codes and descriptions for all template types?",
+        "gold": "SELECT template_type_code ,  template_type_description FROM Ref_template_types",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 349,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "What is the template type descriptions for template type code \"AD\".",
+        "gold": "SELECT template_type_description FROM Ref_template_types WHERE template_type_code  =  \"AD\"",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 374,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "Return the id and name of the document with the most paragraphs.",
+        "gold": "SELECT T1.document_id ,  T2.document_name FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_id  =  T2.document_id GROUP BY T1.document_id ORDER BY count(*) DESC LIMIT 1",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 375,
+        "db_id": "cre_Doc_Template_Mgt",
+        "question": "What is the document id with least number of paragraphs?",
+        "gold": "SELECT document_id FROM Paragraphs GROUP BY document_id ORDER BY count(*) ASC LIMIT 1",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 384,
+        "db_id": "course_teach",
+        "question": "What are the names of the teachers ordered by ascending age?",
+        "gold": "SELECT Name FROM teacher ORDER BY Age ASC",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      },
+      {
+        "index": 385,
+        "db_id": "course_teach",
+        "question": "What are the age and hometown of teachers?",
+        "gold": "SELECT Age ,  Hometown FROM teacher",
+        "pred_a": "SELECT 1;",
+        "pred_c": "SELECT 1;"
+      }
+    ]
+  }
+}

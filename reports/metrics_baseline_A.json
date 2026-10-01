@@ -1,0 +1,27 @@
+{
+  "system_name": "System A (Zero-shot)",
+  "input_dataset": "data/processed/val.jsonl",
+  "total_samples": 577,
+  "is_partial_subset": false,
+  "internal_eval": {
+    "exec_accuracy": 0.02772963604852686,
+    "valid_sql_rate": 1.0,
+    "exact_match_accuracy": 0.0,
+    "confidence_interval_95": {
+      "mean": 0.02772963604852686,
+      "ci_low": 0.01559792027729636,
+      "ci_high": 0.0415944540727903
+    }
+  },
+  "official_eval": {
+    "exec_accuracy": 0.012,
+    "hardness_breakdown": {
+      "easy": 0.015,
+      "medium": 0.02,
+      "hard": 0.0,
+      "extra": 0.0,
+      "all": 0.012
+    },
+    "raw_output": "                     easy                 medium               hard                 extra                all                 \ncount                136                  250                  95                   96                   577                 \n=====================   EXECUTION ACCURACY     =====================\nexecution            0.015                0.020                0.000                0.000                0.012               \n"
+  }
+}

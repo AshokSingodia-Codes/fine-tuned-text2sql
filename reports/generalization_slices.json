@@ -1,0 +1,126 @@
+{
+  "by_database": {
+    "concert_singer": {
+      "total": 45,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "pets_1": {
+      "total": 42,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "car_1": {
+      "total": 92,
+      "correct": 2,
+      "accuracy": 0.021739130434782608
+    },
+    "flight_2": {
+      "total": 80,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "employee_hire_evaluation": {
+      "total": 38,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "cre_Doc_Template_Mgt": {
+      "total": 84,
+      "correct": 2,
+      "accuracy": 0.023809523809523808
+    },
+    "course_teach": {
+      "total": 30,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "museum_visit": {
+      "total": 18,
+      "correct": 1,
+      "accuracy": 0.05555555555555555
+    },
+    "wta_1": {
+      "total": 62,
+      "correct": 2,
+      "accuracy": 0.03225806451612903
+    },
+    "battle_death": {
+      "total": 16,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "student_transcripts_tracking": {
+      "total": 78,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "tvshow": {
+      "total": 62,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "poker_player": {
+      "total": 40,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "voter_1": {
+      "total": 15,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "world_1": {
+      "total": 120,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "orchestra": {
+      "total": 40,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "network_1": {
+      "total": 56,
+      "correct": 4,
+      "accuracy": 0.07142857142857142
+    },
+    "dog_kennels": {
+      "total": 82,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "singer": {
+      "total": 30,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "real_estate_properties": {
+      "total": 4,
+      "correct": 0,
+      "accuracy": 0.0
+    }
+  },
+  "by_feature": {
+    "has_join": {
+      "total": 408,
+      "correct": 8,
+      "accuracy": 0.0196078431372549
+    },
+    "has_group_by": {
+      "total": 277,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "has_order_by": {
+      "total": 237,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "has_subquery": {
+      "total": 159,
+      "correct": 0,
+      "accuracy": 0.0
+    }
+  }
+}

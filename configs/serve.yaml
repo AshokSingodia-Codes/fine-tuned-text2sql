@@ -1,0 +1,6 @@
+backend: "mock"
+host: "0.0.0.0"
+port: 8000
+timeout_seconds: 3.0
+max_request_length: 1000
+rate_limit_per_minute: 60

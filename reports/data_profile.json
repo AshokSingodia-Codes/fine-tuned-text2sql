@@ -1,0 +1,16 @@
+{
+  "train_spider_questions": 7000,
+  "train_others_questions": 1659,
+  "train_total_questions": 8659,
+  "dev_questions": 1034,
+  "train_databases_count": 146,
+  "dev_databases_count": 20,
+  "db_overlap_count": 0,
+  "db_overlap_list": [],
+  "missing_database_files": [],
+  "train_gold_sql_passed": 8656,
+  "train_gold_sql_failed": 3,
+  "dev_gold_sql_passed": 1032,
+  "dev_gold_sql_failed": 2,
+  "dev_hardness_distribution": {}
+}
