@@ -1,3 +1,13 @@
+---
+title: Fine-Tuned Text-to-SQL Assistant
+emoji: 🛡️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
 
 [![CI](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions/workflows/ci.yml/badge.svg)](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions)
