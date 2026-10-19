@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+
 import pandas as pd
 import requests
 import streamlit as st
@@ -30,15 +31,24 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="main-header">🛡️ Guarded Text-to-SQL Assistant</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Powered by Fine-Tuned Qwen2.5-Coder-3B (QLoRA) with Real-Time AST Safety & Read-Only Sandbox</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="main-header">🛡️ Guarded Text-to-SQL Assistant</div>', unsafe_allow_html=True
+)
+st.markdown(
+    '<div class="sub-header">Powered by Fine-Tuned Qwen2.5-Coder-3B (QLoRA) with Real-Time AST Safety & Read-Only Sandbox</div>',
+    unsafe_allow_html=True,
+)
 
 # Sidebar Database Selection
 st.sidebar.title("⚙️ Database & Settings")
 
 try:
     resp_dbs = requests.get(f"{API_BASE_URL}/v1/databases", timeout=3)
-    available_dbs = [db["db_id"] for db in resp_dbs.json().get("databases", [])] if resp_dbs.status_code == 200 else ["concert_singer", "student_assessment", "pets_1"]
+    available_dbs = (
+        [db["db_id"] for db in resp_dbs.json().get("databases", [])]
+        if resp_dbs.status_code == 200
+        else ["concert_singer", "student_assessment", "pets_1"]
+    )
 except Exception:
     available_dbs = ["concert_singer", "student_assessment", "pets_1"]
 
@@ -56,16 +66,22 @@ with tab_query:
     with col_preset:
         st.markdown("**Example Questions:**")
         if st.button("🎤 Singers sorted by age"):
-            st.session_state["user_question"] = "How many singers are there and what is their average age?"
+            st.session_state["user_question"] = (
+                "How many singers are there and what is their average age?"
+            )
         if st.button("🏆 Most frequent concert stadium"):
             st.session_state["user_question"] = "Which stadium has hosted the most concerts?"
         if st.button("🐱 Students with cat pets"):
-            st.session_state["user_question"] = "What are the first names of students who own a cat?"
+            st.session_state["user_question"] = (
+                "What are the first names of students who own a cat?"
+            )
 
     with col_input:
         default_q = st.session_state.get("user_question", "How many singers are there in total?")
         user_q = st.text_area("Ask a question in plain English:", value=default_q, height=100)
-        btn_generate = st.button("🚀 Generate & Execute SQL", type="primary", use_container_width=True)
+        btn_generate = st.button(
+            "🚀 Generate & Execute SQL", type="primary", use_container_width=True
+        )
 
     if btn_generate and user_q:
         with st.spinner("Generating SQL and validating guardrails..."):
@@ -81,7 +97,10 @@ with tab_query:
                 if res.status_code == 200:
                     st.subheader("Generated Query & Safety Verdict")
                     if data["allowed"]:
-                        st.markdown('<div class="verdict-allowed">✅ Verdict: ALLOWED (Passed AST Safety Checks)</div>', unsafe_allow_html=True)
+                        st.markdown(
+                            '<div class="verdict-allowed">✅ Verdict: ALLOWED (Passed AST Safety Checks)</div>',
+                            unsafe_allow_html=True,
+                        )
                         st.code(data["sql"], language="sql")
 
                         if data.get("rows"):
@@ -100,7 +119,10 @@ with tab_query:
                             f"Execution: {t.get('execution_ms', 0)}ms"
                         )
                     else:
-                        st.markdown('<div class="verdict-blocked">❌ Verdict: BLOCKED (Safety Guardrail Violation)</div>', unsafe_allow_html=True)
+                        st.markdown(
+                            '<div class="verdict-blocked">❌ Verdict: BLOCKED (Safety Guardrail Violation)</div>',
+                            unsafe_allow_html=True,
+                        )
                         st.code(data["sql"], language="sql")
                         st.error("Block Reasons:\n" + "\n".join(f"- {r}" for r in data["reasons"]))
                 else:
@@ -126,15 +148,21 @@ with tab_redteam:
     col_a, col_b, col_c = st.columns(3)
     with col_a:
         if st.button("💣 DROP TABLE Attack"):
-            val_res = requests.post(f"{API_BASE_URL}/v1/sql/validate", json={"sql": "DROP TABLE singer;"}).json()
+            val_res = requests.post(
+                f"{API_BASE_URL}/v1/sql/validate", json={"sql": "DROP TABLE singer;"}
+            ).json()
             st.warning(f"Blocked: {not val_res['allowed']}\nReasons: {val_res['reasons']}")
     with col_b:
         if st.button("🔑 Password Exfiltration"):
-            val_res = requests.post(f"{API_BASE_URL}/v1/sql/validate", json={"sql": "SELECT name, password FROM users;"}).json()
+            val_res = requests.post(
+                f"{API_BASE_URL}/v1/sql/validate", json={"sql": "SELECT name, password FROM users;"}
+            ).json()
             st.warning(f"Blocked: {not val_res['allowed']}\nReasons: {val_res['reasons']}")
     with col_c:
         if st.button("⚡ Multi-Statement Trick"):
-            val_res = requests.post(f"{API_BASE_URL}/v1/sql/validate", json={"sql": "SELECT 1; DELETE FROM songs;"}).json()
+            val_res = requests.post(
+                f"{API_BASE_URL}/v1/sql/validate", json={"sql": "SELECT 1; DELETE FROM songs;"}
+            ).json()
             st.warning(f"Blocked: {not val_res['allowed']}\nReasons: {val_res['reasons']}")
 
 with tab_metrics:
@@ -144,8 +172,12 @@ with tab_metrics:
         with open(metrics_file, "r", encoding="utf-8") as f:
             m_data = json.load(f)
         col1, col2, col3 = st.columns(3)
-        col1.metric("Spider Execution Accuracy", f"{m_data['internal_eval']['exec_accuracy']*100:.1f}%")
-        col2.metric("Valid SQL Output Rate", f"{m_data['internal_eval']['valid_sql_rate']*100:.1f}%")
+        col1.metric(
+            "Spider Execution Accuracy", f"{m_data['internal_eval']['exec_accuracy'] * 100:.1f}%"
+        )
+        col2.metric(
+            "Valid SQL Output Rate", f"{m_data['internal_eval']['valid_sql_rate'] * 100:.1f}%"
+        )
         col3.metric("Quantized Size (GGUF Q4_K_M)", "1.9 GB")
     else:
         st.info("Metrics report available at `reports/metrics_finetuned_C.json`.")

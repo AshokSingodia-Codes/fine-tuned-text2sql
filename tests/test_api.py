@@ -1,8 +1,9 @@
 """Unit tests for FastAPI endpoints using TestClient."""
 
 import os
-import pytest
+
 from fastapi.testclient import TestClient
+
 from src.t2s.serving.app import app
 
 client = TestClient(app)
@@ -29,6 +30,9 @@ def test_list_databases_endpoint():
     assert res.status_code == 200
     data = res.json()
     assert "databases" in data
+    assert data["total"] > 0
+    db_ids = [d["db_id"] for d in data["databases"]]
+    assert "concert_singer" in db_ids
 
 
 def test_validate_sql_endpoint():

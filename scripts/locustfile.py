@@ -1,6 +1,7 @@
 """Locust load test script for performance benchmarking."""
 
 import random
+
 from locust import HttpUser, between, task
 
 

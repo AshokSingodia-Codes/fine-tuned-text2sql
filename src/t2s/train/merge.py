@@ -39,7 +39,7 @@ def merge_adapter_to_base(
         merged_model = peft_model.merge_and_unload()
 
         print(f"Saving merged model to '{merged_output_dir}'...")
-        merged_model.save_pretrained(str(out_path))
+        merged_model.save_pretrained(str(out_path), max_shard_size="10GB")
         tokenizer.save_pretrained(str(out_path))
         print("Model merge complete!")
     except Exception as e:

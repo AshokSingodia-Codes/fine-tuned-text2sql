@@ -1,0 +1,1233 @@
+{
+  "metadata": {
+    "dataset": "spider_dev",
+    "total_queries": 1034,
+    "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "policy_sha256": "682e3439354213f37b7645592a57b439a94f3d5073794fa86a349ca5761a8daa",
+    "seed": 42
+  },
+  "summary": {
+    "total_queries": 1034,
+    "blocked_by_validator": 2,
+    "execution_failures": 2,
+    "semantic_matches": 997,
+    "semantic_mismatches": 33,
+    "equivalence_rate_of_allowed": 0.9661
+  },
+  "blocked_by_validator": [
+    {
+      "idx": 65,
+      "db_id": "pets_1",
+      "question": "Find the first name and age of students who have a dog but do not have a cat as a pet.",
+      "gold_sql": "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ]
+    },
+    {
+      "idx": 66,
+      "db_id": "pets_1",
+      "question": "What is the first name of every student who has a dog but does not have a cat?",
+      "gold_sql": "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ]
+    }
+  ],
+  "execution_failures": [
+    {
+      "idx": 455,
+      "db_id": "wta_1",
+      "gold_sql": "SELECT first_name ,  last_name FROM players ORDER BY birth_date",
+      "canon_sql": "SELECT first_name, last_name FROM players ORDER BY birth_date LIMIT 100;",
+      "orig_error": "Could not decode to UTF-8 column 'last_name' with text 'Treyes Albarrac\ufffd\ufffdN'",
+      "canon_error": null
+    },
+    {
+      "idx": 456,
+      "db_id": "wta_1",
+      "gold_sql": "SELECT first_name ,  last_name FROM players ORDER BY birth_date",
+      "canon_sql": "SELECT first_name, last_name FROM players ORDER BY birth_date LIMIT 100;",
+      "orig_error": "Could not decode to UTF-8 column 'last_name' with text 'Treyes Albarrac\ufffd\ufffdN'",
+      "canon_error": null
+    }
+  ],
+  "semantic_mismatches": [
+    {
+      "idx": 97,
+      "db_id": "car_1",
+      "question": "Find the model of the car whose weight is below the average weight.",
+      "gold_sql": "SELECT T1.model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Weight  <  (SELECT avg(Weight) FROM CARS_DATA)",
+      "canon_sql": "SELECT T1.model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId = T2.Id WHERE T2.Weight < (SELECT AVG(Weight) FROM CARS_DATA) LIMIT 100;",
+      "orig_row_count": 230,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "toyota"
+        ],
+        [
+          "plymouth"
+        ],
+        [
+          "amc"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "toyota"
+        ],
+        [
+          "plymouth"
+        ],
+        [
+          "amc"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 98,
+      "db_id": "car_1",
+      "question": "What is the model for the car with a weight smaller than the average?",
+      "gold_sql": "SELECT T1.model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Weight  <  (SELECT avg(Weight) FROM CARS_DATA)",
+      "canon_sql": "SELECT T1.model FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId = T2.Id WHERE T2.Weight < (SELECT AVG(Weight) FROM CARS_DATA) LIMIT 100;",
+      "orig_row_count": 230,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "toyota"
+        ],
+        [
+          "plymouth"
+        ],
+        [
+          "amc"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "toyota"
+        ],
+        [
+          "plymouth"
+        ],
+        [
+          "amc"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 433,
+      "db_id": "wta_1",
+      "question": "List the first name and birth date of all players from the country with code USA.",
+      "gold_sql": "SELECT first_name ,  birth_date FROM players WHERE country_code  =  'USA'",
+      "canon_sql": "SELECT first_name, birth_date FROM players WHERE country_code = 'USA' LIMIT 100;",
+      "orig_row_count": 2217,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Jolene",
+          19680831
+        ],
+        [
+          "Lisa",
+          19730810
+        ],
+        [
+          "Meilen",
+          19780117
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Jolene",
+          19680831
+        ],
+        [
+          "Lisa",
+          19730810
+        ],
+        [
+          "Meilen",
+          19780117
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 434,
+      "db_id": "wta_1",
+      "question": "What are the first names and birth dates of players from the USA?",
+      "gold_sql": "SELECT first_name ,  birth_date FROM players WHERE country_code  =  'USA'",
+      "canon_sql": "SELECT first_name, birth_date FROM players WHERE country_code = 'USA' LIMIT 100;",
+      "orig_row_count": 2217,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Jolene",
+          19680831
+        ],
+        [
+          "Lisa",
+          19730810
+        ],
+        [
+          "Meilen",
+          19780117
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Jolene",
+          19680831
+        ],
+        [
+          "Lisa",
+          19730810
+        ],
+        [
+          "Meilen",
+          19780117
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 457,
+      "db_id": "wta_1",
+      "question": "List the first and last name of all players who are left / L hand in the order of birth date.",
+      "gold_sql": "SELECT first_name ,  last_name FROM players WHERE hand  =  'L' ORDER BY birth_date",
+      "canon_sql": "SELECT first_name, last_name FROM players WHERE hand = 'L' ORDER BY birth_date LIMIT 100;",
+      "orig_row_count": 487,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Ann",
+          "Jones"
+        ],
+        [
+          "Wendy",
+          "Gilchrist"
+        ],
+        [
+          "Martina",
+          "Navratilova"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Ann",
+          "Jones"
+        ],
+        [
+          "Wendy",
+          "Gilchrist"
+        ],
+        [
+          "Martina",
+          "Navratilova"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 458,
+      "db_id": "wta_1",
+      "question": "What are the full names of all left handed players, in order of birth date?",
+      "gold_sql": "SELECT first_name ,  last_name FROM players WHERE hand  =  'L' ORDER BY birth_date",
+      "canon_sql": "SELECT first_name, last_name FROM players WHERE hand = 'L' ORDER BY birth_date LIMIT 100;",
+      "orig_row_count": 487,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Ann",
+          "Jones"
+        ],
+        [
+          "Wendy",
+          "Gilchrist"
+        ],
+        [
+          "Martina",
+          "Navratilova"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Ann",
+          "Jones"
+        ],
+        [
+          "Wendy",
+          "Gilchrist"
+        ],
+        [
+          "Martina",
+          "Navratilova"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 469,
+      "db_id": "wta_1",
+      "question": "Find the average ranking for each player and their first name.",
+      "gold_sql": "SELECT avg(ranking) ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.first_name",
+      "canon_sql": "SELECT AVG(ranking), T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id = T2.player_id GROUP BY T1.first_name LIMIT 100;",
+      "orig_row_count": 1580,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          1199.8235294117646,
+          "Aastha"
+        ],
+        [
+          1110.0434782608695,
+          "Abbi"
+        ],
+        [
+          808.4545454545455,
+          "Abbie"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          1199.8235294117646,
+          "Aastha"
+        ],
+        [
+          1110.0434782608695,
+          "Abbi"
+        ],
+        [
+          808.4545454545455,
+          "Abbie"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 470,
+      "db_id": "wta_1",
+      "question": "What are the first names of all players, and their average rankings?",
+      "gold_sql": "SELECT avg(ranking) ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.first_name",
+      "canon_sql": "SELECT AVG(ranking), T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id = T2.player_id GROUP BY T1.first_name LIMIT 100;",
+      "orig_row_count": 1580,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          1199.8235294117646,
+          "Aastha"
+        ],
+        [
+          1110.0434782608695,
+          "Abbi"
+        ],
+        [
+          808.4545454545455,
+          "Abbie"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          1199.8235294117646,
+          "Aastha"
+        ],
+        [
+          1110.0434782608695,
+          "Abbi"
+        ],
+        [
+          808.4545454545455,
+          "Abbie"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 471,
+      "db_id": "wta_1",
+      "question": "Find the total ranking points for each player and their first name.",
+      "gold_sql": "SELECT sum(ranking_points) ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.first_name",
+      "canon_sql": "SELECT SUM(ranking_points), T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id = T2.player_id GROUP BY T1.first_name LIMIT 100;",
+      "orig_row_count": 1580,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          68,
+          "Aastha"
+        ],
+        [
+          304,
+          "Abbi"
+        ],
+        [
+          5214,
+          "Abbie"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          68,
+          "Aastha"
+        ],
+        [
+          304,
+          "Abbi"
+        ],
+        [
+          5214,
+          "Abbie"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 472,
+      "db_id": "wta_1",
+      "question": "What are the first names of all players, and their total ranking points?",
+      "gold_sql": "SELECT sum(ranking_points) ,  T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.first_name",
+      "canon_sql": "SELECT SUM(ranking_points), T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id = T2.player_id GROUP BY T1.first_name LIMIT 100;",
+      "orig_row_count": 1580,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          68,
+          "Aastha"
+        ],
+        [
+          304,
+          "Abbi"
+        ],
+        [
+          5214,
+          "Abbie"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          68,
+          "Aastha"
+        ],
+        [
+          304,
+          "Abbi"
+        ],
+        [
+          5214,
+          "Abbie"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 473,
+      "db_id": "wta_1",
+      "question": "find the number of players for each country.",
+      "gold_sql": "SELECT count(*) ,  country_code FROM players GROUP BY country_code",
+      "canon_sql": "SELECT COUNT(*), country_code FROM players GROUP BY country_code LIMIT 100;",
+      "orig_row_count": 153,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          6,
+          "AHO"
+        ],
+        [
+          2,
+          "ALB"
+        ],
+        [
+          63,
+          "ALG"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          6,
+          "AHO"
+        ],
+        [
+          2,
+          "ALB"
+        ],
+        [
+          63,
+          "ALG"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 474,
+      "db_id": "wta_1",
+      "question": "How many players are from each country?",
+      "gold_sql": "SELECT count(*) ,  country_code FROM players GROUP BY country_code",
+      "canon_sql": "SELECT COUNT(*), country_code FROM players GROUP BY country_code LIMIT 100;",
+      "orig_row_count": 153,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          6,
+          "AHO"
+        ],
+        [
+          2,
+          "ALB"
+        ],
+        [
+          63,
+          "ALG"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          6,
+          "AHO"
+        ],
+        [
+          2,
+          "ALB"
+        ],
+        [
+          63,
+          "ALG"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 479,
+      "db_id": "wta_1",
+      "question": "Find the total number of tours for each ranking date.",
+      "gold_sql": "SELECT sum(tours) ,  ranking_date FROM rankings GROUP BY ranking_date",
+      "canon_sql": "SELECT SUM(tours), ranking_date FROM rankings GROUP BY ranking_date LIMIT 100;",
+      "orig_row_count": 1504,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          0,
+          19870119
+        ],
+        [
+          0,
+          19870126
+        ],
+        [
+          0,
+          19870202
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          0,
+          19870119
+        ],
+        [
+          0,
+          19870126
+        ],
+        [
+          0,
+          19870202
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 480,
+      "db_id": "wta_1",
+      "question": "How many total tours were there for each ranking date?",
+      "gold_sql": "SELECT sum(tours) ,  ranking_date FROM rankings GROUP BY ranking_date",
+      "canon_sql": "SELECT SUM(tours), ranking_date FROM rankings GROUP BY ranking_date LIMIT 100;",
+      "orig_row_count": 1504,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          0,
+          19870119
+        ],
+        [
+          0,
+          19870126
+        ],
+        [
+          0,
+          19870202
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          0,
+          19870119
+        ],
+        [
+          0,
+          19870126
+        ],
+        [
+          0,
+          19870202
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 702,
+      "db_id": "world_1",
+      "question": "What are the names of all the countries that became independent after 1950?",
+      "gold_sql": "SELECT Name FROM country WHERE IndepYear  >  1950",
+      "canon_sql": "SELECT Name FROM country WHERE IndepYear > 1950 LIMIT 100;",
+      "orig_row_count": 110,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Angola"
+        ],
+        [
+          "United Arab Emirates"
+        ],
+        [
+          "Armenia"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Angola"
+        ],
+        [
+          "United Arab Emirates"
+        ],
+        [
+          "Armenia"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 703,
+      "db_id": "world_1",
+      "question": "Give the names of the nations that were founded after 1950.",
+      "gold_sql": "SELECT Name FROM country WHERE IndepYear  >  1950",
+      "canon_sql": "SELECT Name FROM country WHERE IndepYear > 1950 LIMIT 100;",
+      "orig_row_count": 110,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Angola"
+        ],
+        [
+          "United Arab Emirates"
+        ],
+        [
+          "Armenia"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Angola"
+        ],
+        [
+          "United Arab Emirates"
+        ],
+        [
+          "Armenia"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 758,
+      "db_id": "world_1",
+      "question": "Which languages are spoken by only one country in republic governments?",
+      "gold_sql": "SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.GovernmentForm  =  \"Republic\" GROUP BY T2.Language HAVING COUNT(*)  =  1",
+      "canon_sql": "SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.GovernmentForm = \"Republic\" GROUP BY T2.Language HAVING COUNT(*) = 1 LIMIT 100;",
+      "orig_row_count": 258,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Abhyasi"
+        ],
+        [
+          "Acholi"
+        ],
+        [
+          "Adja"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Abhyasi"
+        ],
+        [
+          "Acholi"
+        ],
+        [
+          "Adja"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 759,
+      "db_id": "world_1",
+      "question": "What languages are only used by a single country with a republic government?",
+      "gold_sql": "SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.GovernmentForm  =  \"Republic\" GROUP BY T2.Language HAVING COUNT(*)  =  1",
+      "canon_sql": "SELECT T2.Language FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode WHERE T1.GovernmentForm = \"Republic\" GROUP BY T2.Language HAVING COUNT(*) = 1 LIMIT 100;",
+      "orig_row_count": 258,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Abhyasi"
+        ],
+        [
+          "Acholi"
+        ],
+        [
+          "Adja"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Abhyasi"
+        ],
+        [
+          "Acholi"
+        ],
+        [
+          "Adja"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 772,
+      "db_id": "world_1",
+      "question": "What are the countries that have greater surface area than any country in Europe?",
+      "gold_sql": "SELECT Name FROM country WHERE SurfaceArea  >  (SELECT min(SurfaceArea) FROM country WHERE Continent  =  \"Europe\")",
+      "canon_sql": "SELECT Name FROM country WHERE SurfaceArea > (SELECT MIN(SurfaceArea) FROM country WHERE Continent = \"Europe\") LIMIT 100;",
+      "orig_row_count": 238,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Aruba"
+        ],
+        [
+          "Afghanistan"
+        ],
+        [
+          "Angola"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Aruba"
+        ],
+        [
+          "Afghanistan"
+        ],
+        [
+          "Angola"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 773,
+      "db_id": "world_1",
+      "question": "Which countries have greater area than that of any country in Europe?",
+      "gold_sql": "SELECT Name FROM country WHERE SurfaceArea  >  (SELECT min(SurfaceArea) FROM country WHERE Continent  =  \"Europe\")",
+      "canon_sql": "SELECT Name FROM country WHERE SurfaceArea > (SELECT MIN(SurfaceArea) FROM country WHERE Continent = \"Europe\") LIMIT 100;",
+      "orig_row_count": 238,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Aruba"
+        ],
+        [
+          "Afghanistan"
+        ],
+        [
+          "Angola"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Aruba"
+        ],
+        [
+          "Afghanistan"
+        ],
+        [
+          "Angola"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 780,
+      "db_id": "world_1",
+      "question": "What are the country codes of countries where people use languages other than English?",
+      "gold_sql": "SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != \"English\"",
+      "canon_sql": "SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE <> \"English\" LIMIT 100;",
+      "orig_row_count": 223,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "ABW"
+        ],
+        [
+          "AFG"
+        ],
+        [
+          "AGO"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "ABW"
+        ],
+        [
+          "AFG"
+        ],
+        [
+          "AGO"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 781,
+      "db_id": "world_1",
+      "question": "Give the country codes for countries in which people speak langauges that are not English.",
+      "gold_sql": "SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE != \"English\"",
+      "canon_sql": "SELECT DISTINCT CountryCode FROM countrylanguage WHERE LANGUAGE <> \"English\" LIMIT 100;",
+      "orig_row_count": 223,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "ABW"
+        ],
+        [
+          "AFG"
+        ],
+        [
+          "AGO"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "ABW"
+        ],
+        [
+          "AFG"
+        ],
+        [
+          "AGO"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 784,
+      "db_id": "world_1",
+      "question": "Which cities are in European countries where English is not the official language?",
+      "gold_sql": "SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode  =  T1.Code WHERE T1.Continent  =  'Europe' AND T1.Name NOT IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code  =  T4.CountryCode WHERE T4.IsOfficial  =  'T' AND T4.Language  =  'English')",
+      "canon_sql": "SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode = T1.Code WHERE T1.Continent = 'Europe' AND NOT T1.Name IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code = T4.CountryCode WHERE T4.IsOfficial = 'T' AND T4.Language = 'English') LIMIT 100;",
+      "orig_row_count": 753,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Amsterdam"
+        ],
+        [
+          "Rotterdam"
+        ],
+        [
+          "Haag"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Tirana"
+        ],
+        [
+          "Andorra la Vella"
+        ],
+        [
+          "Wien"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 785,
+      "db_id": "world_1",
+      "question": "What are the names of cities in Europe for which English is not the official language?",
+      "gold_sql": "SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode  =  T1.Code WHERE T1.Continent  =  'Europe' AND T1.Name NOT IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code  =  T4.CountryCode WHERE T4.IsOfficial  =  'T' AND T4.Language  =  'English')",
+      "canon_sql": "SELECT DISTINCT T2.Name FROM country AS T1 JOIN city AS T2 ON T2.CountryCode = T1.Code WHERE T1.Continent = 'Europe' AND NOT T1.Name IN (SELECT T3.Name FROM country AS T3 JOIN countrylanguage AS T4 ON T3.Code = T4.CountryCode WHERE T4.IsOfficial = 'T' AND T4.Language = 'English') LIMIT 100;",
+      "orig_row_count": 753,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Amsterdam"
+        ],
+        [
+          "Rotterdam"
+        ],
+        [
+          "Haag"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Tirana"
+        ],
+        [
+          "Andorra la Vella"
+        ],
+        [
+          "Wien"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 787,
+      "db_id": "world_1",
+      "question": "Return the different names of cities that are in Asia and for which Chinese is the official language.",
+      "gold_sql": "SELECT DISTINCT T3.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode JOIN city AS T3 ON T1.Code  =  T3.CountryCode WHERE T2.IsOfficial  =  'T' AND T2.Language  =  'Chinese' AND T1.Continent  =  \"Asia\"",
+      "canon_sql": "SELECT DISTINCT T3.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode JOIN city AS T3 ON T1.Code = T3.CountryCode WHERE T2.IsOfficial = 'T' AND T2.Language = 'Chinese' AND T1.Continent = \"Asia\" LIMIT 100;",
+      "orig_row_count": 359,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Shanghai"
+        ],
+        [
+          "Peking"
+        ],
+        [
+          "Chongqing"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Shanghai"
+        ],
+        [
+          "Peking"
+        ],
+        [
+          "Chongqing"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 792,
+      "db_id": "world_1",
+      "question": "Return the country name and the numbers of languages spoken for each country that speaks at least 3 languages.",
+      "gold_sql": "SELECT COUNT(T2.Language) ,  T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name HAVING COUNT(*)  >  2",
+      "canon_sql": "SELECT COUNT(T2.Language), T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode GROUP BY T1.Name HAVING COUNT(*) > 2 LIMIT 100;",
+      "orig_row_count": 149,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          5,
+          "Afghanistan"
+        ],
+        [
+          3,
+          "Albania"
+        ],
+        [
+          3,
+          "American Samoa"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          5,
+          "Afghanistan"
+        ],
+        [
+          3,
+          "Albania"
+        ],
+        [
+          3,
+          "American Samoa"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 793,
+      "db_id": "world_1",
+      "question": "What are the names of countries that speak more than 2 languages, as well as how many languages they speak?",
+      "gold_sql": "SELECT COUNT(T2.Language) ,  T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name HAVING COUNT(*)  >  2",
+      "canon_sql": "SELECT COUNT(T2.Language), T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code = T2.CountryCode GROUP BY T1.Name HAVING COUNT(*) > 2 LIMIT 100;",
+      "orig_row_count": 149,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          5,
+          "Afghanistan"
+        ],
+        [
+          3,
+          "Albania"
+        ],
+        [
+          3,
+          "American Samoa"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          5,
+          "Afghanistan"
+        ],
+        [
+          3,
+          "Albania"
+        ],
+        [
+          3,
+          "American Samoa"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 794,
+      "db_id": "world_1",
+      "question": "Find the number of cities in each district whose population is greater than the average population of cities?",
+      "gold_sql": "SELECT count(*) ,  District FROM city WHERE Population  >  (SELECT avg(Population) FROM city) GROUP BY District",
+      "canon_sql": "SELECT COUNT(*), District FROM city WHERE Population > (SELECT AVG(Population) FROM city) GROUP BY District LIMIT 100;",
+      "orig_row_count": 539,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          1,
+          "Abidjan"
+        ],
+        [
+          1,
+          "Abu Dhabi"
+        ],
+        [
+          1,
+          "Adana"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          1,
+          "Abidjan"
+        ],
+        [
+          1,
+          "Abu Dhabi"
+        ],
+        [
+          1,
+          "Adana"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 795,
+      "db_id": "world_1",
+      "question": "How many cities in each district have a population that is above the average population across all cities?",
+      "gold_sql": "SELECT count(*) ,  District FROM city WHERE Population  >  (SELECT avg(Population) FROM city) GROUP BY District",
+      "canon_sql": "SELECT COUNT(*), District FROM city WHERE Population > (SELECT AVG(Population) FROM city) GROUP BY District LIMIT 100;",
+      "orig_row_count": 539,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          1,
+          "Abidjan"
+        ],
+        [
+          1,
+          "Abu Dhabi"
+        ],
+        [
+          1,
+          "Adana"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          1,
+          "Abidjan"
+        ],
+        [
+          1,
+          "Abu Dhabi"
+        ],
+        [
+          1,
+          "Adana"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 812,
+      "db_id": "world_1",
+      "question": "What are the cities whose population is between 160000 and 900000?",
+      "gold_sql": "SELECT name FROM city WHERE Population BETWEEN 160000 AND 900000",
+      "canon_sql": "SELECT name FROM city WHERE Population BETWEEN 160000 AND 900000 LIMIT 100;",
+      "orig_row_count": 1860,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Qandahar"
+        ],
+        [
+          "Herat"
+        ],
+        [
+          "Amsterdam"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Qandahar"
+        ],
+        [
+          "Herat"
+        ],
+        [
+          "Amsterdam"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 813,
+      "db_id": "world_1",
+      "question": "Return the names of cities that have a population between 160000 and 900000 .",
+      "gold_sql": "select name from city where population between 160000 and 900000",
+      "canon_sql": "SELECT name FROM city WHERE population BETWEEN 160000 AND 900000 LIMIT 100;",
+      "orig_row_count": 1860,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Qandahar"
+        ],
+        [
+          "Herat"
+        ],
+        [
+          "Amsterdam"
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Qandahar"
+        ],
+        [
+          "Herat"
+        ],
+        [
+          "Amsterdam"
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 816,
+      "db_id": "world_1",
+      "question": "What is the language spoken by the largest percentage of people in each country?",
+      "gold_sql": "SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode",
+      "canon_sql": "SELECT LANGUAGE, CountryCode, MAX(Percentage) FROM countrylanguage GROUP BY CountryCode LIMIT 100;",
+      "orig_row_count": 233,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Papiamento",
+          "ABW",
+          76.7
+        ],
+        [
+          "Pashto",
+          "AFG",
+          52.4
+        ],
+        [
+          "Ovimbundu",
+          "AGO",
+          37.2
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Papiamento",
+          "ABW",
+          76.7
+        ],
+        [
+          "Pashto",
+          "AFG",
+          52.4
+        ],
+        [
+          "Ovimbundu",
+          "AGO",
+          37.2
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    },
+    {
+      "idx": 817,
+      "db_id": "world_1",
+      "question": "What are the country codes of the different countries, and what are the languages spoken by the greatest percentage of people for each?",
+      "gold_sql": "SELECT LANGUAGE ,  CountryCode ,  max(Percentage) FROM countrylanguage GROUP BY CountryCode",
+      "canon_sql": "SELECT LANGUAGE, CountryCode, MAX(Percentage) FROM countrylanguage GROUP BY CountryCode LIMIT 100;",
+      "orig_row_count": 233,
+      "canon_row_count": 100,
+      "sample_orig_rows": [
+        [
+          "Papiamento",
+          "ABW",
+          76.7
+        ],
+        [
+          "Pashto",
+          "AFG",
+          52.4
+        ],
+        [
+          "Ovimbundu",
+          "AGO",
+          37.2
+        ]
+      ],
+      "sample_canon_rows": [
+        [
+          "Papiamento",
+          "ABW",
+          76.7
+        ],
+        [
+          "Pashto",
+          "AFG",
+          52.4
+        ],
+        [
+          "Ovimbundu",
+          "AGO",
+          37.2
+        ]
+      ],
+      "reason": "Result sets differ between original gold and validator canonical SQL"
+    }
+  ]
+}

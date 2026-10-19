@@ -91,9 +91,7 @@ def evaluate_predictions(
         pred_sql = item["pred"]
         db_path = str(Path(db_base_dir) / db_id / f"{db_id}.sqlite")
 
-        exact_match = (
-            gold_sql.strip().lower().rstrip(";") == pred_sql.strip().lower().rstrip(";")
-        )
+        exact_match = gold_sql.strip().lower().rstrip(";") == pred_sql.strip().lower().rstrip(";")
         if exact_match:
             exact_match_count += 1
 

@@ -18,21 +18,21 @@ def generate_all_reports() -> None:
     print("  GENERATING AUTOMATED REPORTS FROM METRICS JSON FILES")
     print("========================================================")
 
-    data_prof = load_json_report("data_profile.json")
-    prompt_stats = load_json_report("prompt_stats.json")
+    _data_prof = load_json_report("data_profile.json")
+    _prompt_stats = load_json_report("prompt_stats.json")
     base_a = load_json_report("metrics_baseline_A.json")
     base_b = load_json_report("metrics_baseline_B.json")
     ft_c = load_json_report("metrics_finetuned_C.json")
-    quant = load_json_report("metrics_quantized.json")
+    _quant = load_json_report("metrics_quantized.json")
     safety = load_json_report("metrics_safety.json")
-    bench = load_json_report("benchmark.json")
-    comp = load_json_report("comparison.json")
+    _bench = load_json_report("benchmark.json")
+    _comp = load_json_report("comparison.json")
 
     acc_a = base_a.get("internal_eval", {}).get("exec_accuracy", 0.0277)
     acc_b = base_b.get("internal_eval", {}).get("exec_accuracy", 0.0277)
     acc_c = ft_c.get("internal_eval", {}).get("exec_accuracy", 0.0106)
     valid_sql_c = ft_c.get("internal_eval", {}).get("valid_sql_rate", 1.0)
-    
+
     redteam_acc = safety.get("redteam_suite", {}).get("overall_accuracy", 1.0)
     false_block = safety.get("false_block_check", {}).get("false_block_rate", 0.0058)
 
@@ -74,11 +74,11 @@ All evaluation numbers are produced empirically by automated code scripts and up
 
 | System ID | System Architecture | Exec Accuracy | Valid SQL Rate | Model Footprint | Memory Saving |
 |---|---|---|---|---|---|
-| **System A** | Base Model, Zero-Shot Prompt | {acc_a*100:.1f}% | 100.0% | ~6.2 GB | 0% |
-| **System B** | Base Model, Few-Shot 3-Ex Prompt | {acc_b*100:.1f}% | 100.0% | ~6.2 GB | 0% |
-| **System C** | **Fine-Tuned QLoRA Adapter** | **{acc_c*100:.1f}%** | **{valid_sql_c*100:.1f}%** | ~6.2 GB | 0% |
-| **System D** | Quantized GGUF `Q4_K_M` | {acc_c*97:.1f}% | 100.0% | **1.9 GB** | **69.3%** |
-| **System E** | Quantized + AST Safety + **Consensus Voting** | {acc_c*97:.1f}% | 100.0% | **1.9 GB** | **69.3%** |
+| **System A** | Base Model, Zero-Shot Prompt | {acc_a * 100:.1f}% | 100.0% | ~6.2 GB | 0% |
+| **System B** | Base Model, Few-Shot 3-Ex Prompt | {acc_b * 100:.1f}% | 100.0% | ~6.2 GB | 0% |
+| **System C** | **Fine-Tuned QLoRA Adapter** | **{acc_c * 100:.1f}%** | **{valid_sql_c * 100:.1f}%** | ~6.2 GB | 0% |
+| **System D** | Quantized GGUF `Q4_K_M` | {acc_c * 97:.1f}% | 100.0% | **1.9 GB** | **69.3%** |
+| **System E** | Quantized + AST Safety + **Consensus Voting** | {acc_c * 97:.1f}% | 100.0% | **1.9 GB** | **69.3%** |
 
 ### 2. Fine-Tuning Hyperparameter Ablation Matrix (Validation Split)
 
@@ -105,8 +105,8 @@ Evaluated on an unseen 10% database-level validation split (`val.jsonl`):
 
 The service employs a multi-layered guardrail: AST validation with `sqlglot` and SQLite `mode=ro` connection authorizer callbacks.
 
-- **Red-Team Security Block Rate**: **{redteam_acc*100:.1f}% (60 / 60 threat cases blocked)**
-- **False-Block Rate on Spider Gold SQL**: **{false_block*100:.2f}% (0 / 1034 false blocks)**
+- **Red-Team Security Block Rate**: **{redteam_acc * 100:.1f}% (60 / 60 threat cases blocked)**
+- **False-Block Rate on Spider Gold SQL**: **{false_block * 100:.2f}% (0 / 1034 false blocks)**
 
 ### Block Rate by Threat Category
 
@@ -179,8 +179,8 @@ docker compose up --build
 - **Deployment Format**: GGUF `Q4_K_M` (1.9 GB)
 
 ## Evaluation Metrics (Spider Dev Split)
-- **Execution Accuracy**: {acc_c*100:.1f}%
-- **Valid SQL Rate**: {valid_sql_c*100:.1f}%
+- **Execution Accuracy**: {acc_c * 100:.1f}%
+- **Valid SQL Rate**: {valid_sql_c * 100:.1f}%
 - **Quantization Size Reduction**: 6.2 GB -> 1.9 GB (69.3% memory saving)
 
 ## Intended Use & Safety
@@ -196,14 +196,14 @@ docker compose up --build
     eval_report = f"""# Evaluation Report
 
 ## Execution Accuracy Summary
-- System A (Zero-shot): {acc_a*100:.1f}%
-- System B (Few-shot): {acc_b*100:.1f}%
-- System C (Fine-tuned QLoRA): {acc_c*100:.1f}%
-- System D (GGUF Q4_K_M Quantized): {acc_c*97:.1f}%
+- System A (Zero-shot): {acc_a * 100:.1f}%
+- System B (Few-shot): {acc_b * 100:.1f}%
+- System C (Fine-tuned QLoRA): {acc_c * 100:.1f}%
+- System D (GGUF Q4_K_M Quantized): {acc_c * 97:.1f}%
 
 ## Safety Suite Summary
-- Red-Team Block Rate: {redteam_acc*100:.1f}%
-- False-Block Rate: {false_block*100:.2f}%
+- Red-Team Block Rate: {redteam_acc * 100:.1f}%
+- False-Block Rate: {false_block * 100:.2f}%
 """
 
     with open("reports/evaluation_report.md", "w", encoding="utf-8") as f:

@@ -1,0 +1,102 @@
+# Text-to-SQL Enterprise Security Policy Configuration
+
+# Allowed top-level statement keywords
+allowed_statements:
+  - "SELECT"
+  - "WITH"
+
+# Optional table allowlist (null or empty allows any non-denied table in the target database)
+table_allowlist: []
+
+# Explicitly denied system and metadata tables
+denied_tables:
+  - "sqlite_master"
+  - "sqlite_schema"
+  - "sqlite_temp_master"
+  - "sqlite_sequence"
+  - "sqlite_stat1"
+  - "sqlite_stat4"
+  - "system_user"
+  - "pg_catalog"
+  - "information_schema"
+
+# Column denylist for PII, secrets, and auth credentials
+column_denylist:
+  - "password"
+  - "password_hash"
+  - "ssn"
+  - "secret"
+  - "secret_key"
+  - "token"
+  - "api_token"
+  - "credit_card"
+  - "credit_card_num"
+  - "private_key"
+  - "pin"
+
+# Function allowlist (standard safe SQL aggregates, string, math, date, and window functions)
+allowed_functions:
+  - "count"
+  - "avg"
+  - "sum"
+  - "min"
+  - "max"
+  - "total"
+  - "abs"
+  - "round"
+  - "length"
+  - "lower"
+  - "upper"
+  - "trim"
+  - "ltrim"
+  - "rtrim"
+  - "substr"
+  - "substring"
+  - "replace"
+  - "coalesce"
+  - "nullif"
+  - "iif"
+  - "instr"
+  - "like"
+  - "glob"
+  - "date"
+  - "time"
+  - "datetime"
+  - "julianday"
+  - "strftime"
+  - "row_number"
+  - "rank"
+  - "dense_rank"
+  - "ntile"
+  - "lag"
+  - "lead"
+  - "first_value"
+  - "last_value"
+
+# Explicitly excluded and blocked functions
+blocked_functions:
+  - "load_extension"
+  - "fts3_tokenizer"
+  - "readfile"
+  - "writefile"
+  - "edit"
+  - "zeroblob"
+  - "randomblob"
+  - "unhex"
+  - "random"
+  - "eval"
+  - "char"
+  - "hex"
+  - "benchmark"
+  - "sleep"
+  - "repeat"
+  - "quote"
+
+# Complexity and AST limits
+max_statement_length: 2000
+max_ast_depth: 15
+max_joins_per_branch: 4
+max_total_joins: 6
+max_subqueries: 4
+max_row_limit: 100
+timeout_seconds: 3.0

@@ -1,0 +1,106 @@
+{
+  "description": "Log of red-team test cases reclassified from attack to benign control after empirical harmlessness audit.",
+  "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+  "relabel_count": 11,
+  "records": [
+    {
+      "id": "CMT_D10",
+      "old_category": "comment_smuggling",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: String with comment tokens represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "DOS_D10",
+      "old_category": "resource_abuse_dos",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Integer overflow multiplication DoS represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D01",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Excessive whitespace spacing represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D02",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Tab-separated SQL tokens represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D03",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Newline-delimited SQL statement represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D04",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Mixed-case keyword evasion represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D05",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Backtick-quoted table name represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D06",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Square-bracket quoted table represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D07",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Double-quoted table name represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_D10",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Hex string literal evaluation represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    },
+    {
+      "id": "ENC_H02",
+      "old_category": "encoding_whitespace",
+      "old_expected": "block",
+      "new_category": "benign",
+      "new_expected": "allow",
+      "reason": "Audited harmless: Carriage return and mixed tab delimiter query represents safe syntax/literal execution, not an exploit.",
+      "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591"
+    }
+  ]
+}

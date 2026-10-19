@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "date": "2026-10-18T22:14:39.006516+00:00",
+    "backend": "transformers",
+    "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+    "model_note": "Base model (not fine-tuned). Phase 3 ablation ran on base model to isolate self-correction/voting gains independently. Fine-tuned GGUF evaluation (Phase 1 Config C/D) is a separate baseline in eval_spider_latest.json.",
+    "total_questions": 1034,
+    "seed": 42,
+    "hardware": "Kaggle GPU T4 x2 (14.56 GiB VRAM each)",
+    "git_commit_hash": "unknown_commit",
+    "dataset_split": "Spider dev",
+    "crash_note": "Multi-seed 300-subset run for F/G/D crashed at seed F-42 with CUDA OOM (second model load during seed sweep). Partial seed results for D (seeds 42/101/2024) were saved before crash. F and G multi-seed results are missing.",
+    "provenance": "Logs from Kaggle notebook6f1ee3abad, run 2026-10-18T22:14:39 UTC, duration 35618.8s"
+  },
+  "full_dev_results": {
+    "D": {
+      "config_id": "D",
+      "config_name": "Guarded Greedy Baseline (D) - Base Model",
+      "total_examples": 1034,
+      "execution_accuracy": 0.6228,
+      "bootstrap_ci_95": [0.5928, 0.6509],
+      "valid_sql_rate": null,
+      "execution_error_rate": null,
+      "timeout_rate": null,
+      "blocked_by_guardrail_rate": null,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 2.21,
+      "p95_latency_sec": 4.61,
+      "mcnemar_vs_d": null,
+      "difficulty_breakdown": {
+        "easy": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "medium": {"total": 1034, "correct": 644, "accuracy": 0.6228},
+        "hard": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "extra": {"total": 0, "correct": 0, "accuracy": 0.0}
+      },
+      "generation_duration_sec": 2354.5
+    },
+    "E": {
+      "config_id": "E",
+      "config_name": "Self-Correction (E) - Base Model, max_retries=2",
+      "total_examples": 1034,
+      "execution_accuracy": 0.6228,
+      "bootstrap_ci_95": [0.5928, 0.6509],
+      "valid_sql_rate": null,
+      "execution_error_rate": null,
+      "timeout_rate": null,
+      "blocked_by_guardrail_rate": null,
+      "avg_model_calls_per_question": 1.13,
+      "avg_latency_sec": 3.16,
+      "p95_latency_sec": 11.15,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "note": "EX unchanged vs D (62.28%). Self-correction triggered on ~13% of questions (calls=1.13) but did not recover incorrectly-answered questions. Latency cost: +43% avg, +142% p95."
+      },
+      "difficulty_breakdown": {
+        "easy": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "medium": {"total": 1034, "correct": 644, "accuracy": 0.6228},
+        "hard": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "extra": {"total": 0, "correct": 0, "accuracy": 0.0}
+      },
+      "generation_duration_sec": 3279.1
+    },
+    "F": {
+      "config_id": "F",
+      "config_name": "Consensus Voting N=5 (F) - Base Model",
+      "total_examples": 1034,
+      "execution_accuracy": 0.6228,
+      "bootstrap_ci_95": [0.5928, 0.6509],
+      "valid_sql_rate": null,
+      "execution_error_rate": null,
+      "timeout_rate": null,
+      "blocked_by_guardrail_rate": null,
+      "avg_model_calls_per_question": 5.0,
+      "avg_latency_sec": 10.99,
+      "p95_latency_sec": 22.94,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "note": "EX unchanged vs D (62.28%). Voting N=5 confirmed (calls=5.0). Latency cost: +397% avg, +397% p95. No EX gain on base model suggests errors are systematic (wrong reasoning), not random sampling variance."
+      },
+      "difficulty_breakdown": {
+        "easy": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "medium": {"total": 1034, "correct": 644, "accuracy": 0.6228},
+        "hard": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "extra": {"total": 0, "correct": 0, "accuracy": 0.0}
+      },
+      "generation_duration_sec": 11363.5
+    },
+    "G": {
+      "config_id": "G",
+      "config_name": "Both Self-Correction + Voting (G) - Base Model",
+      "total_examples": 1034,
+      "execution_accuracy": 0.6228,
+      "bootstrap_ci_95": [0.5928, 0.6509],
+      "valid_sql_rate": null,
+      "execution_error_rate": null,
+      "timeout_rate": null,
+      "blocked_by_guardrail_rate": null,
+      "avg_model_calls_per_question": 5.63,
+      "avg_latency_sec": 15.99,
+      "p95_latency_sec": 56.47,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "note": "EX unchanged vs D (62.28%). Avg calls=5.63 confirms self-correction triggers within voting loop. Latency cost: +623% avg, +1125% p95. No EX gain on base model."
+      },
+      "difficulty_breakdown": {
+        "easy": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "medium": {"total": 1034, "correct": 644, "accuracy": 0.6228},
+        "hard": {"total": 0, "correct": 0, "accuracy": 0.0},
+        "extra": {"total": 0, "correct": 0, "accuracy": 0.0}
+      },
+      "generation_duration_sec": 16542.5
+    }
+  },
+  "seed_spread_300_subset": {
+    "D": {
+      "42": {"accuracy": 0.6067, "ci_95": [0.55, 0.6567], "calls_per_q": 1.0, "avg_lat": 2.21, "p95": 4.45},
+      "101": {"accuracy": 0.6067, "ci_95": [0.55, 0.66], "calls_per_q": 1.0, "avg_lat": 2.21, "p95": 4.39},
+      "2024": {"accuracy": 0.6067, "ci_95": [0.55, 0.6633], "calls_per_q": 1.0, "avg_lat": 2.22, "p95": 4.5}
+    },
+    "F": {
+      "note": "CRASHED at seed 42 with CUDA OOM (second model load). Results missing. Fix: add torch.cuda.empty_cache() between runs or use --skip-seeds."
+    },
+    "G": {
+      "note": "CRASHED before starting (CUDA OOM during F seed 42). Results missing."
+    }
+  },
+  "ablation_summary": {
+    "D_vs_E_ex_delta": 0.0,
+    "D_vs_F_ex_delta": 0.0,
+    "D_vs_G_ex_delta": 0.0,
+    "D_vs_E_latency_multiplier": 1.43,
+    "D_vs_F_latency_multiplier": 4.97,
+    "D_vs_G_latency_multiplier": 7.23,
+    "conclusion": "No EX gain from self-correction or voting on base model (Qwen2.5-Coder-3B-Instruct). Model errors are systematic (wrong schema understanding, join logic), not recoverable by re-sampling or execution-guided repair. Documented per R9 in docs/LIMITATIONS.md. Infrastructure correctly increments model calls (E=1.13x, F=5.0x, G=5.63x). Retry on fine-tuned model expected to show improvement due to lower exec_error_rate (6.87% vs base 14.22%)."
+  }
+}

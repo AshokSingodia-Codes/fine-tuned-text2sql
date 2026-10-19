@@ -37,12 +37,30 @@ class GenerationConfig:
 
 
 @dataclass
+class SelfCorrectionConfig:
+    enabled: bool = False
+    max_retries: int = 2
+
+
+@dataclass
+class VotingConfig:
+    enabled: bool = False
+    n: int = 5
+    temperature: float = 0.7
+    per_candidate_timeout_seconds: float = 3.0
+    total_budget_seconds: float = 15.0
+    max_concurrent: int = 4
+
+
+@dataclass
 class AppConfig:
     seed: int = 42
     paths: PathsConfig = field(default_factory=PathsConfig)
     split: SplitConfig = field(default_factory=SplitConfig)
     model: ModelConfig = field(default_factory=ModelConfig)
     generation: GenerationConfig = field(default_factory=GenerationConfig)
+    self_correction: SelfCorrectionConfig = field(default_factory=SelfCorrectionConfig)
+    voting: VotingConfig = field(default_factory=VotingConfig)
 
     @classmethod
     def load(cls, config_path: str = "configs/config.yaml") -> "AppConfig":
@@ -57,6 +75,8 @@ class AppConfig:
         split_data = data.get("split", {})
         model_data = data.get("model", {})
         gen_data = data.get("generation", {})
+        sc_data = data.get("self_correction", {})
+        voting_data = data.get("voting", {})
 
         return cls(
             seed=data.get("seed", 42),
@@ -64,6 +84,8 @@ class AppConfig:
             split=SplitConfig(**split_data),
             model=ModelConfig(**model_data),
             generation=GenerationConfig(**gen_data),
+            self_correction=SelfCorrectionConfig(**sc_data),
+            voting=VotingConfig(**voting_data),
         )
 
 

@@ -1,0 +1,9 @@
+{
+  "gpu": "Tesla T4 (Google Colab)",
+  "training_time_sec": 2520.0,
+  "epochs": 2,
+  "seed": 42,
+  "train_examples": 7792,
+  "val_examples": 1034,
+  "final_loss": 0.0346739798784256
+}

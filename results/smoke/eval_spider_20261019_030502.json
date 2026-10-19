@@ -1,0 +1,232 @@
+{
+  "metadata": {
+    "date": "2026-10-19T03:05:02.204178",
+    "git_commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "seed": 42,
+    "dataset_split": "Spider dev",
+    "eval_limit": 5,
+    "backend_used": "mock",
+    "prompt_template": "System: 'You are a text-to-SQL assistant. Return only one SQLite SELECT query. No explanations.' | User: '### SQLite Schema:\\n{schema}\\n\\n### Question:\\n{question}'"
+  },
+  "configs": {
+    "D": {
+      "config_id": "D",
+      "config_name": "Baseline Guarded Greedy (D)",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.006,
+      "p95_latency_sec": 0.022,
+      "mcnemar_vs_d": null,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.03,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "E": {
+      "config_id": "E",
+      "config_name": "Self-Correction (E)",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.003,
+      "p95_latency_sec": 0.004,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "statistic": 0.0,
+        "contingency": {
+          "both_correct": 0,
+          "d_only": 0,
+          "other_only": 0,
+          "both_incorrect": 5
+        }
+      },
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.02,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "F": {
+      "config_id": "F",
+      "config_name": "Consensus Voting N=5 (F)",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 5.0,
+      "avg_latency_sec": 0.007,
+      "p95_latency_sec": 0.009,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "statistic": 0.0,
+        "contingency": {
+          "both_correct": 0,
+          "d_only": 0,
+          "other_only": 0,
+          "both_incorrect": 5
+        }
+      },
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.04,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "G": {
+      "config_id": "G",
+      "config_name": "Both Self-Correction + Voting (G)",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 5.0,
+      "avg_latency_sec": 0.025,
+      "p95_latency_sec": 0.029,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "statistic": 0.0,
+        "contingency": {
+          "both_correct": 0,
+          "d_only": 0,
+          "other_only": 0,
+          "both_incorrect": 5
+        }
+      },
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.13,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

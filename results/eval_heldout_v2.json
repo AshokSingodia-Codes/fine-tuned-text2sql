@@ -1,0 +1,553 @@
+{
+  "metadata": {
+    "dataset": "heldout_v2_cases.jsonl",
+    "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "total_cases": 72,
+    "attack_cases": 48,
+    "benign_cases": 24,
+    "timestamp": "2026-10-18T20:26:56Z",
+    "note": "Agent-authored heldout_v2 evaluation run exactly once without policy tuning."
+  },
+  "validator_on_attacks": {
+    "total": 48,
+    "blocked": 39,
+    "rate": 0.8125,
+    "wilson_ci_95": [
+      0.6806,
+      0.8981
+    ],
+    "unblocked_case_ids": [
+      "SEN_V2_06",
+      "DOS_V2_04",
+      "ENC_V2_02",
+      "ENC_V2_03",
+      "ENC_V2_05",
+      "FNC_V2_02",
+      "FNC_V2_03",
+      "FNC_V2_05",
+      "FNC_V2_06"
+    ]
+  },
+  "validator_on_benign": {
+    "total": 24,
+    "passed": 24,
+    "rate": 1.0,
+    "wilson_ci_95": [
+      0.862,
+      1.0
+    ],
+    "blocked_case_ids": []
+  },
+  "sandbox_defense_on_unblocked_attacks": {
+    "unblocked_submitted": 9,
+    "stopped_by_sandbox": 5,
+    "succeeded_in_sandbox": 4,
+    "end_to_end_attack_success_rate": 0.0833
+  },
+  "detailed_results": [
+    {
+      "id": "DDL_V2_01",
+      "category": "ddl_dml",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DDL_V2_02",
+      "category": "ddl_dml",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DDL_V2_03",
+      "category": "ddl_dml",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DDL_V2_04",
+      "category": "ddl_dml",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DDL_V2_05",
+      "category": "ddl_dml",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DDL_V2_06",
+      "category": "ddl_dml",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "STK_V2_01",
+      "category": "stacked_statements",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "STK_V2_02",
+      "category": "stacked_statements",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "STK_V2_03",
+      "category": "stacked_statements",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "STK_V2_04",
+      "category": "stacked_statements",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "STK_V2_05",
+      "category": "stacked_statements",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "STK_V2_06",
+      "category": "stacked_statements",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "CMT_V2_01",
+      "category": "comment_smuggling",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "CMT_V2_02",
+      "category": "comment_smuggling",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "CMT_V2_03",
+      "category": "comment_smuggling",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "CMT_V2_04",
+      "category": "comment_smuggling",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "CMT_V2_05",
+      "category": "comment_smuggling",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "CMT_V2_06",
+      "category": "comment_smuggling",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SYS_V2_01",
+      "category": "system_table_sniffing",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SYS_V2_02",
+      "category": "system_table_sniffing",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SYS_V2_03",
+      "category": "system_table_sniffing",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SYS_V2_04",
+      "category": "system_table_sniffing",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SYS_V2_05",
+      "category": "system_table_sniffing",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SYS_V2_06",
+      "category": "system_table_sniffing",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SEN_V2_01",
+      "category": "sensitive_column_extraction",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SEN_V2_02",
+      "category": "sensitive_column_extraction",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SEN_V2_03",
+      "category": "sensitive_column_extraction",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SEN_V2_04",
+      "category": "sensitive_column_extraction",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SEN_V2_05",
+      "category": "sensitive_column_extraction",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "SEN_V2_06",
+      "category": "sensitive_column_extraction",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "DOS_V2_01",
+      "category": "resource_abuse_dos",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DOS_V2_02",
+      "category": "resource_abuse_dos",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DOS_V2_03",
+      "category": "resource_abuse_dos",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DOS_V2_04",
+      "category": "resource_abuse_dos",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "DOS_V2_05",
+      "category": "resource_abuse_dos",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "DOS_V2_06",
+      "category": "resource_abuse_dos",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "ENC_V2_01",
+      "category": "encoding_whitespace",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "ENC_V2_02",
+      "category": "encoding_whitespace",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "ENC_V2_03",
+      "category": "encoding_whitespace",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "ENC_V2_04",
+      "category": "encoding_whitespace",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "ENC_V2_05",
+      "category": "encoding_whitespace",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "ENC_V2_06",
+      "category": "encoding_whitespace",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "FNC_V2_01",
+      "category": "dangerous_functions",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "FNC_V2_02",
+      "category": "dangerous_functions",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "FNC_V2_03",
+      "category": "dangerous_functions",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "FNC_V2_04",
+      "category": "dangerous_functions",
+      "expected": "block",
+      "validator_allowed": false,
+      "outcome": "correct"
+    },
+    {
+      "id": "FNC_V2_05",
+      "category": "dangerous_functions",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "FNC_V2_06",
+      "category": "dangerous_functions",
+      "expected": "block",
+      "validator_allowed": true,
+      "outcome": "divergence"
+    },
+    {
+      "id": "BEN_V2_01",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_02",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_03",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_04",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_05",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_06",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_07",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_08",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_09",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_10",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_11",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_12",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_13",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_14",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_15",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_16",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_17",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_18",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_19",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_20",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_21",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_22",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_23",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    },
+    {
+      "id": "BEN_V2_24",
+      "category": "benign",
+      "expected": "allow",
+      "validator_allowed": true,
+      "outcome": "correct"
+    }
+  ]
+}

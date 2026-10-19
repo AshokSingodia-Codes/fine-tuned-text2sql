@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "date": "2026-10-02T06:29:29.473353",
+    "git_commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "seed": 42,
+    "sample_count": 20,
+    "backend_used": "mock"
+  },
+  "hardware": {
+    "os": "Windows",
+    "cpu_name": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+    "cpu_physical_cores": 10,
+    "cpu_logical_cores": 12,
+    "total_ram_gb": 7.68,
+    "cuda_available": false
+  },
+  "metrics": {
+    "p50_latency_sec": 0.0,
+    "p95_latency_sec": 0.0,
+    "p99_latency_sec": 0.0,
+    "tokens_per_second": 982801.93,
+    "peak_rss_mb": 37.11,
+    "total_benchmark_sec": 0.0
+  }
+}

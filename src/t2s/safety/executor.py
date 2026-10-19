@@ -4,7 +4,11 @@ import sqlite3
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
+
+import sqlglot
+
+from src.t2s.safety.policy import SafetyPolicy
 
 
 @dataclass
@@ -18,7 +22,9 @@ class ExecutionResult:
     error: Optional[str] = None
 
 
-def _sqlite_authorizer(action_code: int, arg1: Any, arg2: Any, db_name: Any, trigger_name: Any) -> int:
+def _sqlite_authorizer(
+    action_code: int, arg1: Any, arg2: Any, db_name: Any, trigger_name: Any
+) -> int:
     """Authorizer callback for SQLite connection level defense."""
     # SQLITE_OK = 0, SQLITE_DENY = 1, SQLITE_IGNORE = 2
     # Allowed actions for read-only query execution
@@ -34,18 +40,36 @@ def _sqlite_authorizer(action_code: int, arg1: Any, arg2: Any, db_name: Any, tri
 
 
 class SafeSQLExecutor:
-    def __init__(self, timeout_seconds: float = 3.0, max_rows: int = 100) -> None:
+    def __init__(
+        self,
+        timeout_seconds: float = 3.0,
+        max_rows: int = 100,
+        policy: Optional[SafetyPolicy] = None,
+    ) -> None:
         self.timeout_seconds = timeout_seconds
         self.max_rows = max_rows
+        self.policy = policy or SafetyPolicy.load()
 
     def execute_read_only(
         self,
         db_path: str,
         sql: str,
+        canonical_only: bool = True,
     ) -> ExecutionResult:
         p = Path(db_path)
         if not p.exists():
             return ExecutionResult(success=False, error=f"Database file does not exist: {db_path}")
+
+        # Task D2.a: Execute canonical re-serialized SQL from sqlglot, never unparsed raw strings
+        exec_sql = sql
+        if canonical_only and sql and sql.strip():
+            try:
+                parsed = sqlglot.parse_one(sql.strip().rstrip(";"), read="sqlite")
+                exec_sql = parsed.sql(dialect="sqlite")
+                if not exec_sql.endswith(";"):
+                    exec_sql += ";"
+            except Exception as e:
+                return ExecutionResult(success=False, error=f"Canonical SQL formatting error: {e}")
 
         # Connect strictly in read-only mode using URI syntax
         uri_path = f"file:{p.resolve().as_posix()}?mode=ro"
@@ -55,11 +79,88 @@ class SafeSQLExecutor:
         try:
             conn = sqlite3.connect(uri_path, uri=True, timeout=self.timeout_seconds)
 
+            # Defensive engine configs (Task D2.e)
+            if hasattr(conn, "enable_load_extension"):
+                try:
+                    conn.enable_load_extension(False)
+                except Exception:
+                    pass
+
+            for cfg_name, cfg_val in [
+                ("SQLITE_DBCONFIG_DEFENSIVE", True),
+                ("SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER", False),
+                ("SQLITE_DBCONFIG_TRUSTED_SCHEMA", False),
+            ]:
+                if hasattr(sqlite3, cfg_name) and hasattr(conn, "setconfig"):
+                    try:
+                        conn.setconfig(getattr(sqlite3, cfg_name), cfg_val)
+                    except Exception:
+                        pass
+
             # Enforce read-only at connection PRAGMA level
             conn.execute("PRAGMA query_only = ON;")
 
-            # Install security authorizer
-            conn.set_authorizer(_sqlite_authorizer)
+            # Authorizer as ground truth (Task D2.c)
+            denied_tbls = {t.lower() for t in self.policy.denied_tables}
+            denied_cols = {c.lower() for c in self.policy.denied_columns}
+            allowed_funcs = {f.lower() for f in self.policy.allowed_functions}
+            denied_funcs = {f.lower() for f in self.policy.denied_functions}
+
+            def authorizer_callback(
+                action_code: int, arg1: Any, arg2: Any, db_name: Any, trigger_name: Any
+            ) -> int:
+                # Disallow PRAGMA (19) and ATTACH (24)
+                if action_code in (
+                    getattr(sqlite3, "SQLITE_PRAGMA", 19),
+                    getattr(sqlite3, "SQLITE_ATTACH", 24),
+                    getattr(sqlite3, "SQLITE_DETACH", 25),
+                ):
+                    return sqlite3.SQLITE_DENY
+
+                # Allow SELECT root actions
+                if action_code == sqlite3.SQLITE_SELECT:
+                    return sqlite3.SQLITE_OK
+
+                # Check table/column reads (SQLITE_READ = 20)
+                if action_code == sqlite3.SQLITE_READ:
+                    tbl = str(arg1).lower() if arg1 else ""
+                    col = str(arg2).lower() if arg2 else ""
+
+                    if tbl in denied_tbls:
+                        return sqlite3.SQLITE_DENY
+                    if col in denied_cols:
+                        return sqlite3.SQLITE_DENY
+                    for dc in denied_cols:
+                        if col == dc or col.startswith(f"{dc}_") or col.endswith(f"_{dc}"):
+                            return sqlite3.SQLITE_DENY
+                    return sqlite3.SQLITE_OK
+
+                # Check function execution (SQLITE_FUNCTION = 31)
+                if action_code == sqlite3.SQLITE_FUNCTION:
+                    fn_name = str(arg2).lower() if arg2 else ""
+                    if denied_funcs and fn_name in denied_funcs:
+                        return sqlite3.SQLITE_DENY
+                    if allowed_funcs and fn_name not in allowed_funcs:
+                        return sqlite3.SQLITE_DENY
+                    return sqlite3.SQLITE_OK
+
+                # Deny all other actions (DML, DDL, recursive CTEs, etc.)
+                return sqlite3.SQLITE_DENY
+
+            conn.set_authorizer(authorizer_callback)
+
+            # Set defensive connection limits
+            for limit_name, limit_val in [
+                ("SQLITE_LIMIT_LENGTH", 10_000_000),  # 10 MB maximum string / blob length
+                ("SQLITE_LIMIT_SQL_LENGTH", 100_000),  # 100 KB max SQL length
+                ("SQLITE_LIMIT_EXPR_DEPTH", 200),  # Max expression tree depth
+                ("SQLITE_LIMIT_COMPOUND_SELECT", 50),  # Max compound SELECT terms
+            ]:
+                if hasattr(sqlite3, limit_name) and hasattr(conn, "setlimit"):
+                    try:
+                        conn.setlimit(getattr(sqlite3, limit_name), limit_val)
+                    except Exception:
+                        pass
 
             # Install progress handler for query execution timeout control
             start_ticks = time.perf_counter()
@@ -73,7 +174,7 @@ class SafeSQLExecutor:
             conn.set_progress_handler(progress_callback, 100)
 
             cursor = conn.cursor()
-            cursor.execute(sql)
+            cursor.execute(exec_sql)
 
             columns = [desc[0] for desc in cursor.description] if cursor.description else []
             fetched_rows = cursor.fetchmany(self.max_rows + 1)

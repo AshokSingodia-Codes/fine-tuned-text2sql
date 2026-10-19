@@ -157,10 +157,7 @@ def run_baseline_system(
         json.dump(summary, f, indent=2)
 
     print(f"Metrics saved to {out_metrics_p}")
-    print(
-        f"Exec Acc: {internal_res['exec_accuracy']:.4f} "
-        f"(95% CI: [{ci_low:.4f}, {ci_high:.4f}])"
-    )
+    print(f"Exec Acc: {internal_res['exec_accuracy']:.4f} (95% CI: [{ci_low:.4f}, {ci_high:.4f}])")
     print(f"Valid SQL Rate: {internal_res['valid_sql_rate']:.4f}")
 
     return summary

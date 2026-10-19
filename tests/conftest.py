@@ -45,9 +45,7 @@ def fixture_db_path() -> Generator[str, None, None]:
         cursor.execute(
             "INSERT INTO artists VALUES (1, 'The Beatles', 'UK'), (2, 'Nirvana', 'USA');"
         )
-        cursor.execute(
-            "INSERT INTO albums VALUES (101, 'Abbey Road', 1), (102, 'Nevermind', 2);"
-        )
+        cursor.execute("INSERT INTO albums VALUES (101, 'Abbey Road', 1), (102, 'Nevermind', 2);")
 
         conn.commit()
         conn.close()

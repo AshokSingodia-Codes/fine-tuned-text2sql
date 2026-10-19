@@ -1,8 +1,9 @@
 """Token bucket rate limiting middleware for FastAPI."""
 
 import time
-from typing import Dict, Tuple
-from fastapi import HTTPException, Request, status
+from typing import Dict
+
+from fastapi import HTTPException, status
 
 
 class RateLimiter:
@@ -19,7 +20,9 @@ class RateLimiter:
             self.last_update[client_id] = now
 
         elapsed = now - self.last_update[client_id]
-        self.tokens[client_id] = min(self.capacity, self.tokens[client_id] + elapsed * self.refill_rate)
+        self.tokens[client_id] = min(
+            self.capacity, self.tokens[client_id] + elapsed * self.refill_rate
+        )
         self.last_update[client_id] = now
 
         if self.tokens[client_id] < 1.0:

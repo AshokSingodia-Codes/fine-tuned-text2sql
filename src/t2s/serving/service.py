@@ -1,15 +1,16 @@
 """Service orchestration for text-to-SQL query processing with Consensus Voting and Self-Correction."""
 
-import json
 import time
 import uuid
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 from src.t2s.data.prompts import build_prompt_messages
-from src.t2s.gen.backends import BaseBackend, get_backend
+from src.t2s.gen.backends import get_backend
 from src.t2s.safety.executor import SafeSQLExecutor
 from src.t2s.safety.policy import SafetyPolicy
 from src.t2s.safety.validator import SQLValidator
+from src.t2s.service.self_correct import SelfCorrectionRunner
+from src.t2s.service.voting import ConsensusVoter
 from src.t2s.serving.dbs import DatabaseRegistry
 
 
@@ -27,8 +28,20 @@ class Text2SQLService:
             timeout_seconds=self.policy.timeout_seconds,
             max_rows=self.policy.max_row_limit,
         )
+        self.self_corrector = SelfCorrectionRunner(
+            validator=self.validator,
+            executor=self.executor,
+            max_retries=2,
+        )
+        self.consensus_voter = ConsensusVoter(
+            validator=self.validator,
+            executor=self.executor,
+            per_candidate_timeout_seconds=self.policy.timeout_seconds,
+            total_budget_seconds=15.0,
+            max_concurrent=4,
+        )
         try:
-            self.backend = get_backend(backend_name, model_name=model_path)
+            self.backend = get_backend(backend_name, model_name=model_path, model_path=model_path)
         except Exception:
             self.backend = get_backend("mock")
 
@@ -71,69 +84,65 @@ class Text2SQLService:
         if ";" in clean_sql:
             clean_sql = clean_sql.split(";")[0] + ";"
 
-        # 4. AST Validation
-        t2 = time.perf_counter()
-        verdict = self.validator.validate(clean_sql)
-        timings["validation_ms"] = round((time.perf_counter() - t2) * 1000.0, 2)
+        db_path = str(self.db_registry.get_db_path(db_id))
 
-        if not verdict.allowed:
+        def generate_repair(msgs: List[Dict[str, str]]) -> str:
+            res = self.backend.generate([msgs])[0]
+            return res.get("text", "") if isinstance(res, dict) else str(res)
+
+        t_corr = time.perf_counter()
+        corr_res = self.self_corrector.run(
+            db_path=db_path,
+            initial_sql=clean_sql,
+            generate_fn=generate_repair,
+            base_prompt_messages=prompt_msgs,
+        )
+        timings["self_correction_ms"] = round((time.perf_counter() - t_corr) * 1000.0, 2)
+        timings["total_ms"] = round((time.perf_counter() - start_time) * 1000.0, 2)
+
+        client_attempts = [
+            {"attempt_index": att.attempt_index, "sql": att.sql, "status": att.status}
+            for att in corr_res.attempts
+        ]
+
+        if not corr_res.allowed:
             return {
                 "request_id": request_id,
                 "db_id": db_id,
                 "question": question,
-                "sql": clean_sql,
+                "sql": corr_res.final_sql,
                 "allowed": False,
-                "reasons": verdict.reasons,
+                "reasons": corr_res.verdict.reasons,
+                "attempts": client_attempts,
                 "columns": [],
                 "rows": [],
                 "row_count": 0,
                 "truncated": False,
-                "retried": False,
+                "retried": corr_res.retried,
                 "consensus_score": "1/1",
                 "timings_ms": timings,
                 "model_version": "Qwen2.5-Coder-3B-QLoRA",
             }
 
-        # 5. Read-Only Execution
-        t3 = time.perf_counter()
-        db_path = self.db_registry.get_db_path(db_id)
-        exec_res = self.executor.execute_read_only(str(db_path), verdict.rewritten_sql)
-        timings["execution_ms"] = round((time.perf_counter() - t3) * 1000.0, 2)
-
-        retried = False
-        # Execution-guided retry on SQL runtime error
-        if not exec_res.success and exec_res.error:
-            retried = True
-            retry_prompt = prompt_msgs + [
-                {"role": "assistant", "content": clean_sql},
-                {"role": "user", "content": f"The query failed with error: {exec_res.error}. Please fix the SQL query."},
-            ]
-            t_retry = time.perf_counter()
-            retry_gen = self.backend.generate([retry_prompt])[0]
-            retry_sql = retry_gen.get("text", "").strip() if isinstance(retry_gen, dict) else str(retry_gen)
-            if ";" in retry_sql:
-                retry_sql = retry_sql.split(";")[0] + ";"
-
-            retry_verdict = self.validator.validate(retry_sql)
-            if retry_verdict.allowed:
-                clean_sql = retry_sql
-                exec_res = self.executor.execute_read_only(str(db_path), retry_verdict.rewritten_sql)
-            timings["retry_ms"] = round((time.perf_counter() - t_retry) * 1000.0, 2)
-
-        timings["total_ms"] = round((time.perf_counter() - start_time) * 1000.0, 2)
+        exec_res = corr_res.exec_res
+        columns = exec_res.columns if exec_res else []
+        rows = [list(r) for r in exec_res.rows] if exec_res else []
+        row_count = exec_res.row_count if exec_res else 0
+        truncated = exec_res.truncated if exec_res else False
 
         return {
             "request_id": request_id,
             "db_id": db_id,
             "question": question,
-            "sql": clean_sql,
+            "sql": corr_res.final_sql,
             "allowed": True,
-            "reasons": verdict.reasons,
-            "columns": exec_res.columns,
-            "rows": [list(row) for row in exec_res.rows],
-            "row_count": exec_res.row_count,
-            "truncated": exec_res.truncated,
-            "retried": retried,
+            "reasons": corr_res.verdict.reasons,
+            "attempts": client_attempts,
+            "columns": columns,
+            "rows": rows,
+            "row_count": row_count,
+            "truncated": truncated,
+            "retried": corr_res.retried,
             "consensus_score": "1/1",
             "timings_ms": timings,
             "model_version": "Qwen2.5-Coder-3B-QLoRA",
@@ -164,108 +173,77 @@ class Text2SQLService:
 
         db_path = str(self.db_registry.get_db_path(db_id))
 
-        successful_candidates: List[Dict[str, Any]] = []
-        blocked_reasons: List[str] = []
-
-        t_exec = time.perf_counter()
-        for idx, out in enumerate(gen_outputs):
+        candidate_sqls = []
+        for out in gen_outputs:
             raw_sql = out.get("text", "") if isinstance(out, dict) else str(out)
-            clean_sql = raw_sql.strip()
-            if ";" in clean_sql:
-                clean_sql = clean_sql.split(";")[0] + ";"
+            candidate_sqls.append(raw_sql)
 
-            verdict = self.validator.validate(clean_sql)
-            if not verdict.allowed:
-                blocked_reasons.extend(verdict.reasons)
-                continue
+        t_vote = time.perf_counter()
+        vote_res = self.consensus_voter.select_best_candidate(
+            db_path=db_path,
+            candidate_sqls=candidate_sqls,
+        )
+        timings["voting_execution_ms"] = round((time.perf_counter() - t_vote) * 1000.0, 2)
+        timings["total_ms"] = round((time.perf_counter() - start_time) * 1000.0, 2)
 
-            exec_res = self.executor.execute_read_only(db_path, verdict.rewritten_sql)
-            retried = False
-
-            # Self-correction on execution runtime error
-            if not exec_res.success and exec_res.error:
-                retried = True
-                retry_prompt = prompt_msgs + [
-                    {"role": "assistant", "content": clean_sql},
-                    {"role": "user", "content": f"The SQL query failed with SQLite error: {exec_res.error}. Please correct the query syntax or column names."},
-                ]
-                retry_out = self.backend.generate([retry_prompt])[0]
-                retry_sql = retry_out.get("text", "").strip() if isinstance(retry_out, dict) else str(retry_out)
-                if ";" in retry_sql:
-                    retry_sql = retry_sql.split(";")[0] + ";"
-
-                retry_verdict = self.validator.validate(retry_sql)
-                if retry_verdict.allowed:
-                    clean_sql = retry_sql
-                    exec_res = self.executor.execute_read_only(db_path, retry_verdict.rewritten_sql)
-
-            if exec_res.success:
-                rows_tuple = tuple(sorted([tuple(r) for r in exec_res.rows]))
-                successful_candidates.append(
-                    {
-                        "candidate_idx": idx,
-                        "sql": clean_sql,
-                        "rewritten_sql": verdict.rewritten_sql,
-                        "columns": exec_res.columns,
-                        "rows": exec_res.rows,
-                        "row_count": exec_res.row_count,
-                        "truncated": exec_res.truncated,
-                        "retried": retried,
-                        "result_key": json.dumps(rows_tuple, default=str),
-                    }
+        client_attempts = []
+        for c in vote_res.candidates:
+            err = c.exec_res.error if c.exec_res and not c.exec_res.success else None
+            status = (
+                "blocked_by_policy"
+                if not c.verdict.allowed
+                else (
+                    "ok"
+                    if c.exec_res and c.exec_res.success
+                    else f"exec_error:{c.exec_res.error[:30] if c.exec_res else 'failed'}"
                 )
+            )
+            from src.t2s.service.self_correct import sanitize_attempt_status
 
-        timings["validation_execution_ms"] = round((time.perf_counter() - t_exec) * 1000.0, 2)
+            status = sanitize_attempt_status(
+                c.verdict.allowed, bool(c.exec_res and c.exec_res.success), err
+            )
+            client_attempts.append({"attempt_index": c.index, "sql": c.sql, "status": status})
 
-        # Handle case where all candidates failed or were blocked
-        if not successful_candidates:
-            timings["total_ms"] = round((time.perf_counter() - start_time) * 1000.0, 2)
+        if not vote_res.winner_verdict.allowed:
             return {
                 "request_id": request_id,
                 "db_id": db_id,
                 "question": question,
-                "sql": "-- All candidates blocked or failed execution",
+                "sql": vote_res.winner_sql,
                 "allowed": False,
-                "reasons": list(set(blocked_reasons)) or ["Execution failed across all candidate queries"],
+                "reasons": vote_res.winner_verdict.reasons,
+                "attempts": client_attempts,
                 "columns": [],
                 "rows": [],
                 "row_count": 0,
                 "truncated": False,
-                "retried": True,
-                "consensus_score": f"0/{n_samples}",
+                "retried": False,
+                "consensus_score": vote_res.consensus_score,
                 "timings_ms": timings,
                 "model_version": "Qwen2.5-Coder-3B-QLoRA",
             }
 
-        # Step 4: Majority Voting across execution result keys
-        result_groups: Dict[str, List[Dict[str, Any]]] = {}
-        for cand in successful_candidates:
-            rk = cand["result_key"]
-            if rk not in result_groups:
-                result_groups[rk] = []
-            result_groups[rk].append(cand)
-
-        # Sort groups by count descending
-        sorted_groups = sorted(result_groups.values(), key=lambda g: len(g), reverse=True)
-        winning_group = sorted_groups[0]
-        winner = winning_group[0]
-        votes = len(winning_group)
-
-        timings["total_ms"] = round((time.perf_counter() - start_time) * 1000.0, 2)
+        exec_res = vote_res.winner_exec_res
+        columns = exec_res.columns if exec_res else []
+        rows = [list(r) for r in exec_res.rows] if exec_res else []
+        row_count = exec_res.row_count if exec_res else 0
+        truncated = exec_res.truncated if exec_res else False
 
         return {
             "request_id": request_id,
             "db_id": db_id,
             "question": question,
-            "sql": winner["sql"],
+            "sql": vote_res.winner_sql,
             "allowed": True,
-            "reasons": [],
-            "columns": winner["columns"],
-            "rows": [list(r) for r in winner["rows"]],
-            "row_count": winner["row_count"],
-            "truncated": winner["truncated"],
-            "retried": winner["retried"],
-            "consensus_score": f"{votes}/{n_samples}",
+            "reasons": vote_res.winner_verdict.reasons,
+            "attempts": client_attempts,
+            "columns": columns,
+            "rows": rows,
+            "row_count": row_count,
+            "truncated": truncated,
+            "retried": False,
+            "consensus_score": vote_res.consensus_score,
             "timings_ms": timings,
             "model_version": "Qwen2.5-Coder-3B-QLoRA",
         }

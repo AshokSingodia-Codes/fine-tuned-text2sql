@@ -104,12 +104,8 @@ def run_qlora_training(
     print(f"Output Directory: {train_cfg.get('output_dir', 'models/qlora_adapter')}")
     print(f"Smoke Test Mode: {smoke_test}")
 
-    train_data = format_dataset_samples(
-        str(Path(app_cfg.paths.processed_data_dir) / "train.jsonl")
-    )
-    val_data = format_dataset_samples(
-        str(Path(app_cfg.paths.processed_data_dir) / "val.jsonl")
-    )
+    train_data = format_dataset_samples(str(Path(app_cfg.paths.processed_data_dir) / "train.jsonl"))
+    val_data = format_dataset_samples(str(Path(app_cfg.paths.processed_data_dir) / "val.jsonl"))
 
     if smoke_test:
         train_data = train_data[:50]
@@ -171,25 +167,25 @@ def run_qlora_training(
         model = get_peft_model(model, peft_config)
         model.print_trainable_parameters()
 
-        output_dir = Path(train_cfg.get("output_dir", "models/qlora_adapter"))
-        output_dir.mkdir(parents=True, exist_ok=True)
+        drive_ckpt_dir = Path("/content/drive/MyDrive/t2s_outputs/checkpoints")
+        if drive_ckpt_dir.parent.exists():
+            ckpt_dir = drive_ckpt_dir
+        else:
+            ckpt_dir = Path(train_cfg.get("output_dir", "models/qlora_adapter"))
+        ckpt_dir.mkdir(parents=True, exist_ok=True)
 
         training_args = TrainingArguments(
-            output_dir=str(output_dir),
+            output_dir=str(ckpt_dir),
             num_train_epochs=train_cfg.get("num_train_epochs", 2),
             per_device_train_batch_size=train_cfg.get("per_device_train_batch_size", 2),
             per_device_eval_batch_size=train_cfg.get("per_device_eval_batch_size", 2),
             gradient_accumulation_steps=train_cfg.get("gradient_accumulation_steps", 8),
             learning_rate=float(train_cfg.get("learning_rate", 2e-4)),
-            lr_scheduler_type=train_cfg.get("lr_scheduler_type", "cosine"),
-            warmup_ratio=float(train_cfg.get("warmup_ratio", 0.03)),
             logging_steps=train_cfg.get("logging_steps", 10),
             save_strategy=train_cfg.get("save_strategy", "steps"),
             save_steps=train_cfg.get("save_steps", 100),
-            eval_strategy=train_cfg.get("eval_strategy", "steps"),
-            eval_steps=train_cfg.get("eval_steps", 100),
             fp16=train_cfg.get("fp16", True) and has_gpu,
-            bf16=train_cfg.get("bf16", False),
+            seed=42,
             gradient_checkpointing=True,
             report_to="none",
         )
@@ -204,11 +200,41 @@ def run_qlora_training(
             ),
         )
 
+        import time
+
+        t0 = time.time()
+        last_ckpt = None
+        ckpts = sorted(ckpt_dir.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[-1]))
+        if ckpts:
+            last_ckpt = str(ckpts[-1])
+            print(f"Resuming training from checkpoint: {last_ckpt}")
+
         print("Starting QLoRA Fine-Tuning...")
-        trainer.train()
-        trainer.save_model(str(output_dir))
-        tokenizer.save_pretrained(str(output_dir))
-        print(f"Adapter saved successfully to {output_dir}")
+        trainer.train(resume_from_checkpoint=last_ckpt)
+        train_time_sec = round(time.time() - t0, 2)
+
+        adapter_out_dir = Path("models/qlora_adapter")
+        adapter_out_dir.mkdir(parents=True, exist_ok=True)
+        trainer.save_model(str(adapter_out_dir))
+        tokenizer.save_pretrained(str(adapter_out_dir))
+        print(f"Adapter saved successfully to {adapter_out_dir}")
+
+        # Save training config & stats to results/training/
+        results_train_dir = Path("results/training")
+        results_train_dir.mkdir(parents=True, exist_ok=True)
+        training_info = {
+            "gpu": torch.cuda.get_device_name(0) if has_gpu else "CPU",
+            "training_time_sec": train_time_sec,
+            "epochs": train_cfg.get("num_train_epochs", 2),
+            "seed": 42,
+            "train_examples": len(train_data),
+            "val_examples": len(val_data),
+            "final_loss": (
+                trainer.state.log_history[-1].get("loss", 0.0) if trainer.state.log_history else 0.0
+            ),
+        }
+        with open(results_train_dir / "training_config.json", "w", encoding="utf-8") as f:
+            json.dump(training_info, f, indent=2)
 
     except Exception as e:
         print(f"Training exception: {e}")

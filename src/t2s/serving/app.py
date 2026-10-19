@@ -1,13 +1,22 @@
 """FastAPI Application for Guarded Text-to-SQL Serving."""
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+
 from src.t2s.serving.audit import default_audit_logger
 from src.t2s.serving.auth import verify_api_key
+from src.t2s.serving.metrics import (
+    BLOCKED_COUNT,
+    LATENCY_HISTOGRAM,
+    REQUEST_COUNT,
+    RETRY_COUNT,
+    get_prometheus_metrics,
+)
 from src.t2s.serving.ratelimit import default_rate_limiter
 from src.t2s.serving.schemas import (
     FeedbackRequest,
@@ -33,7 +42,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-service = Text2SQLService(backend_name="mock")
+backend_name = os.getenv("MODEL_BACKEND", "mock")
+model_path = os.getenv("MODEL_PATH", "models/qlora_adapter")
+service = Text2SQLService(backend_name=backend_name, model_path=model_path)
 
 
 @app.get("/health", tags=["System"])
@@ -48,7 +59,6 @@ def readiness_check() -> Dict[str, str]:
 
 @app.get("/metrics", tags=["System"])
 def metrics() -> Response:
-    from src.t2s.serving.metrics import get_prometheus_metrics
     return Response(content=get_prometheus_metrics(), media_type="text/plain")
 
 
@@ -84,6 +94,19 @@ def query_text2sql(
             n_samples=req.n_samples,
         )
 
+        total_sec = res["timings_ms"].get("total_ms", 0.0) / 1000.0
+        LATENCY_HISTOGRAM.labels(stage="total").observe(total_sec)
+
+        status_label = "success" if res["allowed"] else "blocked"
+        REQUEST_COUNT.labels(endpoint="/v1/query", status=status_label).inc()
+
+        if not res["allowed"]:
+            reason_cat = res["reasons"][0][:50] if res["reasons"] else "unknown"
+            BLOCKED_COUNT.labels(reason_category=reason_cat).inc()
+
+        if res.get("retried"):
+            RETRY_COUNT.inc()
+
         default_audit_logger.log_query(
             request_id=res["request_id"],
             api_key=api_key or "anonymous",
@@ -99,6 +122,7 @@ def query_text2sql(
 
         return QueryResponse(**res)
     except Exception as e:
+        REQUEST_COUNT.labels(endpoint="/v1/query", status="error").inc()
         raise HTTPException(status_code=500, detail=f"Query processing failed: {e}")
 
 

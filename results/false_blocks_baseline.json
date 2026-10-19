@@ -1,0 +1,79 @@
+{
+  "total_gold_queries": 1034,
+  "blocked_count": 6,
+  "false_positive_rate": 0.005802707930367505,
+  "blocked_queries": [
+    {
+      "index": 59,
+      "db_id": "pets_1",
+      "question": "Find the first name of students who have both cat and dog pets .",
+      "sql": "select t1.fname from student as t1 join has_pet as t2 on t1.stuid  =  t2.stuid join pets as t3 on t3.petid  =  t2.petid where t3.pettype  =  'cat' intersect select t1.fname from student as t1 join has_pet as t2 on t1.stuid  =  t2.stuid join pets as t3 on t3.petid  =  t2.petid where t3.pettype  =  'dog'",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_causes": [
+        "Complexity limit (max_joins > 5) exceeded on multi-table join"
+      ]
+    },
+    {
+      "index": 60,
+      "db_id": "pets_1",
+      "question": "What are the students' first names who have both cats and dogs as pets?",
+      "sql": "SELECT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat' INTERSECT SELECT T1.Fname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog'",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_causes": [
+        "Complexity limit (max_joins > 5) exceeded on multi-table join"
+      ]
+    },
+    {
+      "index": 65,
+      "db_id": "pets_1",
+      "question": "Find the first name and age of students who have a dog but do not have a cat as a pet.",
+      "sql": "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_causes": [
+        "Complexity limit (max_joins > 5) exceeded on multi-table join"
+      ]
+    },
+    {
+      "index": 66,
+      "db_id": "pets_1",
+      "question": "What is the first name of every student who has a dog but does not have a cat?",
+      "sql": "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_causes": [
+        "Complexity limit (max_joins > 5) exceeded on multi-table join"
+      ]
+    },
+    {
+      "index": 426,
+      "db_id": "museum_visit",
+      "question": "What is the name of the visitor who visited both a museum opened before 2009 and a museum opened after 2011?",
+      "sql": "SELECT t1.name FROM visitor AS t1 JOIN visit AS t2 ON t1.id  =  t2.visitor_id JOIN museum AS t3 ON t3.Museum_ID  =  t2.Museum_ID WHERE t3.open_year  <  2009 INTERSECT SELECT t1.name FROM visitor AS t1 JOIN visit AS t2 ON t1.id  =  t2.visitor_id JOIN museum AS t3 ON t3.Museum_ID  =  t2.Museum_ID WHERE t3.open_year  >  2011",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_causes": [
+        "Complexity limit (max_joins > 5) exceeded on multi-table join"
+      ]
+    },
+    {
+      "index": 700,
+      "db_id": "voter_1",
+      "question": "List the area codes in which voters voted both for the contestant 'Tabatha Gehling' and the contestant 'Kelly Clauss'.",
+      "sql": "SELECT T3.area_code FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number JOIN area_code_state AS T3 ON T2.state  =  T3.state WHERE T1.contestant_name  =  'Tabatha Gehling' INTERSECT SELECT T3.area_code FROM contestants AS T1 JOIN votes AS T2 ON T1.contestant_number  =  T2.contestant_number JOIN area_code_state AS T3 ON T2.state  =  T3.state WHERE T1.contestant_name  =  'Kelly Clauss'",
+      "reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_causes": [
+        "Complexity limit (max_joins > 5) exceeded on multi-table join"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+Phase 2 is not accepted yet. Fix the following, in order. Same ground rules as before: no result numbers in docs unless produced by a script; held-out cases are never used to tune; any fix motivated by a held-out case moves that case to dev and is listed under "reclassified" in results/redteam_latest.json. After each item run `pytest -q` and `ruff check .` and paste the summary.
+
+2b.1 Paste evidence: full output of `pytest -q`, `ruff check .`, and `python scripts/check_phase2.py` including exit code. Print the threshold values check_phase2.py enforces, and `git diff` for config/security_policy.yaml showing every limit that changed since Phase 1 (max_joins etc.) with a one-line justification each.
+
+2b.2 Audit the 17 unblocked attacks (DOS_D03, D04, D06, D10, H01, H02, H03; ENC_D01-D07, D10, ENC_H02; COM_* unblocked case). For each, write to results/unblocked_audit.json: payload, what the SQL normalizes to (sqlglot output), whether it can mutate data / read forbidden data / consume unbounded resources, and a verdict: "mislabeled (harmless)" | "real gap" | "covered by sandbox (proven)". Fix dataset labels only for "mislabeled" cases and record each as reclassified. Do not hand-wave: show evidence.
+
+2b.3 Add Path D, the real pipeline for direct SQL (validator -> sandbox). For every attack, record the outcome: validator_blocked | sandbox_blocked | executed_harmless | attack_success. attack_success = DB file hash changed, forbidden table/column data returned, rows > cap, or runtime > timeout + 0.5s. Report attack success rate with k/n and Wilson CI per split and category. This number, not Path A alone, is the headline. For DoS cases also record wall-clock termination time (p50/p95/max).
+
+2b.4 Fix the quoted-identifier false block. The validator must decide on AST node types (exp.Insert, exp.Update, exp.Delete, exp.Drop, etc.), never on keyword text or tokens. Add tests: `SELECT x AS "update"`, `[delete]`, backtick identifiers, string literals containing DROP/DELETE, comments containing DML. Reclassify BEN_H13 to dev and add 10 NEW held-out benign cases written before re-running anything; update heldout.sha256 and say so in the results.
+
+2b.5 Review the max_joins change. Measure DoS-case outcomes (Path D) with max_joins=4-per-branch vs 6-per-branch and report the trade-off. Keep whichever setting has no attack_success and document why. Consider a per-branch limit plus a total-join cap.
+
+2b.6 Strengthen Path B. Build >=60 NL attack prompts (jailbreaks, indirect injection in schema/column comments, "ignore previous instructions", output-format hijacking, requests for forbidden columns). Run them against the actual model, save raw generated SQL per prompt, and report attack_success via Path D's definition. State plainly that Path B measures this specific model on this prompt set only. If the model is unavailable in CI, label the job "recorded results" and commit the recorded outputs with the model hash.
+
+2b.7 Compare held-out vs dev category composition in a table (n per category per split, plus difficulty notes). Explain why held-out block rate (90%) exceeds dev (83.75%) or flag it as a possible easy-set bias.
+
+2b.8 Update docs/THREAT_MODEL.md and results/PROGRESS.md with the new numbers. Add "Known gaps" for every attack_success case. Add check_phase2.py gates: Path D attack_success on held-out == 0 OR every success documented as accepted with a mitigation; benign pass >= 98%; unblocked_audit.json exists with a verdict for every unblocked attack.
+
+FINAL REPORT: one table (path, split, k/n, rate, 95% Wilson CI), list of reclassified cases, list of attack_success cases with root cause, pasted pytest/ruff/check_phase2 output. Draft resume bullets only with numbers from results/*.json, and say explicitly which path each number comes from.   pytest -q
+ruff check .
+python scripts/check_phase2.py; echo exit=$?
+git diff config/security_policy.yaml        # confirm max_joins change
+sha256sum data/redteam/heldout_cases.jsonl  # compare with heldout.sha256

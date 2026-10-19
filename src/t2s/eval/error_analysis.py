@@ -99,9 +99,7 @@ def compare_systems_diff(
     }
 
 
-def compute_generalization_slices(
-    detailed_results: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+def compute_generalization_slices(detailed_results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Compute accuracy sliced by database, SQL features (JOIN, GROUP BY, etc.)."""
     by_db: Dict[str, Dict[str, int]] = {}
     by_feature: Dict[str, Dict[str, int]] = {

@@ -9,6 +9,7 @@ third_party/
 *.pth
 *.onnx
 *.db
+*.zip
 reports/*.jsonl
 reports/*.db
 
@@ -36,3 +37,4 @@ __pycache__/
 .coverage
 htmlcov/
 *.log
+results/scratch_*.sqlite

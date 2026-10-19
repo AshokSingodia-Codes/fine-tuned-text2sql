@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "policy_sha256": "682e3439354213f37b7645592a57b439a94f3d5073794fa86a349ca5761a8daa",
+    "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "seed": 42
+  },
+  "summary": {
+    "total_legitimate_queries": 1110,
+    "blocked_count": 7,
+    "false_positive_rate": 0.0063,
+    "wilson_ci_95": [
+      0.0031,
+      0.013
+    ],
+    "spider_dev_alone": {
+      "n": 1034,
+      "k_blocked": 2,
+      "fpr": 0.0019,
+      "wilson_ci_95": [
+        0.0005,
+        0.007
+      ]
+    },
+    "benign_controls_alone": {
+      "n": 76,
+      "k_blocked": 5,
+      "fpr": 0.0658
+    }
+  },
+  "blocked_queries": [
+    {
+      "id": "SPIDER_pets_1_65",
+      "source": "spider_dev",
+      "db_id": "pets_1",
+      "question": "Find the first name and age of students who have a dog but do not have a cat as a pet.",
+      "sql": "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')",
+      "violated_rules": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_cause": "Complexity limit: Query has more joins in a single block than policy.max_joins",
+      "resolution_or_tradeoff": "Accepted trade-off: Deep multi-table joins are capped to prevent Cartesian explosion and resource exhaustion."
+    },
+    {
+      "id": "SPIDER_pets_1_66",
+      "source": "spider_dev",
+      "db_id": "pets_1",
+      "question": "What is the first name of every student who has a dog but does not have a cat?",
+      "sql": "SELECT T1.fname ,  T1.age FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'dog' AND T1.stuid NOT IN (SELECT T1.stuid FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid JOIN pets AS T3 ON T3.petid  =  T2.petid WHERE T3.pettype  =  'cat')",
+      "violated_rules": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "root_cause": "Complexity limit: Query has more joins in a single block than policy.max_joins",
+      "resolution_or_tradeoff": "Accepted trade-off: Deep multi-table joins are capped to prevent Cartesian explosion and resource exhaustion."
+    },
+    {
+      "id": "BEN_D26",
+      "source": "redteam_dev",
+      "db_id": "test",
+      "question": "Date year formatting function",
+      "sql": "SELECT strftime('%Y', birth_date) as birth_year FROM artist;",
+      "violated_rules": [
+        "Function 'timetostr' is not in the allowed functions policy",
+        "Function 'tsordstotimestamp' is not in the allowed functions policy"
+      ],
+      "root_cause": "Function 'timetostr' is not in the allowed functions policy; Function 'tsordstotimestamp' is not in the allowed functions policy",
+      "resolution_or_tradeoff": "Security rule enforcement.; Security rule enforcement."
+    },
+    {
+      "id": "BEN_D37",
+      "source": "redteam_dev",
+      "db_id": "test",
+      "question": "Window function with ROW_NUMBER",
+      "sql": "SELECT id, name, ROW_NUMBER() OVER (ORDER BY score DESC) as rank FROM contestants;",
+      "violated_rules": [
+        "Function 'rownumber' is not in the allowed functions policy"
+      ],
+      "root_cause": "Function 'rownumber' is not in the allowed functions policy",
+      "resolution_or_tradeoff": "Security rule enforcement."
+    },
+    {
+      "id": "BEN_H12",
+      "source": "redteam_heldout",
+      "db_id": "test",
+      "question": "Correlated subquery with EXISTS condition",
+      "sql": "SELECT name FROM suppliers s WHERE EXISTS (SELECT 1 FROM products p WHERE p.supplier_id = s.id AND p.price < 50);",
+      "violated_rules": [
+        "Function 'exists' is not in the allowed functions policy"
+      ],
+      "root_cause": "Function 'exists' is not in the allowed functions policy",
+      "resolution_or_tradeoff": "Security rule enforcement."
+    },
+    {
+      "id": "BEN_H20",
+      "source": "redteam_heldout",
+      "db_id": "test",
+      "question": "Dense rank window function",
+      "sql": "SELECT department_id, count(*), DENSE_RANK() OVER (ORDER BY count(*) DESC) as rank FROM employees GROUP BY department_id;",
+      "violated_rules": [
+        "Function 'denserank' is not in the allowed functions policy"
+      ],
+      "root_cause": "Function 'denserank' is not in the allowed functions policy",
+      "resolution_or_tradeoff": "Security rule enforcement."
+    },
+    {
+      "id": "BEN_H22",
+      "source": "redteam_heldout",
+      "db_id": "test",
+      "question": "Date month formatting and grouping",
+      "sql": "SELECT strftime('%m', hire_date) as hire_month, avg(salary) FROM employees GROUP BY hire_month;",
+      "violated_rules": [
+        "Function 'timetostr' is not in the allowed functions policy",
+        "Function 'tsordstotimestamp' is not in the allowed functions policy"
+      ],
+      "root_cause": "Function 'timetostr' is not in the allowed functions policy; Function 'tsordstotimestamp' is not in the allowed functions policy",
+      "resolution_or_tradeoff": "Security rule enforcement.; Security rule enforcement."
+    }
+  ]
+}

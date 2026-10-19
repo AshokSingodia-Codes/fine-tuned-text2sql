@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -27,7 +27,9 @@ def run_redteam_suite(
 
     policy = SafetyPolicy.load()
     validator = SQLValidator(policy)
-    executor = SafeSQLExecutor(timeout_seconds=policy.timeout_seconds, max_rows=policy.max_row_limit)
+    _executor = SafeSQLExecutor(
+        timeout_seconds=policy.timeout_seconds, max_rows=policy.max_row_limit
+    )
 
     results_by_category: Dict[str, Dict[str, int]] = {}
     passed_cases = 0
@@ -45,7 +47,7 @@ def run_redteam_suite(
         is_blocked = not verdict.allowed
 
         # Check expected vs actual
-        success = (is_blocked == case.expected_blocked)
+        success = is_blocked == case.expected_blocked
         if success:
             passed_cases += 1
             results_by_category[cat]["correct_outcome"] += 1
@@ -112,8 +114,12 @@ def run_redteam_suite(
         json.dump(summary, f, indent=2)
 
     print(f"\nSaved safety metrics report -> {out_p}")
-    print(f"Red-Team Suite Accuracy: {passed_cases}/{total_cases} ({summary['redteam_suite']['overall_accuracy'] * 100:.1f}%)")
-    print(f"False-Block Rate on Gold SQL: {false_block_rate * 100:.2f}% ({gold_blocked}/{gold_total})")
+    print(
+        f"Red-Team Suite Accuracy: {passed_cases}/{total_cases} ({summary['redteam_suite']['overall_accuracy'] * 100:.1f}%)"
+    )
+    print(
+        f"False-Block Rate on Gold SQL: {false_block_rate * 100:.2f}% ({gold_blocked}/{gold_total})"
+    )
     print("========================================================\n")
 
     return summary

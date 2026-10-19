@@ -1,15 +1,31 @@
 """Pydantic v2 schemas for the text-to-SQL serving API."""
 
 from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
 class QueryRequest(BaseModel):
     db_id: str = Field(..., description="ID of the target database")
     question: str = Field(..., max_length=1000, description="Natural language question")
-    include_sample_rows: bool = Field(default=False, description="Whether to include sample rows in schema prompt")
-    enable_consensus: bool = Field(default=True, description="Enable Execution-Guided Self-Correction with Majority Voting")
-    n_samples: int = Field(default=5, ge=1, le=10, description="Number of candidate queries to generate for voting")
+    include_sample_rows: bool = Field(
+        default=False, description="Whether to include sample rows in schema prompt"
+    )
+    enable_consensus: bool = Field(
+        default=True, description="Enable Execution-Guided Self-Correction with Majority Voting"
+    )
+    n_samples: int = Field(
+        default=5, ge=1, le=10, description="Number of candidate queries to generate for voting"
+    )
+
+
+class AttemptInfo(BaseModel):
+    attempt_index: int
+    sql: str
+    status: str = Field(
+        ...,
+        description="Sanitized attempt status: 'ok', 'exec_error:<category>', or 'blocked_by_policy'",
+    )
 
 
 class QueryResponse(BaseModel):
@@ -19,12 +35,15 @@ class QueryResponse(BaseModel):
     sql: str
     allowed: bool
     reasons: List[str] = Field(default_factory=list)
+    attempts: List[AttemptInfo] = Field(default_factory=list)
     columns: List[str] = Field(default_factory=list)
     rows: List[List[Any]] = Field(default_factory=list)
     row_count: int = 0
     truncated: bool = False
     retried: bool = False
-    consensus_score: str = Field(default="1/1", description="Consensus voting agreement ratio (e.g. 4/5)")
+    consensus_score: str = Field(
+        default="1/1", description="Consensus voting agreement ratio (e.g. 4/5)"
+    )
     timings_ms: Dict[str, float] = Field(default_factory=dict)
     model_version: str = "Qwen2.5-Coder-3B-QLoRA"
 

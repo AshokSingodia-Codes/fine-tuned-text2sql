@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "date": "2026-10-19T02:08:18.900516",
+    "git_commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "seed": 42,
+    "dataset_split": "Spider dev",
+    "eval_limit": 5,
+    "backend_used": "mock",
+    "prompt_template": "System: 'You are a text-to-SQL assistant. Return only one SQLite SELECT query. No explanations.' | User: '### SQLite Schema:\\n{schema}\\n\\n### Question:\\n{question}'"
+  },
+  "configs": {
+    "A": {
+      "config_id": "A",
+      "config_name": "Base Zero-Shot",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.0
+    },
+    "B": {
+      "config_id": "B",
+      "config_name": "Base 3-Shot",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.0
+    },
+    "C": {
+      "config_id": "C",
+      "config_name": "Fine-Tuned FP16",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.0
+    },
+    "D": {
+      "config_id": "D",
+      "config_name": "Quantized GGUF Q4_K_M",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.0
+    }
+  }
+}

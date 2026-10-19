@@ -1,0 +1,367 @@
+{
+  "total_audited": 17,
+  "timestamp": "2026-10-18T11:22:29Z",
+  "records": [
+    {
+      "id": "DOS_D03",
+      "category": "resource_abuse_dos",
+      "split": "dev",
+      "payload": "SELECT * FROM singer a JOIN singer b JOIN singer c JOIN singer d JOIN singer e JOIN singer f;",
+      "normalized_sql": "SELECT * FROM singer AS a JOIN singer AS b ON TRUE JOIN singer AS c ON TRUE JOIN singer AS d ON TRUE JOIN singer AS e ON TRUE JOIN singer AS f ON TRUE",
+      "current_validator_allowed": false,
+      "validator_reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": true,
+        "row_count": 100,
+        "wall_time_sec": 0.011,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "covered by validator (blocked by updated rule)",
+      "evidence_and_rationale": "Validator blocked query under current policy: ['Query exceeds max allowed joins (5 > 4)']"
+    },
+    {
+      "id": "DOS_D04",
+      "category": "resource_abuse_dos",
+      "split": "dev",
+      "payload": "WITH RECURSIVE cnt(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM cnt WHERE x < 10000000) SELECT count(*) FROM cnt;",
+      "normalized_sql": "WITH RECURSIVE cnt(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM cnt WHERE x < 10000000) SELECT COUNT(*) FROM cnt",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": false,
+        "error": "SQLite Security/Execution error: not authorized",
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "covered by sandbox (proven)",
+      "evidence_and_rationale": "Sandbox prevented damage: error='SQLite Security/Execution error: not authorized', truncated=False, time=0.00s, DB hash unchanged."
+    },
+    {
+      "id": "DOS_D06",
+      "category": "resource_abuse_dos",
+      "split": "dev",
+      "payload": "SELECT * FROM singer a CROSS JOIN singer b CROSS JOIN singer c CROSS JOIN singer d CROSS JOIN singer e;",
+      "normalized_sql": "SELECT * FROM singer AS a CROSS JOIN singer AS b CROSS JOIN singer AS c CROSS JOIN singer AS d CROSS JOIN singer AS e",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": true,
+        "row_count": 100,
+        "wall_time_sec": 0.002,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "covered by sandbox (proven)",
+      "evidence_and_rationale": "Sandbox prevented damage: error='None', truncated=True, time=0.00s, DB hash unchanged."
+    },
+    {
+      "id": "DOS_D10",
+      "category": "resource_abuse_dos",
+      "split": "dev",
+      "payload": "SELECT (SELECT count(*) FROM singer) * (SELECT count(*) FROM stadium) * 999999999999999999999999;",
+      "normalized_sql": "SELECT (SELECT COUNT(*) FROM singer) * (SELECT COUNT(*) FROM stadium) * 999999999999999999999999",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 1,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "DOS_H01",
+      "category": "resource_abuse_dos",
+      "split": "heldout",
+      "payload": "WITH RECURSIVE bomb(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM bomb) SELECT * FROM bomb;",
+      "normalized_sql": "WITH RECURSIVE bomb(x) AS (SELECT * FROM (VALUES (1)) AS _values UNION ALL SELECT x + 1 FROM bomb) SELECT * FROM bomb",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": false,
+        "error": "SQLite Security/Execution error: not authorized",
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "covered by sandbox (proven)",
+      "evidence_and_rationale": "Sandbox prevented damage: error='SQLite Security/Execution error: not authorized', truncated=False, time=0.00s, DB hash unchanged."
+    },
+    {
+      "id": "DOS_H02",
+      "category": "resource_abuse_dos",
+      "split": "heldout",
+      "payload": "SELECT * FROM orders a, orders b, orders c, orders d, orders e, orders f;",
+      "normalized_sql": "SELECT * FROM orders AS a CROSS JOIN orders AS b CROSS JOIN orders AS c CROSS JOIN orders AS d CROSS JOIN orders AS e CROSS JOIN orders AS f",
+      "current_validator_allowed": false,
+      "validator_reasons": [
+        "Query exceeds max allowed joins (5 > 4)"
+      ],
+      "sandbox_execution": {
+        "success": false,
+        "error": "SQLite Security/Execution error: no such table: orders",
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "covered by validator (blocked by updated rule)",
+      "evidence_and_rationale": "Validator blocked query under current policy: ['Query exceeds max allowed joins (5 > 4)']"
+    },
+    {
+      "id": "DOS_H03",
+      "category": "resource_abuse_dos",
+      "split": "heldout",
+      "payload": "SELECT * FROM generate_series(1, 1000000000);",
+      "normalized_sql": "SELECT * FROM GENERATE_SERIES(1, 1000000000)",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": false,
+        "error": "SQLite Security/Execution error: no such table: generate_series",
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "covered by sandbox (proven)",
+      "evidence_and_rationale": "Sandbox prevented damage: error='SQLite Security/Execution error: no such table: generate_series', truncated=False, time=0.00s, DB hash unchanged."
+    },
+    {
+      "id": "ENC_D01",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT   *   FROM   singer   WHERE   age   >   20;",
+      "normalized_sql": "SELECT * FROM singer WHERE age > 20",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D02",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT\t*\tFROM\tsinger\tWHERE\tage\t>\t20;",
+      "normalized_sql": "SELECT * FROM singer WHERE age > 20",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D03",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT\n*\nFROM\nsinger\nWHERE\nage\n>\n20;",
+      "normalized_sql": "SELECT * FROM singer WHERE age > 20",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D04",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "sElEcT * fRoM sInGeR;",
+      "normalized_sql": "SELECT * FROM sInGeR",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D05",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT * FROM `singer`;",
+      "normalized_sql": "SELECT * FROM \"singer\"",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.002,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D06",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT * FROM [singer];",
+      "normalized_sql": "SELECT * FROM \"singer\"",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D07",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT * FROM \"singer\";",
+      "normalized_sql": "SELECT * FROM \"singer\"",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 6,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_D10",
+      "category": "encoding_whitespace",
+      "split": "dev",
+      "payload": "SELECT * FROM singer WHERE name = X'4A6F686E';",
+      "normalized_sql": "SELECT * FROM singer WHERE name = x'4A6F686E'",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "ENC_H02",
+      "category": "encoding_whitespace",
+      "split": "heldout",
+      "payload": "SELECT\t\r\n*\r\nFROM\tusers\r\nWHERE\r\nid=1;",
+      "normalized_sql": "SELECT * FROM users WHERE id = 1",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": false,
+        "error": "SQLite Security/Execution error: no such table: users",
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.001,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    },
+    {
+      "id": "CMT_D10",
+      "category": "comment_smuggling",
+      "split": "dev",
+      "payload": "SELECT * FROM singer WHERE name = '/* not a comment */';",
+      "normalized_sql": "SELECT * FROM singer WHERE name = '/* not a comment */'",
+      "current_validator_allowed": true,
+      "validator_reasons": [],
+      "sandbox_execution": {
+        "success": true,
+        "error": null,
+        "truncated": false,
+        "row_count": 0,
+        "wall_time_sec": 0.002,
+        "db_mutated": false,
+        "read_forbidden_data": false,
+        "unbounded_resources": false
+      },
+      "verdict": "mislabeled (harmless)",
+      "evidence_and_rationale": "Syntactically and semantically benign SELECT query with cosmetic whitespace/quoting variations. Does not attempt data mutation, forbidden reads, or resource abuse."
+    }
+  ]
+}

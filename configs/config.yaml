@@ -15,3 +15,16 @@ generation:
   temperature: 0.0
   max_new_tokens: 256
   include_sample_rows: false
+
+self_correction:
+  enabled: false
+  max_retries: 2
+
+voting:
+  enabled: false
+  n: 5
+  temperature: 0.7
+  per_candidate_timeout_seconds: 3.0
+  total_budget_seconds: 15.0
+  max_concurrent: 4
+

@@ -33,13 +33,15 @@ All evaluation numbers are produced empirically by automated code scripts and up
 
 ### 1. Model Systems Comparison (Spider Dataset Split)
 
-| System ID | System Architecture | Exec Accuracy | Valid SQL Rate | Model Footprint | Memory Saving |
+> **Metric Provenance Audit Note**: Unverifiable metrics generated via MockBackend are marked below as *To Be Re-measured*. Official evaluation metrics will be updated upon real model GPU execution.
+
+| System ID | System Architecture | Exec Accuracy | Valid SQL Rate | Model Footprint | Status |
 |---|---|---|---|---|---|
-| **System A** | Base Model, Zero-Shot Prompt | 2.8% | 100.0% | ~6.2 GB | 0% |
-| **System B** | Base Model, Few-Shot 3-Ex Prompt | 2.8% | 100.0% | ~6.2 GB | 0% |
-| **System C** | **Fine-Tuned QLoRA Adapter** | **1.1%** | **100.0%** | ~6.2 GB | 0% |
-| **System D** | Quantized GGUF `Q4_K_M` | 1.0% | 100.0% | **1.9 GB** | **69.3%** |
-| **System E** | Quantized + AST Safety + **Consensus Voting** | 1.0% | 100.0% | **1.9 GB** | **69.3%** |
+| **System A** | Base Model, Zero-Shot Prompt | *To Be Re-measured* | 100.0% | ~6.2 GB | Pending GPU Run |
+| **System B** | Base Model, Few-Shot 3-Ex Prompt | *To Be Re-measured* | 100.0% | ~6.2 GB | Pending GPU Run |
+| **System C** | **Fine-Tuned QLoRA Adapter** | *To Be Re-measured* | **100.0%** | ~6.2 GB | Pending GPU Run |
+| **System D** | Quantized GGUF `Q4_K_M` | *To Be Re-measured* | 100.0% | **1.9 GB** | Pending Local Server |
+| **System E** | Quantized + AST Safety + **Consensus Voting** | *To Be Re-measured* | 100.0% | **1.9 GB** | Pending Local Server |
 
 ### 2. Fine-Tuning Hyperparameter Ablation Matrix (Validation Split)
 

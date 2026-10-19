@@ -3,6 +3,7 @@
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
 from src.t2s.data.schema import get_sqlite_schema_ddl
 
 
@@ -14,11 +15,28 @@ class DatabaseRegistry:
         if not self.db_base_dir.exists():
             return []
 
+        seen_dbs = set()
         dbs = []
-        for p in self.db_base_dir.glob("*.sqlite"):
+
+        # Check nested subdirectories (e.g. data/raw/spider/database/<db_id>/<db_id>.sqlite)
+        for p in sorted(self.db_base_dir.glob("*/*.sqlite")):
+            db_id = p.parent.name
+            if db_id not in seen_dbs:
+                info = self.get_db_info(db_id)
+                if info is not None:
+                    seen_dbs.add(db_id)
+                    dbs.append(info)
+
+        # Check flat files (e.g. data/raw/spider/database/<db_id>.sqlite)
+        for p in sorted(self.db_base_dir.glob("*.sqlite")):
             db_id = p.stem
-            dbs.append(self.get_db_info(db_id))
-        return [d for d in dbs if d is not None]
+            if db_id not in seen_dbs:
+                info = self.get_db_info(db_id)
+                if info is not None:
+                    seen_dbs.add(db_id)
+                    dbs.append(info)
+
+        return dbs
 
     def get_db_path(self, db_id: str) -> Optional[Path]:
         p = self.db_base_dir / f"{db_id}.sqlite"

@@ -1,6 +1,5 @@
 """Unit tests for error analysis, statistical comparisons, and generalization slicing."""
 
-import pytest
 from src.t2s.eval.error_analysis import (
     categorize_error,
     compare_systems_diff,
@@ -12,10 +11,22 @@ from src.t2s.eval.stats import bootstrap_confidence_interval, mcnemar_test
 def test_categorize_error_types():
     assert categorize_error("SELECT * FROM t", "SELECT * FROM t", True, True) == "correct"
     assert categorize_error("INVALID SQL", "SELECT * FROM t", False, False) == "syntax_error"
-    assert categorize_error("SELECT a FROM t", "SELECT a FROM t GROUP BY b", False, True) == "missing_group_by"
-    assert categorize_error("SELECT COUNT(a) FROM t", "SELECT SUM(a) FROM t", False, True) == "wrong_aggregation"
-    assert categorize_error("SELECT a FROM t", "SELECT a FROM t JOIN u ON t.id=u.id", False, True) == "wrong_join"
-    assert categorize_error("SELECT a FROM t WHERE x=1", "SELECT a FROM t WHERE x=2", False, True) == "value_mismatch"
+    assert (
+        categorize_error("SELECT a FROM t", "SELECT a FROM t GROUP BY b", False, True)
+        == "missing_group_by"
+    )
+    assert (
+        categorize_error("SELECT COUNT(a) FROM t", "SELECT SUM(a) FROM t", False, True)
+        == "wrong_aggregation"
+    )
+    assert (
+        categorize_error("SELECT a FROM t", "SELECT a FROM t JOIN u ON t.id=u.id", False, True)
+        == "wrong_join"
+    )
+    assert (
+        categorize_error("SELECT a FROM t WHERE x=1", "SELECT a FROM t WHERE x=2", False, True)
+        == "value_mismatch"
+    )
 
 
 def test_compare_systems_diff():
@@ -24,7 +35,7 @@ def test_compare_systems_diff():
         {"question": "Q2", "exec_match": True},
     ]
     c_results = [
-        {"question": "Q1", "exec_match": True},   # fixed
+        {"question": "Q1", "exec_match": True},  # fixed
         {"question": "Q2", "exec_match": False},  # broken
     ]
     diff = compare_systems_diff(a_results, c_results)

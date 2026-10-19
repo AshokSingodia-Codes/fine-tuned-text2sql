@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -75,8 +75,12 @@ def generate_predictions_c(
                 "gold": item.get("gold_sql", "") or item.get("gold", ""),
                 "pred": pred_sql,
                 "raw_pred": raw_pred,
-                "latency_ms": out_item.get("latency_ms", 1.2) if isinstance(out_item, dict) else 1.2,
-                "tokens": out_item.get("tokens", len(pred_sql.split())) if isinstance(out_item, dict) else len(pred_sql.split()),
+                "latency_ms": out_item.get("latency_ms", 1.2)
+                if isinstance(out_item, dict)
+                else 1.2,
+                "tokens": out_item.get("tokens", len(pred_sql.split()))
+                if isinstance(out_item, dict)
+                else len(pred_sql.split()),
             }
         )
 
@@ -140,12 +144,20 @@ def run_stage_6_evaluation(
     print(f"Saved fine-tuned model metrics -> {out_metrics_c}")
 
     # 2. System comparisons A vs B vs C
-    internal_res_a = evaluate_predictions(pred_a_path, db_base_dir=db_base_dir) if Path(pred_a_path).exists() else internal_res_c
+    internal_res_a = (
+        evaluate_predictions(pred_a_path, db_base_dir=db_base_dir)
+        if Path(pred_a_path).exists()
+        else internal_res_c
+    )
     detailed_a = internal_res_a.get("detailed_results", [])
     a_matches = [item["exec_match"] for item in detailed_a]
     mean_a, ci_low_a, ci_high_a = bootstrap_confidence_interval(a_matches)
 
-    internal_res_b = evaluate_predictions(pred_b_path, db_base_dir=db_base_dir) if Path(pred_b_path).exists() else internal_res_c
+    internal_res_b = (
+        evaluate_predictions(pred_b_path, db_base_dir=db_base_dir)
+        if Path(pred_b_path).exists()
+        else internal_res_c
+    )
     detailed_b = internal_res_b.get("detailed_results", [])
     b_matches = [item["exec_match"] for item in detailed_b]
     mean_b, ci_low_b, ci_high_b = bootstrap_confidence_interval(b_matches)

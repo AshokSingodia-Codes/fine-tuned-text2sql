@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "date": "2026-10-18T05:41:33.354017",
+    "git_commit_hash": "unknown_commit",
+    "seed": 42,
+    "dataset_split": "Spider dev",
+    "eval_limit": null,
+    "backend_used": "transformers",
+    "prompt_template": "System: 'You are a text-to-SQL assistant. Return only one SQLite SELECT query. No explanations.' | User: '### SQLite Schema:\\n{schema}\\n\\n### Question:\\n{question}'"
+  },
+  "configs": {
+    "C": {
+      "config_id": "C",
+      "config_name": "Fine-Tuned FP16",
+      "total_examples": 1034,
+      "execution_accuracy": 0.7157,
+      "valid_sql_rate": 0.9313,
+      "execution_error_rate": 0.0687,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0019,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 1034,
+          "correct": 740,
+          "accuracy": 0.7157
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 2269.63
+    }
+  }
+}

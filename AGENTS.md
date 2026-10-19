@@ -1,0 +1,12 @@
+# AGENTS.md - Global Rules
+
+- **R1 No fabricated numbers.** Every metric in README, docs, or resume text must come from a JSON file under results/ produced by a script in scripts/. Never hardcode a metric. Never estimate.
+- **R2 Reproducibility.** Every result script takes --seed (default 42), writes results/<name>_<timestamp>.json plus a stable copy results/<name>_latest.json, and records: git commit hash, model name, dataset split, date.
+- **R3 No data leakage.** Training uses Spider train only. Evaluation uses Spider dev only. A script scripts/check_leakage.py must assert zero overlap of (question, db_id) between train data and dev data.
+- **R4 Audit before assuming.** Do not assume file paths. Start with tree -L 3 and read src/t2s/ before editing. Known file: src/t2s/safety/validator.py.
+- **R5 Don't break green.** All existing 40 tests must keep passing. New code needs tests. Run pytest -q before declaring done.
+- **R6 Scope discipline.** Do NOT implement: Kubernetes, SSO/SAML/Okta, Snowflake, BigQuery, Redshift, Databricks, Oracle, SQL Server. They are out of scope and must not appear in the resume.
+- **R7 Security.** No secrets in git. Use .env + .env.example. Add gitleaks or detect-secrets check in CI.
+- **R8 Type and lint.** ruff check . and ruff format --check . pass. Public functions have type hints and docstrings.
+- **R9 Honest wording.** If a result is weaker than expected, report it as is. Negative results go in docs/LIMITATIONS.md.
+- **R10 The agent never runs git add, commit, push, tag, reset, or checkout. It only reports which files changed. The user handles all git operations.**

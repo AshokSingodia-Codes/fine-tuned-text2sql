@@ -116,6 +116,41 @@ class OpenAICompatBackend(BaseBackend):
         return results
 
 
+class LlamaCppBackend(BaseBackend):
+    def __init__(
+        self,
+        model_path: str,
+        n_gpu_layers: int = -1,
+        n_ctx: int = 2048,
+        max_tokens: int = 256,
+    ) -> None:
+        from llama_cpp import Llama
+
+        self.llm = Llama(
+            model_path=model_path,
+            n_gpu_layers=n_gpu_layers,
+            n_ctx=n_ctx,
+            verbose=False,
+        )
+        self.max_tokens = max_tokens
+
+    def generate(self, prompts: List[List[Dict[str, str]]]) -> List[Dict[str, Any]]:
+        results = []
+        for prompt_msgs in prompts:
+            start = time.perf_counter()
+            response = self.llm.create_chat_completion(
+                messages=prompt_msgs,
+                max_tokens=self.max_tokens,
+                temperature=0.0,
+            )
+            latency = (time.perf_counter() - start) * 1000.0
+            text = response["choices"][0]["message"]["content"]
+            usage = response.get("usage", {})
+            tokens = usage.get("completion_tokens", len(text.split()))
+            results.append({"text": text, "latency_ms": latency, "tokens": tokens})
+        return results
+
+
 def get_backend(backend_type: str, **kwargs: Any) -> BaseBackend:
     if backend_type == "mock":
         return MockBackend(responses=kwargs.get("responses"))
@@ -128,6 +163,12 @@ def get_backend(backend_type: str, **kwargs: Any) -> BaseBackend:
         return OpenAICompatBackend(
             api_base=kwargs.get("api_base", "http://localhost:8000/v1"),
             model=kwargs.get("model", "default"),
+        )
+    elif backend_type == "llama_cpp":
+        return LlamaCppBackend(
+            model_path=kwargs.get("model_path", "models/Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf"),
+            max_tokens=kwargs.get("max_tokens", 256),
+            n_gpu_layers=kwargs.get("n_gpu_layers", -1),
         )
     else:
         raise ValueError(f"Unsupported backend_type: {backend_type}")

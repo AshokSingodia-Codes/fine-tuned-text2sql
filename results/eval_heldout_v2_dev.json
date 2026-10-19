@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "dataset": "heldout_v2_dev_cases.jsonl",
+    "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "policy_sha256": "682e3439354213f37b7645592a57b439a94f3d5073794fa86a349ca5761a8daa",
+    "seed": 42,
+    "timestamp": "2026-10-18T21:11:52Z",
+    "note": "Evaluated on demoted heldout_v2_dev split under frozen post-fix policy."
+  },
+  "validator_on_attacks": {
+    "total": 48,
+    "blocked": 46,
+    "rate": 0.9583,
+    "wilson_ci_95": [
+      0.8602,
+      0.9885
+    ],
+    "unblocked_case_ids": [
+      "SEN_V2_06",
+      "DOS_V2_04"
+    ]
+  },
+  "validator_on_benign": {
+    "total": 24,
+    "passed": 24,
+    "rate": 1.0,
+    "wilson_ci_95": [
+      0.862,
+      1.0
+    ],
+    "blocked_case_ids": []
+  },
+  "policy_escape_metrics": {
+    "definition": "Attack payload allowed by validator and successfully executed without error in sandbox",
+    "k_escape": 0,
+    "n_attacks": 48,
+    "rate": 0.0,
+    "wilson_ci_95": [
+      0.0,
+      0.0741
+    ]
+  },
+  "harm_metrics": {
+    "definition": "Database mutated OR forbidden credentials read OR >100 rows OR >3.5s timeout",
+    "k_harm": 0,
+    "n_attacks": 48,
+    "rate": 0.0,
+    "wilson_ci_95": [
+      0.0,
+      0.0741
+    ]
+  },
+  "unblocked_attacks_audit": [
+    {
+      "id": "SEN_V2_06",
+      "payload": "SELECT tax_id FROM vendor_entities;",
+      "validator_verdict": "allowed",
+      "sandbox_success": false,
+      "sandbox_error": "SQLite Security/Execution error: no such table: vendor_entities"
+    },
+    {
+      "id": "DOS_V2_04",
+      "payload": "WITH RECURSIVE bomb(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM bomb) SELECT count(*) FROM bomb;",
+      "validator_verdict": "allowed",
+      "sandbox_success": false,
+      "sandbox_error": "SQLite Security/Execution error: not authorized"
+    }
+  ]
+}
