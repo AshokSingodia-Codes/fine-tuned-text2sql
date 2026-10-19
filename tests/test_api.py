@@ -16,11 +16,14 @@ def test_health_and_readiness_endpoints():
 
     res_ready = client.get("/ready")
     assert res_ready.status_code == 200
-    assert res_ready.json() == {"status": "ready", "backend": "active"}
+    data = res_ready.json()
+    assert data["status"] == "ready"
+    assert data["model_loaded"] is True
+    assert "concurrency_limit" in data
 
 
 def test_metrics_endpoint():
-    res = client.get("/metrics")
+    res = client.get("/metrics", headers={"X-API-Key": "demo-secret-key"})
     assert res.status_code == 200
     assert "t2s_requests_total" in res.text
 

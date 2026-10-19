@@ -1,6 +1,4 @@
-"""Prometheus metrics wrapper for text-to-SQL service monitoring."""
-
-from prometheus_client import Counter, Histogram, generate_latest
+from prometheus_client import Counter, Gauge, Histogram, generate_latest
 
 REQUEST_COUNT = Counter(
     "t2s_requests_total",
@@ -23,6 +21,11 @@ BLOCKED_COUNT = Counter(
 RETRY_COUNT = Counter(
     "t2s_execution_retries_total",
     "Total execution-guided retries triggered",
+)
+
+QUEUE_DEPTH = Gauge(
+    "t2s_queue_depth",
+    "Current number of requests waiting or processing in concurrency queue",
 )
 
 

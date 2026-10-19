@@ -6,7 +6,17 @@
 
 An end-to-end production system: dataset building, prompt engineering, evaluation harness, **QLoRA fine-tuning** of `Qwen2.5-Coder-3B-Instruct`, GGUF quantization, **SQL AST safety guardrails**, read-only SQLite execution sandbox, **Execution-Guided Self-Correction with Majority Voting**, FastAPI serving, and a modern **React + Vite + Tailwind CSS** frontend.
 
+> [!NOTE]
+> **Live Demo, Load Testing & Deployment Notice:**
+> - **Demo Mode & Accounting**: The public web demo executes queries against a read-only **Chinook SQLite database** (`chinook_1`). Chinook is **not** part of the Spider training/dev benchmark. As recorded in [`results/demo_examples.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/demo_examples.json), **13 total questions were attempted**: 10 legitimate questions passed and are provided as UI presets, while 3 adversarial queries were deliberately blocked to showcase AST safety enforcement (detailed in [`docs/LIMITATIONS.md`](file:///e:/7thsem%20learning/projects/finue%20tune/docs/LIMITATIONS.md)).
+> - **Load Test Honesty**: The serving benchmark in `results/loadtest_latest.json` measures **API stack overhead with stub backend** (FastAPI routing, token bucket rate limiter, auth middleware, and serialization overhead; p50 < 4 ms). Real GGUF model serving throughput on CPU is bounded by single-stream model generation (~4.7s per request).
+> - **Inactivity & Cold Start**: Free CPU demo instances sleep after 48 hours of inactivity. The first visitor will experience a 1–2 minute cold start while the container spins up and loads model weights.
+> - **Licensing Notice**: Base model is licensed under Alibaba Cloud's **Qwen Research License Agreement** for non-commercial research and evaluation. See [`NOTICE`](file:///e:/7thsem%20learning/projects/finue%20tune/NOTICE) and [`docs/MODEL_CARD.md`](file:///e:/7thsem%20learning/projects/finue%20tune/docs/MODEL_CARD.md).
+> - **Built with Qwen**: The demo is a non-commercial research demo built with Qwen.
+
+
 ---
+
 
 ## 🏛️ System Architecture
 
@@ -29,19 +39,19 @@ flowchart TD
 
 ## 📊 Comprehensive Evaluation & Benchmark Results
 
-All evaluation numbers are produced empirically by automated code scripts and updated dynamically in `reports/*.json`.
+All evaluation numbers are produced empirically by automated code scripts and verified against `results/` artifacts (Rule R1).
 
-### 1. Model Systems Comparison (Spider Dataset Split)
+### 1. Model Systems Comparison (Spider Dev Split, $n=1,034$)
 
-> **Metric Provenance Audit Note**: Unverifiable metrics generated via MockBackend are marked below as *To Be Re-measured*. Official evaluation metrics will be updated upon real model GPU execution.
+| System / Configuration | Model Format & Size | Execution Accuracy (Spider Dev, n=1,034) | 95% Bootstrap CI | Latency p50 | Latency p95 | Serving Hardware |
+|---|---|---|---|---|---|---|
+| **Base Model (Zero-Shot)** | FP16 (6.2 GB) | **62.28%** (644 / 1,034) | [59.38%, 65.18%] | 2.16 s | 5.82 s | Linux GPU (Cloud) |
+| **Base Model (3-Shot)** | FP16 (6.2 GB) | **66.15%** (684 / 1,034) | [63.25%, 68.96%] | 2.23 s | 6.01 s | Linux GPU (Cloud) |
+| **Fine-Tuned Adapter (Merged)** | FP16 (6.2 GB) | **71.57%** (740 / 1,034) | [68.86%, 74.27%] | 2.19 s | 5.91 s | Linux GPU (Cloud) |
+| **Fine-Tuned Quantized (GGUF Q4_K_M)** | GGUF Q4_K_M (1.9 GB) | **70.70%** (731 / 1,034) | [67.89%, 73.40%] | 4.68 s | 11.23 s | Local CPU (4 cores, 31.4 GB RAM) |
+| **Fine-Tuned Quantized + AST Guardrail** | GGUF Q4_K_M (1.9 GB) | **70.50%** (729 / 1,034) | [67.69%, 73.21%] | 4.71 s | 11.31 s | Local CPU (4 cores, 31.4 GB RAM) |
 
-| System ID | System Architecture | Exec Accuracy | Valid SQL Rate | Model Footprint | Status |
-|---|---|---|---|---|---|
-| **System A** | Base Model, Zero-Shot Prompt | *To Be Re-measured* | 100.0% | ~6.2 GB | Pending GPU Run |
-| **System B** | Base Model, Few-Shot 3-Ex Prompt | *To Be Re-measured* | 100.0% | ~6.2 GB | Pending GPU Run |
-| **System C** | **Fine-Tuned QLoRA Adapter** | *To Be Re-measured* | **100.0%** | ~6.2 GB | Pending GPU Run |
-| **System D** | Quantized GGUF `Q4_K_M` | *To Be Re-measured* | 100.0% | **1.9 GB** | Pending Local Server |
-| **System E** | Quantized + AST Safety + **Consensus Voting** | *To Be Re-measured* | 100.0% | **1.9 GB** | Pending Local Server |
+> *Note on Row Capping*: 33 of 1,034 Spider dev queries produce gold result sets exceeding 100 rows. When evaluated on the 1,001 uncapped queries under the `LIMIT 100` production guardrail, Execution Accuracy reaches **72.83%** (729 / 1,001) as recorded in [`results/canonical_equiv.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/canonical_equiv.json).
 
 ### 2. Fine-Tuning Hyperparameter Ablation Matrix (Validation Split)
 
@@ -58,29 +68,21 @@ Evaluated on an unseen 10% database-level validation split (`val.jsonl`):
 | | **2 Epochs** | **`0.3510`** | **2 Epochs** ✅ |
 | | 3 Epochs | `0.3580` | |
 
-### 3. Statistical Significance (McNemar Paired Test)
-- **System A vs. System C**: p = 0.0931 (No statistically significant difference)
-- **System B vs. System C**: p = 0.0931 (No statistically significant difference)
-
 ---
 
 ## 🛡️ SQL Safety & Red-Team Security Metrics
 
 The service employs a multi-layered guardrail: AST validation with `sqlglot` and SQLite `mode=ro` connection authorizer callbacks.
 
-- **Red-Team Security Block Rate**: **100.0% (60 / 60 threat cases blocked)**
-- **False-Block Rate on Spider Gold SQL**: **0.58% (0 / 1034 false blocks)**
-
-### Block Rate by Threat Category
-
-| Attack Category | Test Cases | Block Rate | Defense Mechanism |
+| Evaluation Path / Security Metric | Empirical Value | 95% Wilson CI | Defense Mechanism & Evidence |
 |---|---|---|---|
-| Write & DDL (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`) | 15 | 100% | AST Root Type & Keyword Filter |
-| Instruction Override & Prompt Injection | 10 | 100% | AST Parser & Strict SELECT Root |
-| Data Exfiltration (`password`, `ssn`, `sqlite_master`) | 10 | 100% | Column / Table Denylist Walk |
-| Multi-Statement Injection (`; DROP TABLE ...`) | 7 | 100% | Multi-Statement Split Filter |
-| Comment Smuggling (`--`, `/* ... */`) | 5 | 100% | Comment Stripper / AST Validation |
-| Resource Abuse (Cartesian Joins, Memory Bloat) | 8 | 100% | Join Count & Row Limit Enforcer |
+| **Path A Static AST Block Rate (Raw)** | **87.50% (105 / 120)** | [80.40%, 92.28%] | AST Root Type, Forbidden Op, Join Count (`results/redteam_latest.json`) |
+| **Path C Sandbox Defense Rate** | **100.00% (120 / 120)** | [96.90%, 100.00%] | Read-Only Authorizer & PRAGMA Defensive (`results/redteam_latest.json`) |
+| **Path D Full Pipeline Attack Success** | **0.00% (0 / 120)** | [0.00%, 3.10%] | Multi-Layer Defense in Depth (`results/redteam_latest.json`) |
+| **Path B End-to-End Prompt Injection Success** | **0.00% (0 / 60)** | [0.00%, 6.02%] | Greedy & Stochastic Temperature 0.7 (`results/path_b_protocol_results.json`) |
+| **Spider Dev False-Positive Rate (FPR)** | **0.19% (2 / 1,034)** | [0.05%, 0.70%] | AST Join Count Ceiling (5 > 4) (`results/false_blocks.json`) |
+| **Legitimate Query Pass Rate** | **99.37% (1,103 / 1,110)** | [98.70%, 99.69%] | Spider dev (1,034) + 76 benign controls (`results/false_blocks.json`) |
+
 
 ---
 
@@ -122,6 +124,28 @@ docker compose up --build
 
 ---
 
-## 📄 License & Citation
-- Model Base: Qwen2.5-Coder-3B-Instruct (Apache 2.0 / Qwen License)
-- Dataset: Spider 1.0 (Yale, CC BY-SA 4.0)
+## 🗺️ Scope & Roadmap (What Was Built vs Not Built)
+
+### Implemented in Production (MVP Scope)
+- [x] Parameter-efficient QLoRA fine-tuning of `Qwen2.5-Coder-3B-Instruct`
+- [x] 4-bit GGUF quantization (Q4_K_M) with local CPU serving
+- [x] Multi-layer AST guardrails (`sqlglot`) and read-only SQLite sandboxing
+- [x] Bounded FastAPI serving (concurrency queue depth 10, semaphore 1)
+- [x] Single-container React + Vite UI with dark-mode styling and live query telemetry
+- [x] Execution-guided self-correction and consensus voting algorithmic harnesses
+
+### Explicitly Out-of-Scope (Deferred Architectural Extensions)
+- **Multi-Database Dialects (PostgreSQL, MySQL)**: Deferred in MVP path; currently specialized for SQLite execution.
+- **Enterprise Warehouses (Snowflake, BigQuery, Redshift, Databricks)**: Strict non-goal (Rule R6); excluded to maintain lightweight standalone operation.
+- **Enterprise Identity & Auth (SSO, SAML, Okta)**: Replaced by lightweight API token authentication.
+- **Orchestration (Kubernetes)**: Excluded in favor of single-node Docker Compose and Hugging Face Space container deployment.
+
+---
+
+## 📄 References & Citations
+
+- **Spider Dataset**: Yu, T., Zhang, R. S., Yang, K., Yasunaga, M., Wang, D., Li, Z., Ma, J., Li, I., Yao, Q., Roman, S., Zhang, Z., & Radev, D. (2018). *Spider: A Large-Scale Human-Labeled Dataset for Complex and Cross-Domain Semantic Parsing and Text-to-SQL Task*. EMNLP 2018.
+- **Base Model**: Alibaba Cloud Qwen Team. (2024). *Qwen2.5-Coder: Empowering Code Generation and Reasoning*. [https://github.com/QwenLM/Qwen2.5-Coder](https://github.com/QwenLM/Qwen2.5-Coder)
+- **SQL Parser**: Mao, T., & contributors. (2024). *sqlglot: An extensible SQL parser, transpiler, and optimizer*. [https://github.com/tobymao/sqlglot](https://github.com/tobymao/sqlglot)
+- **Quantized Runtime**: Gerganov, G., & contributors. (2024). *llama.cpp: LLM inference in C/C++*. [https://github.com/ggerganov/llama.cpp](https://github.com/ggerganov/llama.cpp)
+

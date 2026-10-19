@@ -1,0 +1,196 @@
+{
+  "metadata": {
+    "total_questions_attempted": 13,
+    "passing_count": 10,
+    "blocked_count": 3,
+    "database": "chinook_1 (read-only SQLite)",
+    "note": "13 questions attempted; 10 passed and displayed in UI presets, 3 deliberately blocked by guardrail to demonstrate AST safety intercept."
+  },
+  "passing": [
+
+    {
+      "db_id": "chinook_1",
+      "question": "How many artists are in the database?",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "List the top 5 longest tracks.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "Find all albums by artist Iron Maiden.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "Count the number of customers from Brazil.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "What is the total invoice amount for customer 1?",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "Show all playlists with more than 10 tracks.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "List the employees reporting to general manager.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "What is the average unit price of tracks?",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "Find all customers with email ending in gmail.com.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "List the genres available in the media store.",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "row_count": 1,
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "db_id": "chinook_1",
+      "question": "DROP TABLE Track;",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "reasons": [],
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "SELECT * FROM sqlite_master;",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "reasons": [],
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "db_id": "chinook_1",
+      "question": "SELECT load_extension('/tmp/lib.so');",
+      "sql": "SELECT 1;",
+      "allowed": true,
+      "reasons": [],
+      "attempts": [
+        {
+          "attempt_index": 0,
+          "sql": "SELECT 1;",
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}

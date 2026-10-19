@@ -79,7 +79,7 @@ python scripts/bench_latency.py --backend openai_compat --model-path models/Qwen
 
 ---
 
-## 5. Phase 3 Ablation: Self-Correction and Voting (Configs E, F, G)
+## 5. Phase 3 Ablation: Self-Correction and Voting (BASE+greedy, BASE+SC, BASE+V, BASE+SC+V)
 
 > **Provenance**: Kaggle notebook `notebook6f1ee3abad`, GPU T4 x2, 2026-10-18T22:14:39 UTC, runtime 35,618.8 s.
 > Backend: `transformers`, model: `Qwen/Qwen2.5-Coder-3B-Instruct` (**base model**, not fine-tuned).
@@ -87,12 +87,12 @@ python scripts/bench_latency.py --backend openai_compat --model-path models/Qwen
 
 ### Results Table (n=1,034, seed=42, transformers/base model)
 
-| Config | System Description | EX (n=1034) | 95% CI | Calls/Q | Avg Latency | p95 Latency | vs D |
+| Config | System Description | EX (n=1034) | 95% CI | Calls/Q | Avg Latency | p95 Latency | vs BASE+greedy |
 |---|---|---|---|---|---|---|---|
-| **D** | Base model, greedy, guarded | **62.28%** | [59.28%, 65.09%] | 1.0× | 2.21 s | 4.61 s | baseline |
-| **E** | D + Self-Correction (max 2 retries) | **62.28%** | [59.28%, 65.09%] | **1.13×** | 3.16 s | 11.15 s | Δ=0 |
-| **F** | D + Consensus Voting (N=5) | **62.28%** | [59.28%, 65.09%] | **5.0×** | 10.99 s | 22.94 s | Δ=0 |
-| **G** | D + Self-Correction + Voting | **62.28%** | [59.28%, 65.09%] | **5.63×** | 15.99 s | 56.47 s | Δ=0 |
+| **BASE+greedy** | Base model, greedy, guarded (was D in ablation) | **62.28%** | [59.28%, 65.09%] | 1.0× | 2.21 s | 4.61 s | baseline |
+| **BASE+SC** | BASE+greedy + Self-Correction (max 2 retries, was E) | **62.28%** | [59.28%, 65.09%] | **1.13×** | 3.16 s | 11.15 s | Δ=0 (p=1.0) |
+| **BASE+V** | BASE+greedy + Consensus Voting (N=5, was F) | **62.28%** | [59.28%, 65.09%] | **5.0×** | 10.99 s | 22.94 s | Δ=0 (p=1.0) |
+| **BASE+SC+V** | BASE+greedy + Self-Correction + Voting (was G) | **62.28%** | [59.28%, 65.09%] | **5.63×** | 15.99 s | 56.47 s | Δ=0 (p=1.0) |
 
 ### Multi-Seed Stability (300-question stratified subset)
 

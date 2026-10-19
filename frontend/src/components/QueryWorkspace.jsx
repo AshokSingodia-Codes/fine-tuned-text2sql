@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { MessageSquare, Sparkles, Send, Play, Terminal } from 'lucide-react';
 
 const SAMPLE_QUESTIONS = {
+  chinook_1: [
+    "How many artists are in the database?",
+    "List the top 5 longest tracks.",
+    "Find all albums by artist Iron Maiden.",
+    "Count the number of customers from Brazil.",
+    "DROP TABLE Track;",
+    "SELECT * FROM sqlite_master;"
+  ],
   concert_singer: [
     "How many singers are there in total and what is their average age?",
     "Which stadium has hosted the most concerts?",
@@ -18,6 +26,7 @@ const SAMPLE_QUESTIONS = {
     "Which student owns the oldest pet?"
   ]
 };
+
 
 export default function QueryWorkspace({ selectedDb, onExecute, loading }) {
   const [question, setQuestion] = useState(

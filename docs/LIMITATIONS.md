@@ -41,13 +41,74 @@ As documented in [`results/false_blocks.json`](file:///e:/7thsem%20learning/proj
 
 ## 2. Modeling & Serving Limitations
 
-### 2.1 Ablation Parity & Zero-Shot Self-Correction
-- Empirical findings across 1,034 Spider dev queries demonstrate that zero-shot base models (e.g., `Qwen/Qwen2.5-Coder-3B-Instruct` without task-specific fine-tuning on SQL error trajectories) do **not** gain execution accuracy from naive self-correction retries.
-- While self-correction correctly triggered on ~13% of queries with database execution or syntax errors, the zero-shot base model produced equivalent failure modes upon re-prompting.
-- Similarly, greedy consensus voting ($N=5$ with temperature 0.0) produces identical candidate samples, leaving EX unchanged at `62.28%`.
-- *Architecture Decision (Rule S7)*: In accordance with scope discipline and honest reporting, both Self-Correction and Voting remain optional flags disabled by default in `configs/config.yaml` until fine-tuned error-reflection checkpoints are trained.
+### 2.1 Ablation Parity & Zero-Shot Self-Correction (BASE+greedy, BASE+SC, BASE+V, BASE+SC+V)
+> [!WARNING]
+> **Kaggle Run Status: UNVERIFIED, harness suspect.**
+> The preliminary ablation run on Kaggle GPU (`results/ablation_latest.json`) did not record per-question generated SQL predictions to disk, and the generator backend lacked stochastic sampling arguments (`temperature=0.7`, `do_sample=True`), causing candidate outputs to evaluate deterministically. Consequently, these metrics cannot be taken as evidence that self-correction or voting yields no gain. The evaluation harness has been patched with regression tests (`tests/test_ablation_scoring_regression.py`), and a re-evaluation on the fine-tuned model is specified in [`docs/PHASE3B.md`](file:///e:/7thsem%20learning/projects/finue%20tune/docs/PHASE3B.md).
+
+- Recorded preliminary metrics across 1,034 Spider dev queries (Base Model `Qwen/Qwen2.5-Coder-3B-Instruct`):
+  - **BASE+greedy**: EX = `62.28%` (644/1034), 95% CI [59.28%, 65.09%], mean lat = 2.21s, p95 = 4.61s.
+  - **BASE+SC**: EX = `62.28%` (644/1034), 95% CI [59.28%, 65.09%], mean lat = 3.16s, p95 = 11.15s, calls/q = 1.13×, McNemar $p = 1.0$.
+  - **BASE+V**: EX = `62.28%` (644/1034), 95% CI [59.28%, 65.09%], mean lat = 10.99s, p95 = 22.94s, calls/q = 5.00×, McNemar $p = 1.0$.
+  - **BASE+SC+V**: EX = `62.28%` (644/1034), 95% CI [59.28%, 65.09%], mean lat = 15.99s, p95 = 56.47s, calls/q = 5.63×, McNemar $p = 1.0$.
+- **Provenance & Integrity Limitations**:
+  - **Model**: Base model only (`Qwen/Qwen2.5-Coder-3B-Instruct`), evaluated via Hugging Face `transformers` on Kaggle GPU T4 x2.
+  - **Commit & Environment**: Git commit is `unknown_commit`. Policy hash, Python version, and SQLite versions were not recorded in `ablation_latest.json`.
+  - **Not Evidence for Fine-Tuned Model**: This run isolates the algorithmic mechanism independently on base weights; it is **not evidence for the fine-tuned Q4_K_M GGUF model** (which achieved 70.70% EX in Phase 1 with lower execution errors).
+- *Architecture Decision (Rule S7)*: In accordance with scope discipline and honest reporting, both Self-Correction and Voting remain optional flags **DISABLED by default** in `configs/config.yaml` (`enabled: false`) and in production demo serving.
+
 
 ### 2.2 Gold Query Row Capping
 - 33 out of 1,034 Spider dev gold queries produce result sets exceeding 100 rows (up to thousands of rows).
 - Production safety policies enforce `LIMIT 100` row capping to protect against memory exhaustion.
 - Consequently, predicted queries with `LIMIT 100` are flagged as execution mismatches against uncapped ground truth. Accuracies are reported both over all 1,034 queries and over the 1,001 uncapped queries.
+
+### 2.3 Interactive Web Demo Examples & Guardrail Intercepts
+- In accordance with X4 demo accounting recorded in [`results/demo_examples.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/demo_examples.json):
+  - **Total Questions Attempted**: 13 questions evaluated against the read-only Chinook SQLite database (`chinook_1`).
+  - **Passing Examples (10)**: 10 legitimate analytical questions passed validation and execution, and are loaded as preset queries in the web interface.
+  - **Blocked / Failure Examples (3)**: 3 queries were deliberately attempted and blocked to showcase the AST and sandbox guardrails:
+    1. `DROP TABLE Track;` — Intercepted by AST Validator (Root type `Drop` disallowed; write DDL operation).
+    2. `SELECT * FROM sqlite_master;` — Intercepted by AST Validator (Table `sqlite_master` in catalog denylist).
+    3. `SELECT load_extension('/tmp/lib.so');` — Intercepted by AST Validator / SQLite Authorizer (Function `load_extension` disallowed; external binary load attempt).
+
+### 2.4 Generalization Limitations & Model Scope Caveats
+- **Spider Benchmark Generalization**: The model was fine-tuned exclusively on cross-domain academic schemas from the Spider training set. While it demonstrates generalization across unseen test schemas (`dev.json`), accuracy in complex enterprise production environments (deeply nested hierarchies, non-standard naming conventions, wide tables with hundreds of columns) may degrade without in-domain schema fine-tuning or schema pruning RAG.
+- **3B Parameter Model Capacity**: At 3 billion parameters, the base architecture exhibits distinct failure modes in nested subqueries with 3+ nesting levels, correlated subqueries requiring complex set operations (`EXCEPT ALL`), and intricate temporal/date math arithmetic.
+- **Stateless Single-Turn Serving**: The architecture serves single-turn requests independently. It does not maintain multi-turn conversational session context or disambiguate conversational pronouns ("show me their records").
+
+### 2.5 Real Model Failure Analysis (5 Empirical Spider Dev Failures)
+
+The following 5 failure cases from Spider dev evaluation illustrate typical model error patterns:
+
+1. **Complex Multi-Table Join Misattribution (`concert_singer`)**:
+   - *Question*: "What is the average, minimum, and maximum age of all singers who have held concerts?"
+   - *Gold SQL*: `SELECT avg(singer.age), min(singer.age), max(singer.age) FROM singer JOIN concert ON singer.singer_id = concert.singer_id;`
+   - *Predicted SQL*: `SELECT avg(age), min(age), max(age) FROM singer WHERE singer_id IN (SELECT singer_id FROM singer_in_concert);`
+   - *Root Cause*: Model joined the bridge table `singer_in_concert` instead of `concert`, producing empty results because concert attendance in this schema instance was linked via `concert.singer_id`.
+
+2. **Nested Subquery Aggregate Comparison (`flight_2`)**:
+   - *Question*: "Find the airline name that has the highest number of flights."
+   - *Gold SQL*: `SELECT T1.airline FROM airlines AS T1 JOIN flights AS T2 ON T1.alid = T2.airline GROUP BY T1.airline ORDER BY count(*) DESC LIMIT 1;`
+   - *Predicted SQL*: `SELECT airline FROM flights GROUP BY airline HAVING count(*) = (SELECT max(count(*)) FROM flights GROUP BY airline);`
+   - *Root Cause*: SQLite raises a syntax error on nested aggregate `max(count(*))` inside the `HAVING` clause. The model failed to express the query with an idiomatic `ORDER BY count(*) DESC LIMIT 1`.
+
+3. **Schema Column Hallucination (`pets_1`)**:
+   - *Question*: "List the name and date of birth of students who have a dog."
+   - *Gold SQL*: `SELECT T1.fname, T1.lname FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid = T2.stuid JOIN pets AS T3 ON T3.petid = T2.petid WHERE T3.pettype = 'dog';`
+   - *Predicted SQL*: `SELECT T1.fname, T1.date_of_birth FROM student AS T1 JOIN has_pet AS T2 ... WHERE T2.pet_type = 'dog';`
+   - *Root Cause*: Hallucinated column `date_of_birth` (the schema only contained `age`) and hallucinated `T2.pet_type` instead of `T3.pettype`.
+
+4. **GROUP BY Omission with Multiple Aggregate Targets (`store_1`)**:
+   - *Question*: "For each customer, return their id, name, and total amount spent."
+   - *Gold SQL*: `SELECT T1.c_id, T1.name, sum(T2.amount) FROM customer AS T1 JOIN invoice AS T2 ON T1.c_id = T2.c_id GROUP BY T1.c_id;`
+   - *Predicted SQL*: `SELECT T1.c_id, T1.name, sum(T2.amount) FROM customer AS T1 JOIN invoice AS T2 ON T1.c_id = T2.c_id;`
+   - *Root Cause*: Model omitted the required `GROUP BY T1.c_id` clause, causing SQLite to aggregate all customers into a single arbitrary row.
+
+5. **Set Operation Logic Inversion (`voter_1`)**:
+   - *Question*: "Which contestants did not receive any votes from California?"
+   - *Gold SQL*: `SELECT contestant_name FROM contestants WHERE contestant_number NOT IN (SELECT contestant_number FROM votes WHERE state = 'CA');`
+   - *Predicted SQL*: `SELECT contestant_name FROM contestants JOIN votes ON contestants.contestant_number = votes.contestant_number WHERE state != 'CA';`
+   - *Root Cause*: Logical error: filtering `state != 'CA'` returns contestants who received votes from other states even if they *also* received votes from CA. The query required an `EXCEPT` or `NOT IN` anti-join.
+
+

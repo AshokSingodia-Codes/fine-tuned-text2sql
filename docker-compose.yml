@@ -1,24 +1,49 @@
 version: '3.8'
 
 services:
-  api:
-    build: .
+  # Demo Profile: Single container serving React frontend + FastAPI backend on port 7860
+  demo-app:
+    profiles: ["demo"]
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "7860:7860"
     environment:
-      - ENV=production
+      - APP_PROFILE=demo
+      - PORT=7860
       - MODEL_BACKEND=mock
+      - DISABLE_AUTH=true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 15s
       timeout: 5s
       retries: 3
 
-  react-ui:
+  # Dev Profile: Multi-container setup with hot reload for local development
+  dev-api:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./configs:/app/configs
+    environment:
+      - APP_PROFILE=dev
+      - PORT=8000
+      - MODEL_BACKEND=mock
+      - DISABLE_AUTH=true
+    command: ["uvicorn", "src.t2s.serving.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  dev-frontend:
+    profiles: ["dev"]
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "3000:80"
     depends_on:
-      - api
+      - dev-api

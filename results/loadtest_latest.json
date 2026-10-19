@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-19T20:04:16.890394+00:00",
+    "target_url": "http://127.0.0.1:8000",
+    "backend": "stub (mock)",
+    "benchmark_scope": "Load benchmark using stub backend",
+    "hardware": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+      "physical_cores": 10,
+      "logical_cores": 12,
+      "total_ram_gb": 7.68,
+      "python_version": "3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]"
+    },
+    "note": "Measures concurrency semaphore, bounded queue depth, request latency, and 429/503/504 degradation."
+  },
+  "tiers": {
+    "concurrency_1": {
+      "concurrency": 1,
+      "total_requests": 10,
+      "wall_clock_sec": 0.225,
+      "throughput_req_per_sec": 44.52,
+      "p50_latency_sec": 0.0255,
+      "p95_latency_sec": 0.0395,
+      "p99_latency_sec": 0.0395,
+      "status_distribution": {
+        "200": 10
+      },
+      "error_5xx_rate": 0.0,
+      "rate_limited_429_rate": 0.0
+    },
+    "concurrency_2": {
+      "concurrency": 2,
+      "total_requests": 10,
+      "wall_clock_sec": 0.135,
+      "throughput_req_per_sec": 74.2,
+      "p50_latency_sec": 0.0249,
+      "p95_latency_sec": 0.0352,
+      "p99_latency_sec": 0.0352,
+      "status_distribution": {
+        "200": 10
+      },
+      "error_5xx_rate": 0.0,
+      "rate_limited_429_rate": 0.0
+    },
+    "concurrency_4": {
+      "concurrency": 4,
+      "total_requests": 10,
+      "wall_clock_sec": 0.092,
+      "throughput_req_per_sec": 108.5,
+      "p50_latency_sec": 0.0339,
+      "p95_latency_sec": 0.0457,
+      "p99_latency_sec": 0.0457,
+      "status_distribution": {
+        "200": 10
+      },
+      "error_5xx_rate": 0.0,
+      "rate_limited_429_rate": 0.0
+    }
+  }
+}

@@ -1,0 +1,810 @@
+{
+  "metadata": {
+    "date": "2026-10-20T00:41:34.497398",
+    "git_commit_hash": "e7b2f9f934b4e6065a7eb2df3d8be73ba1e7c351",
+    "seed": 42,
+    "dataset_split": "Spider dev",
+    "eval_limit": 5,
+    "backend_used": "mock",
+    "prompt_template": "System: 'You are a text-to-SQL assistant. Return only one SQLite SELECT query. No explanations.' | User: '### SQLite Schema:\\n{schema}\\n\\n### Question:\\n{question}'"
+  },
+  "configs": {
+    "A": {
+      "config_id": "A",
+      "config_name": "Base Zero-Shot",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.003,
+      "p95_latency_sec": 0.013,
+      "mcnemar_vs_d": null,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.02,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.013
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        }
+      ]
+    },
+    "B": {
+      "config_id": "B",
+      "config_name": "Base 3-Shot",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.001,
+      "p95_latency_sec": 0.001,
+      "mcnemar_vs_d": null,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.0,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        }
+      ]
+    },
+    "C": {
+      "config_id": "C",
+      "config_name": "Fine-Tuned FP16",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.001,
+      "p95_latency_sec": 0.001,
+      "mcnemar_vs_d": null,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.0,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        }
+      ]
+    },
+    "D": {
+      "config_id": "D",
+      "config_name": "Quantized GGUF Q4_K_M",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.001,
+      "p95_latency_sec": 0.001,
+      "mcnemar_vs_d": null,
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.01,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        }
+      ]
+    },
+    "E": {
+      "config_id": "E",
+      "config_name": "Fine-Tuned + Self-Correction",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 1.0,
+      "avg_latency_sec": 0.001,
+      "p95_latency_sec": 0.001,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "statistic": 0.0,
+        "contingency": {
+          "both_correct": 0,
+          "d_only": 0,
+          "other_only": 0,
+          "both_incorrect": 5
+        }
+      },
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.01,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.001
+        }
+      ]
+    },
+    "F": {
+      "config_id": "F",
+      "config_name": "Fine-Tuned + Consensus Voting (N=5)",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 5.0,
+      "avg_latency_sec": 0.004,
+      "p95_latency_sec": 0.004,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "statistic": 0.0,
+        "contingency": {
+          "both_correct": 0,
+          "d_only": 0,
+          "other_only": 0,
+          "both_incorrect": 5
+        }
+      },
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.02,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.004
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.004
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.004
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.004
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.004
+        }
+      ]
+    },
+    "G": {
+      "config_id": "G",
+      "config_name": "Fine-Tuned + Both (Self-Correction + Voting)",
+      "total_examples": 5,
+      "execution_accuracy": 0.0,
+      "bootstrap_ci_95": [
+        0.0,
+        0.0
+      ],
+      "valid_sql_rate": 1.0,
+      "execution_error_rate": 0.0,
+      "timeout_rate": 0.0,
+      "blocked_by_guardrail_rate": 0.0,
+      "avg_model_calls_per_question": 5.0,
+      "avg_latency_sec": 0.01,
+      "p95_latency_sec": 0.012,
+      "mcnemar_vs_d": {
+        "p_value": 1.0,
+        "statistic": 0.0,
+        "contingency": {
+          "both_correct": 0,
+          "d_only": 0,
+          "other_only": 0,
+          "both_incorrect": 5
+        }
+      },
+      "difficulty_breakdown": {
+        "easy": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "medium": {
+          "total": 5,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "hard": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        },
+        "extra": {
+          "total": 0,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "generation_duration_sec": 0.05,
+      "binary_matches": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "item_results": [
+        {
+          "question": "How many singers do we have?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.012
+        },
+        {
+          "question": "What is the total number of singers?",
+          "db_id": "concert_singer",
+          "gold": "SELECT count(*) FROM singer",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.01
+        },
+        {
+          "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.009
+        },
+        {
+          "question": "What are the names, countries, and ages for every singer in descending order of age?",
+          "db_id": "concert_singer",
+          "gold": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.009
+        },
+        {
+          "question": "What is the average, minimum, and maximum age of all singers from France?",
+          "db_id": "concert_singer",
+          "gold": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+          "pred": "SELECT 1;",
+          "verdict_allowed": true,
+          "exec_match": false,
+          "gold_ok": true,
+          "pred_ok": true,
+          "pred_error": null,
+          "latency_sec": 0.009
+        }
+      ]
+    }
+  }
+}

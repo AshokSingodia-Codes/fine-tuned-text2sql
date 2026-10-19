@@ -2,7 +2,7 @@
   "metadata": {
     "dataset": "spider_dev",
     "total_queries": 1034,
-    "commit_hash": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "commit_hash": "e7b2f9f934b4e6065a7eb2df3d8be73ba1e7c351",
     "policy_sha256": "682e3439354213f37b7645592a57b439a94f3d5073794fa86a349ca5761a8daa",
     "seed": 42
   },

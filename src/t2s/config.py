@@ -53,6 +53,17 @@ class VotingConfig:
 
 
 @dataclass
+class ServingConfig:
+    max_concurrent_generations: int = 1
+    max_queue_depth: int = 10
+    request_timeout_seconds: float = 30.0
+    max_tokens_cap: int = 256
+    max_request_bytes: int = 65536
+    global_rate_limit_per_minute: int = 60
+    enable_metrics_auth: bool = False
+
+
+@dataclass
 class AppConfig:
     seed: int = 42
     paths: PathsConfig = field(default_factory=PathsConfig)
@@ -61,6 +72,7 @@ class AppConfig:
     generation: GenerationConfig = field(default_factory=GenerationConfig)
     self_correction: SelfCorrectionConfig = field(default_factory=SelfCorrectionConfig)
     voting: VotingConfig = field(default_factory=VotingConfig)
+    serving: ServingConfig = field(default_factory=ServingConfig)
 
     @classmethod
     def load(cls, config_path: str = "configs/config.yaml") -> "AppConfig":
@@ -77,6 +89,7 @@ class AppConfig:
         gen_data = data.get("generation", {})
         sc_data = data.get("self_correction", {})
         voting_data = data.get("voting", {})
+        serving_data = data.get("serving", {})
 
         return cls(
             seed=data.get("seed", 42),
@@ -86,6 +99,7 @@ class AppConfig:
             generation=GenerationConfig(**gen_data),
             self_correction=SelfCorrectionConfig(**sc_data),
             voting=VotingConfig(**voting_data),
+            serving=ServingConfig(**serving_data),
         )
 
 

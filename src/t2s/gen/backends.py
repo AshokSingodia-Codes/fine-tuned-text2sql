@@ -53,7 +53,12 @@ class TransformersBackend(BaseBackend):
         )
         self.max_new_tokens = max_new_tokens
 
-    def generate(self, prompts: List[List[Dict[str, str]]]) -> List[Dict[str, Any]]:
+    def generate(
+        self,
+        prompts: List[List[Dict[str, str]]],
+        do_sample: bool = False,
+        temperature: float = 0.0,
+    ) -> List[Dict[str, Any]]:
         results = []
         for prompt_msgs in prompts:
             start = time.perf_counter()
@@ -63,11 +68,17 @@ class TransformersBackend(BaseBackend):
             inputs = self.tokenizer(prompt_text, return_tensors="pt").to(self.model.device)
             prompt_len = inputs["input_ids"].shape[1]
 
+            gen_kwargs = {
+                "max_new_tokens": self.max_new_tokens,
+                "do_sample": do_sample if temperature > 0.0 else False,
+            }
+            if do_sample and temperature > 0.0:
+                gen_kwargs["temperature"] = temperature
+                gen_kwargs["top_p"] = 0.9
+
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=self.max_new_tokens,
-                do_sample=False,
-                temperature=0.0,
+                **gen_kwargs,
             )
             generated_ids = outputs[0][prompt_len:]
             text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)

@@ -27,4 +27,11 @@ voting:
   per_candidate_timeout_seconds: 3.0
   total_budget_seconds: 15.0
   max_concurrent: 4
-
+serving:
+  max_concurrent_generations: 1
+  max_queue_depth: 10
+  request_timeout_seconds: 30.0
+  max_tokens_cap: 256
+  max_request_bytes: 65536
+  global_rate_limit_per_minute: 60
+  enable_metrics_auth: false

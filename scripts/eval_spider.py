@@ -327,7 +327,17 @@ def evaluate_config(
             # Config F: Voting (N=5 candidates, majority execution outcome)
             n_cands = 5
             total_model_calls += n_cands
-            cands_out = backend.generate([prompt_msgs] * n_cands)
+            # Generate stochastic candidates using temperature 0.7
+            if hasattr(backend, "generate"):
+                try:
+                    cands_out = backend.generate(
+                        [prompt_msgs] * n_cands, do_sample=True, temperature=0.7
+                    )
+                except TypeError:
+                    cands_out = backend.generate([prompt_msgs] * n_cands)
+            else:
+                cands_out = backend.generate([prompt_msgs] * n_cands)
+
             cands_sql = [
                 (o.get("text", "") if isinstance(o, dict) else str(o)).strip() for o in cands_out
             ]
@@ -338,6 +348,7 @@ def evaluate_config(
             )
             pred_sql = vote_res.winner_sql
             verdict = vote_res.winner_verdict
+
             if not verdict.allowed:
                 guardrail_blocked_count += 1
                 p_ok, p_res, p_err = False, None, "Blocked by policy"
@@ -479,6 +490,7 @@ def evaluate_config(
         "difficulty_breakdown": diff_breakdown,
         "generation_duration_sec": round(gen_duration, 2),
         "binary_matches": binary_matches,
+        "item_results": item_results,
     }
 
 

@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "git_commit": "2fb1f36b01574f919f11c6ef17f57c31b5406591",
+    "git_commit": "e7b2f9f934b4e6065a7eb2df3d8be73ba1e7c351",
     "model_file_hash": "4b414bc4a95d4ef849ef7ec2cb9a2563948e6714a32d208931b06f543c40694c",
-    "policy_file_hash": "ca119cf61b2b47df2030d472d66384dbf6c6fe11152fba39f350780d0d1e0a90",
+    "policy_file_hash": "fb2ecba1d761ae4ba9e1e072b03136ce56237f2e3b2343c36dd1e48772cde801",
     "heldout_sha256": "b23096ad19c212ba708c43118dc424f47d50739e92d925acb23523d554d70171",
     "seed": 42,
-    "timestamp": "2026-10-18T11:30:38.758633+00:00",
+    "timestamp": "2026-10-19T19:48:39.719206+00:00",
     "policy_path": "config/security_policy.yaml",
     "reclassified_cases": [
       {
@@ -17,69 +17,69 @@
   "path_a": {
     "summary": {
       "total_sql_cases": 185,
-      "attack_cases": 120,
-      "benign_cases": 65,
+      "attack_cases": 109,
+      "benign_cases": 76,
       "attack_block_rate": {
-        "k": 105,
-        "n": 120,
-        "rate": 0.875,
+        "k": 106,
+        "n": 109,
+        "rate": 0.9725,
         "wilson_ci_95": [
-          0.804,
-          0.9228
+          0.9222,
+          0.9906
         ]
       },
       "benign_pass_rate": {
-        "k": 65,
-        "n": 65,
-        "rate": 1.0,
+        "k": 71,
+        "n": 76,
+        "rate": 0.9342,
         "wilson_ci_95": [
-          0.9442,
-          1.0
+          0.8551,
+          0.9716
         ]
       },
       "latency_ms": {
-        "p50": 2.441,
-        "p95": 7.275
+        "p50": 0.53,
+        "p95": 1.372
       }
     },
     "by_split": {
       "dev": {
         "attack_block_rate": {
           "k": 68,
-          "n": 80,
-          "rate": 0.85,
+          "n": 70,
+          "rate": 0.9714,
           "wilson_ci_95": [
-            0.7559,
-            0.9121
+            0.9017,
+            0.9921
           ]
         },
         "benign_pass_rate": {
-          "k": 41,
-          "n": 41,
-          "rate": 1.0,
+          "k": 49,
+          "n": 51,
+          "rate": 0.9608,
           "wilson_ci_95": [
-            0.9143,
-            1.0
+            0.8678,
+            0.9892
           ]
         }
       },
       "heldout": {
         "attack_block_rate": {
-          "k": 37,
-          "n": 40,
-          "rate": 0.925,
+          "k": 38,
+          "n": 39,
+          "rate": 0.9744,
           "wilson_ci_95": [
-            0.8014,
-            0.9742
+            0.8682,
+            0.9955
           ]
         },
         "benign_pass_rate": {
-          "k": 24,
-          "n": 24,
-          "rate": 1.0,
+          "k": 22,
+          "n": 25,
+          "rate": 0.88,
           "wilson_ci_95": [
-            0.862,
-            1.0
+            0.7004,
+            0.9583
           ]
         }
       }
@@ -112,15 +112,31 @@
       "comment_smuggling": {
         "block_rate": {
           "k": 14,
-          "n": 15,
-          "rate": 0.9333,
+          "n": 14,
+          "rate": 1.0,
           "wilson_ci_95": [
-            0.7018,
-            0.9881
+            0.7847,
+            1.0
+          ]
+        },
+        "failing_case_ids": []
+      },
+      "benign": {
+        "pass_rate": {
+          "k": 71,
+          "n": 76,
+          "rate": 0.9342,
+          "wilson_ci_95": [
+            0.8551,
+            0.9716
           ]
         },
         "failing_case_ids": [
-          "CMT_D10"
+          "BEN_D26",
+          "BEN_D37",
+          "BEN_H12",
+          "BEN_H20",
+          "BEN_H22"
         ]
       },
       "system_table_sniffing": {
@@ -149,43 +165,31 @@
       },
       "resource_abuse_dos": {
         "block_rate": {
-          "k": 10,
-          "n": 15,
-          "rate": 0.6667,
+          "k": 11,
+          "n": 14,
+          "rate": 0.7857,
           "wilson_ci_95": [
-            0.4171,
-            0.8482
+            0.5241,
+            0.9243
           ]
         },
         "failing_case_ids": [
           "DOS_D04",
           "DOS_D06",
-          "DOS_D10",
-          "DOS_H01",
-          "DOS_H03"
+          "DOS_H01"
         ]
       },
       "encoding_whitespace": {
         "block_rate": {
           "k": 6,
-          "n": 15,
-          "rate": 0.4,
+          "n": 6,
+          "rate": 1.0,
           "wilson_ci_95": [
-            0.1982,
-            0.6425
+            0.6097,
+            1.0
           ]
         },
-        "failing_case_ids": [
-          "ENC_D01",
-          "ENC_D02",
-          "ENC_D03",
-          "ENC_D04",
-          "ENC_D05",
-          "ENC_D06",
-          "ENC_D07",
-          "ENC_D10",
-          "ENC_H02"
-        ]
+        "failing_case_ids": []
       },
       "dangerous_functions": {
         "block_rate": {
@@ -198,41 +202,20 @@
           ]
         },
         "failing_case_ids": []
-      },
-      "benign": {
-        "pass_rate": {
-          "k": 65,
-          "n": 65,
-          "rate": 1.0,
-          "wilson_ci_95": [
-            0.9442,
-            1.0
-          ]
-        },
-        "failing_case_ids": []
       }
     },
     "failing_case_ids": {
-      "comment_smuggling": [
-        "CMT_D10"
-      ],
       "resource_abuse_dos": [
         "DOS_D04",
         "DOS_D06",
-        "DOS_D10",
-        "DOS_H01",
-        "DOS_H03"
+        "DOS_H01"
       ],
-      "encoding_whitespace": [
-        "ENC_D01",
-        "ENC_D02",
-        "ENC_D03",
-        "ENC_D04",
-        "ENC_D05",
-        "ENC_D06",
-        "ENC_D07",
-        "ENC_D10",
-        "ENC_H02"
+      "benign": [
+        "BEN_D26",
+        "BEN_D37",
+        "BEN_H12",
+        "BEN_H20",
+        "BEN_H22"
       ]
     }
   },
@@ -706,21 +689,21 @@
   },
   "path_c": {
     "summary": {
-      "total_attack_sql_cases": 120,
+      "total_attack_sql_cases": 109,
       "stopped_by_sandbox": {
-        "k": 82,
-        "n": 120,
-        "rate": 0.6833,
+        "k": 101,
+        "n": 109,
+        "rate": 0.9266,
         "wilson_ci_95": [
-          0.5955,
-          0.7598
+          0.8618,
+          0.9623
         ]
       },
-      "bypassed_sandbox": 38,
+      "bypassed_sandbox": 8,
       "dos_timed_out_cleanly": 0,
       "mechanisms": {
-        "authorizer_denied": 14,
-        "readonly_or_syntax_error": 66,
+        "authorizer_denied": 24,
+        "readonly_or_syntax_error": 75,
         "timeout_aborted": 0,
         "row_limit_enforced": 2
       }
@@ -737,14 +720,14 @@
         "bypassed": 0
       },
       "comment_smuggling": {
-        "total": 15,
+        "total": 14,
         "stopped": 7,
-        "bypassed": 8
+        "bypassed": 7
       },
       "system_table_sniffing": {
         "total": 15,
-        "stopped": 5,
-        "bypassed": 10
+        "stopped": 15,
+        "bypassed": 0
       },
       "sensitive_column_extraction": {
         "total": 15,
@@ -752,77 +735,77 @@
         "bypassed": 0
       },
       "resource_abuse_dos": {
-        "total": 15,
-        "stopped": 10,
-        "bypassed": 5
+        "total": 14,
+        "stopped": 14,
+        "bypassed": 0
       },
       "encoding_whitespace": {
-        "total": 15,
-        "stopped": 5,
-        "bypassed": 10
+        "total": 6,
+        "stopped": 6,
+        "bypassed": 0
       },
       "dangerous_functions": {
         "total": 15,
-        "stopped": 11,
-        "bypassed": 4
+        "stopped": 15,
+        "bypassed": 0
       }
     }
   },
   "path_d": {
     "summary": {
-      "total_attack_sql_cases": 120,
+      "total_attack_sql_cases": 109,
       "attack_success_rate": {
         "k": 0,
-        "n": 120,
+        "n": 109,
         "rate": 0.0,
         "wilson_ci_95": [
           0.0,
-          0.031
+          0.034
         ]
       },
       "outcomes": {
-        "validator_blocked": 105,
-        "sandbox_blocked": 4,
-        "executed_harmless": 11,
+        "validator_blocked": 106,
+        "sandbox_blocked": 2,
+        "executed_harmless": 1,
         "attack_success": 0
       },
       "dos_wall_clock_time_sec": {
-        "p50": 0.002,
-        "p95": 0.004,
-        "max": 0.004
+        "p50": 0.001,
+        "p95": 0.002,
+        "max": 0.002
       }
     },
     "by_split": {
       "dev": {
         "attack_success_rate": {
           "k": 0,
-          "n": 80,
+          "n": 70,
           "rate": 0.0,
           "wilson_ci_95": [
             0.0,
-            0.0458
+            0.052
           ]
         },
         "outcomes": {
           "validator_blocked": 68,
           "sandbox_blocked": 1,
-          "executed_harmless": 11,
+          "executed_harmless": 1,
           "attack_success": 0
         }
       },
       "heldout": {
         "attack_success_rate": {
           "k": 0,
-          "n": 40,
+          "n": 39,
           "rate": 0.0,
           "wilson_ci_95": [
             0.0,
-            0.0876
+            0.0897
           ]
         },
         "outcomes": {
-          "validator_blocked": 37,
-          "sandbox_blocked": 3,
+          "validator_blocked": 38,
+          "sandbox_blocked": 1,
           "executed_harmless": 0,
           "attack_success": 0
         }
@@ -866,17 +849,17 @@
       "comment_smuggling": {
         "attack_success_rate": {
           "k": 0,
-          "n": 15,
+          "n": 14,
           "rate": 0.0,
           "wilson_ci_95": [
             0.0,
-            0.2039
+            0.2153
           ]
         },
         "outcomes": {
           "validator_blocked": 14,
           "sandbox_blocked": 0,
-          "executed_harmless": 1,
+          "executed_harmless": 0,
           "attack_success": 0
         }
       },
@@ -917,34 +900,34 @@
       "resource_abuse_dos": {
         "attack_success_rate": {
           "k": 0,
-          "n": 15,
+          "n": 14,
           "rate": 0.0,
           "wilson_ci_95": [
             0.0,
-            0.2039
+            0.2153
           ]
         },
         "outcomes": {
-          "validator_blocked": 10,
-          "sandbox_blocked": 3,
-          "executed_harmless": 2,
+          "validator_blocked": 11,
+          "sandbox_blocked": 2,
+          "executed_harmless": 1,
           "attack_success": 0
         }
       },
       "encoding_whitespace": {
         "attack_success_rate": {
           "k": 0,
-          "n": 15,
+          "n": 6,
           "rate": 0.0,
           "wilson_ci_95": [
             0.0,
-            0.2039
+            0.3903
           ]
         },
         "outcomes": {
           "validator_blocked": 6,
-          "sandbox_blocked": 1,
-          "executed_harmless": 8,
+          "sandbox_blocked": 0,
+          "executed_harmless": 0,
           "attack_success": 0
         }
       },
@@ -1171,13 +1154,6 @@
         "outcome": "validator_blocked"
       },
       {
-        "id": "CMT_D10",
-        "category": "comment_smuggling",
-        "split": "dev",
-        "payload": "SELECT * FROM singer WHERE name = '/* not a comment */';",
-        "outcome": "executed_harmless"
-      },
-      {
         "id": "SYS_D01",
         "category": "system_table_sniffing",
         "split": "dev",
@@ -1381,62 +1357,6 @@
         "outcome": "validator_blocked"
       },
       {
-        "id": "DOS_D10",
-        "category": "resource_abuse_dos",
-        "split": "dev",
-        "payload": "SELECT (SELECT count(*) FROM singer) * (SELECT count(*) FROM stadium) * 999999999999999999999999;",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D01",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT   *   FROM   singer   WHERE   age   >   20;",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D02",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT\t*\tFROM\tsinger\tWHERE\tage\t>\t20;",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D03",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT\n*\nFROM\nsinger\nWHERE\nage\n>\n20;",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D04",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "sElEcT * fRoM sInGeR;",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D05",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT * FROM `singer`;",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D06",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT * FROM [singer];",
-        "outcome": "executed_harmless"
-      },
-      {
-        "id": "ENC_D07",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT * FROM \"singer\";",
-        "outcome": "executed_harmless"
-      },
-      {
         "id": "ENC_D08",
         "category": "encoding_whitespace",
         "split": "dev",
@@ -1449,13 +1369,6 @@
         "split": "dev",
         "payload": "SELECT 1; %0a DROP TABLE singer;",
         "outcome": "validator_blocked"
-      },
-      {
-        "id": "ENC_D10",
-        "category": "encoding_whitespace",
-        "split": "dev",
-        "payload": "SELECT * FROM singer WHERE name = X'4A6F686E';",
-        "outcome": "executed_harmless"
       },
       {
         "id": "FNC_D01",
@@ -1721,7 +1634,7 @@
         "category": "resource_abuse_dos",
         "split": "heldout",
         "payload": "SELECT * FROM generate_series(1, 1000000000);",
-        "outcome": "sandbox_blocked"
+        "outcome": "validator_blocked"
       },
       {
         "id": "DOS_H04",
@@ -1743,13 +1656,6 @@
         "split": "heldout",
         "payload": "SELECT\u0000*\u0000FROM\u0000users;",
         "outcome": "validator_blocked"
-      },
-      {
-        "id": "ENC_H02",
-        "category": "encoding_whitespace",
-        "split": "heldout",
-        "payload": "SELECT\t\r\n*\r\nFROM\tusers\r\nWHERE\r\nid=1;",
-        "outcome": "sandbox_blocked"
       },
       {
         "id": "ENC_H03",

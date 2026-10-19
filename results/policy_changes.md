@@ -15,10 +15,7 @@
 - **Proposed Solution:** In `src/t2s/safety/validator.py`, add an explicit function alias/normalization map before the allowlist check, or add these 5 benign canonical tokens to `policy.allowed_functions`:
   ```python
   # Proposed additions to allowed_functions:
-  allowed_functions = [
-      ...,
-      "timetostr", "tsordstotimestamp", "rownumber", "denserank", "exists"
-  ]
+  allowed_functions = [..., "timetostr", "tsordstotimestamp", "rownumber", "denserank", "exists"]
   ```
 - **Classification:** (b) Unexpected false block / parser representation gap.
 - **Action:** Held in proposal queue until `heldout_v3` evaluation completes.

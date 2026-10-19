@@ -1,0 +1,33 @@
+NOTICE
+======
+
+Fine-Tuned Text-to-SQL Assistant with Safe LLM Serving
+Copyright (c) 2026 Ashok Singodia
+
+This product includes software and models developed by third parties:
+
+1. Qwen2.5-Coder-3B-Instruct Base Model
+   - Copyright (c) Alibaba Cloud / Hangzhou Tongyi Laboratory Technology Co., Ltd.
+   - Licensed under the Qwen Research License Agreement.
+   - Use is restricted strictly to non-commercial research and evaluation purposes.
+   - Any commercial use requires a separate commercial license from Alibaba Cloud.
+   - Derivative weights, merged checkpoints, and quantized GGUFs of the 3B model
+     inherit these research license conditions.
+
+2. Spider Dataset
+   - Copyright (c) Yale University / Spider Benchmark Authors.
+   - Licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+   - https://creativecommons.org/licenses/by-sa/4.0/
+
+3. Chinook Sample Database
+   - Copyright (c) 2008-2024 Luis Rocha.
+   - Licensed under the MIT License.
+   - Stored in db/seeds/chinook.sqlite with full license in db/seeds/CHINOOK_LICENSE.txt.
+
+4. Sqlglot Library
+   - Copyright (c) Toby Mao.
+   - Licensed under the MIT License.
+
+5. Llama.cpp / llama-cpp-python
+   - Copyright (c) Georgi Gerganov and Andrei Betlen.
+   - Licensed under the MIT License.

@@ -74,20 +74,52 @@ export default function VerdictBanner({ result }) {
             <Code className="w-4 h-4 text-indigo-400" />
             <span>Generated SQLite Query</span>
           </div>
-          {timings_ms && (
-            <div className="flex items-center space-x-3 text-xs text-slate-400 font-mono">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-indigo-400" /> Total: {timings_ms.total_ms || 0}ms
-              </span>
-              <span>(Inf: {timings_ms.inference_ms || 0}ms | Val: {timings_ms.validation_ms || 0}ms | Exec: {timings_ms.execution_ms || 0}ms)</span>
-            </div>
-          )}
+          <div className="flex items-center space-x-3">
+            {sql && (
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(sql)}
+                className="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+              >
+                Copy SQL
+              </button>
+            )}
+            {timings_ms && (
+              <div className="flex items-center space-x-3 text-xs text-slate-400 font-mono">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" /> Total: {timings_ms.total_ms || 0}ms
+                </span>
+                <span>(Inf: {timings_ms.inference_ms || 0}ms | Val: {timings_ms.validation_ms || 0}ms | Exec: {timings_ms.execution_ms || 0}ms)</span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 font-mono text-sm text-emerald-400 overflow-x-auto">
           <code>{sql || '-- No SQL generated'}</code>
         </div>
+
+        {/* Sanitized Attempts Transparency List */}
+        {result.attempts && result.attempts.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-slate-800/60">
+            <span className="text-xs font-semibold text-slate-400 block mb-2 font-mono">
+              Generation Attempts ({result.attempts.length}):
+            </span>
+            <div className="space-y-1.5">
+              {result.attempts.map((att, idx) => (
+                <div key={idx} className="flex items-center justify-between bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800/70 text-xs font-mono">
+                  <span className="text-slate-400">Attempt #{att.attempt_index !== undefined ? att.attempt_index : idx + 1}:</span>
+                  <code className="text-slate-300 truncate max-w-md mx-2">{att.sql}</code>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${att.status === 'ok' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                    {att.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+

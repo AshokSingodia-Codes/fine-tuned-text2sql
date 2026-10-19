@@ -77,6 +77,24 @@ export default function Header() {
           </a>
         </div>
       </div>
+
+      {/* Model Warming Alert Banner */}
+      {status.ready === 'warming' && (
+        <div className="mt-3 py-2 px-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            Model is initializing / waking up from sleep (~1.9 GB download on first cold start). Query processing will be available in a few moments.
+          </span>
+        </div>
+      )}
+
+      {/* Demo Schema Disclaimers Banner */}
+      <div className="mt-2 py-1.5 px-4 rounded-lg bg-indigo-950/40 border border-indigo-800/40 text-indigo-300/80 text-[11px] flex items-center justify-between font-mono">
+        <span>
+          ℹ️ DEMO NOTICE: Demo queries execute on the read-only Chinook SQLite demo database. Chinook is NOT part of the Spider training/dev benchmark and accuracy is not measured on it.
+        </span>
+      </div>
     </header>
   );
 }
+

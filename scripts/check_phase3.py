@@ -87,7 +87,9 @@ def check_phase3() -> bool:
             if cid in full_results:
                 calls = full_results[cid].get("avg_model_calls_per_question", 1.0)
                 if calls > 1.0:
-                    print(f"[PASS] Config {cid} avg_model_calls={calls:.1f} > 1.0 (voting confirmed)")
+                    print(
+                        f"[PASS] Config {cid} avg_model_calls={calls:.1f} > 1.0 (voting confirmed)"
+                    )
                 else:
                     failures.append(
                         f"[FAIL] Config {cid} avg_model_calls={calls} must be > 1.0 for voting"
@@ -105,11 +107,16 @@ def check_phase3() -> bool:
     # 5. Phase 3 unit tests
     print("\n--- Running Phase 3 unit tests ---")
     python_exe = str(PROJECT_ROOT / ".venv" / "Scripts" / "python.exe")
-    rc, out = run_cmd([
-        python_exe, "-m", "pytest",
-        "tests/test_phase3_service.py",
-        "-v", "--tb=short",
-    ])
+    rc, out = run_cmd(
+        [
+            python_exe,
+            "-m",
+            "pytest",
+            "tests/test_phase3_service.py",
+            "-v",
+            "--tb=short",
+        ]
+    )
     lines = out.strip().splitlines()
     for line in lines[-25:]:
         print(line)
@@ -120,12 +127,18 @@ def check_phase3() -> bool:
 
     # 6. Full test suite (excluding slow fuzz tests)
     print("\n--- Running full test suite (excl. slow fuzz) ---")
-    rc_all, out_all = run_cmd([
-        python_exe, "-m", "pytest", "tests/",
-        "--ignore=tests/test_fuzz_validator.py",
-        "--ignore=tests/test_parser_differential.py",
-        "-q", "--tb=short",
-    ])
+    rc_all, out_all = run_cmd(
+        [
+            python_exe,
+            "-m",
+            "pytest",
+            "tests/",
+            "--ignore=tests/test_fuzz_validator.py",
+            "--ignore=tests/test_parser_differential.py",
+            "-q",
+            "--tb=short",
+        ]
+    )
     lines_all = out_all.strip().splitlines()
     for line in lines_all[-15:]:
         print(line)
@@ -136,9 +149,15 @@ def check_phase3() -> bool:
 
     # 7. Ruff lint
     print("\n--- Ruff lint check ---")
-    rc_ruff, out_ruff = run_cmd([
-        python_exe, "-m", "ruff", "check", "src/t2s/service/",
-    ])
+    rc_ruff, out_ruff = run_cmd(
+        [
+            python_exe,
+            "-m",
+            "ruff",
+            "check",
+            "src/t2s/service/",
+        ]
+    )
     if rc_ruff == 0:
         print("[PASS] Ruff lint clean on src/t2s/service/")
     else:

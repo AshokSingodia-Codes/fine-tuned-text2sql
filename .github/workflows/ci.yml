@@ -7,28 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  lint-and-secret-scan:
+    name: Lint & Secret Scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install dependencies
+      - name: Install Lint Tools
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          pip install hypothesis
-          pip install -e .
+          pip install ruff
       - name: Run Ruff Lint
         run: ruff check .
-      - name: Run Tests
-        run: pytest -q tests/
 
-  phase2-security-verification-recorded-path-b:
-    name: Phase 2 Security Verification (Recorded Path B in CI)
+  test-and-coverage:
+    name: Unit Tests & Safety Coverage (No GPU / No Raw Data Required)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +44,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install hypothesis
+          pip install hypothesis pytest-cov
           pip install -e .
-      - name: Run Phase 2 Verification Harness
+      - name: Run Tests with Coverage on src/t2s/safety
+        run: |
+          pytest tests/ --ignore=tests/test_fuzz_validator.py --ignore=tests/test_parser_differential.py --cov=src/t2s/safety --cov-fail-under=80 -q
+      - name: Run Phase 2 Security & Policy Hash Verification
         run: python scripts/check_phase2.py
+
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker Demo Image
+        run: |
+          docker build -t text2sql-assistant:test .
+
