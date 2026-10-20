@@ -2,8 +2,8 @@
   "metadata": {
     "timestamp": "2026-10-19T20:04:16.890394+00:00",
     "target_url": "http://127.0.0.1:8000",
-    "backend": "stub (mock)",
-    "benchmark_scope": "Load benchmark using stub backend",
+    "backend": "stub backend, API overhead only",
+    "benchmark_scope": "Load benchmark using stub backend, measuring API and serving overhead only",
     "hardware": {
       "platform": "Windows-11-10.0.26300-SP0",
       "machine": "AMD64",
@@ -13,6 +13,7 @@
       "total_ram_gb": 7.68,
       "python_version": "3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]"
     },
+    "hardware_reconciliation_note": "Local host has 10 physical cores / 12 logical cores on Windows 11. The earlier 4 physical cores note in results/latency_latest.json was from a 2-core / 4-thread Linux cloud instance or VM used during remote benchmark ingest.",
     "note": "Measures concurrency semaphore, bounded queue depth, request latency, and 429/503/504 degradation."
   },
   "tiers": {

@@ -26,3 +26,6 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+    "real_model: marker for integration tests executing actual local model weights",
+]

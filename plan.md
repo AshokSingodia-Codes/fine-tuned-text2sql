@@ -134,7 +134,7 @@ fine-tuned-text2sql/
 **Acceptance criteria**
 - [x] Unit tests with mocked model: repair is triggered on error, stops at max retries, never executes non-validated SQL
 - [x] `results/ablation_latest.json` has EX and latency for configs D, E, F, G
-- [x] At least one of E/F/G improves EX over D (if none does, document honestly and keep feature off by default)
+- [ ] At least one of E/F/G improves EX over D (NOT MET: base model ablation showed parity at 62.28%; flagged as UNVERIFIED, harness suspect in docs/LIMITATIONS.md; re-run required on fine-tuned model per docs/PHASE3B.md)
 - [x] Latency cost is reported next to each EX gain
 - [x] All repaired SQL still passes through the AST validator before execution (test asserts this)
 

@@ -130,7 +130,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 font-mono">
-        Guarded Text-to-SQL Assistant • Fine-Tuned QLoRA Qwen2.5-Coder-3B • FastAPI & React
+        Guarded Text-to-SQL Assistant • Built with Qwen • Fine-Tuned QLoRA Qwen2.5-Coder-3B • FastAPI & React • Non-commercial research demo
       </footer>
     </div>
   );

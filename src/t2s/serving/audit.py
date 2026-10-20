@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -9,10 +10,18 @@ from typing import Optional
 
 
 class AuditLogger:
-    def __init__(self, db_path: str = "reports/audit_log.db") -> None:
-        self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_db()
+    def __init__(self, db_path: Optional[str] = None) -> None:
+        target_path = db_path or os.getenv("AUDIT_DB_PATH", "reports/audit_log.db")
+        self.db_path = Path(target_path)
+        try:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._init_db()
+        except (PermissionError, OSError):
+            # Fallback for read-only containers / Hugging Face Spaces
+            fallback_dir = Path("/tmp") if Path("/tmp").exists() else Path.home()
+            self.db_path = fallback_dir / "audit_log.db"
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            self._init_db()
 
     def _init_db(self) -> None:
         conn = sqlite3.connect(self.db_path)
@@ -63,6 +72,8 @@ class AuditLogger:
         model_version: str = "Qwen2.5-Coder-3B-QLoRA",
     ) -> None:
         api_key_hash = hashlib.sha256(api_key.encode("utf-8")).hexdigest()[:16]
+        # Redaction: truncate question and record hash to prevent credential leakage in logs
+        sanitized_question = (question[:97] + "...") if len(question) > 100 else question
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute(
@@ -78,7 +89,7 @@ class AuditLogger:
                 time.time(),
                 api_key_hash,
                 db_id,
-                question,
+                sanitized_question,
                 generated_sql,
                 1 if allowed else 0,
                 json.dumps(reasons),

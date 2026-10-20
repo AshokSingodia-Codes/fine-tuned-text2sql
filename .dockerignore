@@ -18,7 +18,10 @@ results/scratch_*
 *.safetensors
 *.bin
 *.pth
+models/*.gguf
 models/merged_model/
 node_modules/
 dist/
+notebooks/
 .git/
+

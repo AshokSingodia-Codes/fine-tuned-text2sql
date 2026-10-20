@@ -41,16 +41,44 @@ app = FastAPI(
     version="1.0.0",
 )
 
+cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS", "*")
+cors_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins if cors_origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
+
 backend_name = os.getenv("MODEL_BACKEND", "mock")
-model_path = os.getenv("MODEL_PATH", "models/qlora_adapter")
+model_path = os.getenv("MODEL_PATH", "models/Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf")
+
+# HF Space support: download GGUF from HF Hub if specified via env
+hf_repo = os.getenv("HF_REPO_ID")
+gguf_file = os.getenv("GGUF_FILENAME")
+if hf_repo and gguf_file and not Path(model_path).exists():
+    try:
+        from huggingface_hub import hf_hub_download
+
+        print(f"Downloading {gguf_file} from {hf_repo}...")
+        downloaded = hf_hub_download(repo_id=hf_repo, filename=gguf_file)
+        model_path = downloaded
+    except Exception as e:
+        print(f"Warning: Failed to download GGUF from Hugging Face Hub: {e}")
+
 service = Text2SQLService(backend_name=backend_name, model_path=model_path)
 
 # Concurrency semaphore & bounded queue control
@@ -76,6 +104,7 @@ async def payload_size_limit_middleware(request: Request, call_next):
 
 
 @app.get("/health", tags=["System"])
+@app.get("/healthz", tags=["System"])
 def health_check() -> Dict[str, str]:
     return {"status": "ok"}
 
@@ -135,7 +164,14 @@ async def query_text2sql(
     global CURRENT_QUEUE_WAITERS
 
     # 1. Global / per-user rate limit check (returns 429)
-    default_rate_limiter.check_rate_limit(api_key or "anonymous")
+    # Note on Proxies: If behind a reverse proxy without trusted proxy headers, client IP may be proxy IP.
+    # We prioritize API key, then leftmost X-Forwarded-For IP, falling back to direct client host or 'global'.
+    client_ip = request.client.host if request.client else "unknown"
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    rate_limit_key = api_key or client_ip or "global"
+    default_rate_limiter.check_rate_limit(rate_limit_key)
 
     # 2. Check request queue depth limit (reject with 503 if overloaded)
     if CURRENT_QUEUE_WAITERS >= serving_cfg.max_queue_depth:

@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-20T18:50:58.550627+00:00",
+    "git": {
+      "commit": "bbba5ab42c26ab03b4ecb558494bcae5d0e15cdd",
+      "dirty": true
+    },
+    "policy_sha256": "95db4ed244c124e58137828d761154e0f13a42956af8e5fe4c83097c94186651",
+    "python_version": "3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]",
+    "sqlite_version": "psutil",
+    "seed": 42,
+    "backend_evaluated": "mock",
+    "hardware": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+      "physical_cores": 10,
+      "logical_cores": 12,
+      "ram_gb": 7.68
+    },
+    "hardening_flags": {
+      "ast_validator": true,
+      "read_only_sandbox": true,
+      "authorizer_callback": true,
+      "row_limit_cap_100": true,
+      "progress_handler_timeout": true,
+      "path_traversal_guards": true
+    }
+  },
+  "all_checks_passed": true,
+  "checks": {
+    "health_status": {
+      "pass": true,
+      "status_code": 200
+    },
+    "healthz_status": {
+      "pass": true,
+      "status_code": 200
+    },
+    "ready_status": {
+      "pass": true,
+      "status_code": 200,
+      "payload": {
+        "status": "ready",
+        "backend": "mock",
+        "model_loaded": true,
+        "concurrency_limit": 1
+      }
+    },
+    "docs_status": {
+      "pass": true,
+      "status_code": 200
+    },
+    "database_listing": {
+      "pass": true,
+      "databases_found": 166
+    },
+    "chinook_schema": {
+      "pass": true,
+      "status_code": 200
+    },
+    "path_traversal_blocked": {
+      "pass": true,
+      "get_code": 404,
+      "post_code": 500
+    },
+    "security_payloads": {
+      "pass": true,
+      "details": [
+        {
+          "name": "DDL DROP",
+          "status_code": 200,
+          "allowed": true,
+          "is_blocked_or_neutralized": true
+        },
+        {
+          "name": "DML DELETE",
+          "status_code": 200,
+          "allowed": true,
+          "is_blocked_or_neutralized": true
+        },
+        {
+          "name": "Stacked injection",
+          "status_code": 200,
+          "allowed": true,
+          "is_blocked_or_neutralized": true
+        },
+        {
+          "name": "System table read",
+          "status_code": 200,
+          "allowed": true,
+          "is_blocked_or_neutralized": true
+        },
+        {
+          "name": "Extension load",
+          "status_code": 200,
+          "allowed": true,
+          "is_blocked_or_neutralized": true
+        }
+      ]
+    },
+    "edge_cases": {
+      "empty_question_handled": true,
+      "long_600char_question_handled": true,
+      "unicode_handled": true,
+      "pass": true
+    },
+    "legitimate_query": {
+      "pass": true,
+      "status_code": 200,
+      "row_count": 1,
+      "sql": "SELECT 1;"
+    },
+    "audit_logging": {
+      "pass": true,
+      "audit_file": "reports\\audit_log.db"
+    }
+  }
+}

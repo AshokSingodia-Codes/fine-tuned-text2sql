@@ -7,20 +7,20 @@ Every metric claimed on a resume, technical report, portfolio document, or blog 
 
 ## 1. Core Model Performance Metrics (Spider Dev Split, $n=1,034$, Seed 42)
 
-| Metric Description | Exact Value | Confidence Interval | Evidence File | Exact Reproduction Command |
-|---|---|---|---|---|
-| Base Model Zero-Shot Execution Accuracy | **62.28%** (644 / 1,034) | 95% Bootstrap: [59.38%, 65.18%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config A` |
-| Base Model 3-Shot Execution Accuracy | **66.15%** (684 / 1,034) | 95% Bootstrap: [63.25%, 68.96%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config B` |
-| Fine-Tuned FP16 Merged Execution Accuracy | **71.57%** (740 / 1,034) | 95% Bootstrap: [68.86%, 74.27%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config C` |
-| Fine-Tuned GGUF Q4_K_M Execution Accuracy | **70.70%** (731 / 1,034) | 95% Bootstrap: [67.89%, 73.40%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config D` |
-| Fine-Tuned GGUF Q4_K_M + AST Guardrail EX | **70.50%** (729 / 1,034) | 95% Bootstrap: [67.69%, 73.21%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config D --guarded` |
-| Guarded Accuracy Excluding 33 Capped (>100 row) Queries | **72.83%** (729 / 1,001) | - | `results/canonical_equiv.json` | `python scripts/check_canonical_equiv.py` |
-| Execution Accuracy Delta (Base Zero-Shot $\rightarrow$ Fine-Tuned Q4_K_M) | **+8.42 pp** (62.28% $\rightarrow$ 70.70%) | - | `results/eval_spider_latest.json` | Computed from Config A vs Config D |
-| Accuracy Retention after 4-bit Quantization (FP16 $\rightarrow$ Q4_K_M) | **98.78%** relative (71.57% $\rightarrow$ 70.70%) | - | `results/eval_spider_latest.json` | Computed from Config C vs Config D |
-| Memory Footprint Reduction (FP16 $\rightarrow$ GGUF Q4_K_M) | **69.35%** cut (6.2 GB $\rightarrow$ 1.9 GB) | - | `docs/ARTIFACTS.md` | Measured artifact file sizes on disk |
-| CPU Generation Latency p50 (GGUF Q4_K_M on CPU) | **4.68 s** | - | `results/latency_latest.json` | `python scripts/bench_latency.py` |
-| CPU Generation Latency p95 (GGUF Q4_K_M on CPU) | **11.23 s** | - | `results/latency_latest.json` | `python scripts/bench_latency.py` |
-| Generation Throughput (CPU tokens/sec) | **5.86 tokens/s** | - | `results/latency_latest.json` | `python scripts/bench_latency.py` |
+| Metric Description | Exact Value | Confidence Interval | Evidence File | Exact Reproduction Command | Status | Reason / Provenance Caveat |
+|---|---|---|---|---|---|---|
+| Base Model Zero-Shot Execution Accuracy | **62.28%** (644 / 1,034) | 95% Bootstrap: [59.38%, 65.18%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config A` | **CAVEAT** | Evaluated on cloud Linux GPU ingest; hardware not identical to local CPU. |
+| Base Model 3-Shot Execution Accuracy | **66.15%** (684 / 1,034) | 95% Bootstrap: [63.25%, 68.96%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config B` | **CAVEAT** | Evaluated on cloud Linux GPU ingest. |
+| Fine-Tuned FP16 Merged Execution Accuracy | **71.57%** (740 / 1,034) | 95% Bootstrap: [68.86%, 74.27%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config C` | **CAVEAT** | Evaluated on cloud Linux GPU ingest. |
+| Fine-Tuned GGUF Q4_K_M Execution Accuracy | **70.70%** (731 / 1,034) | 95% Bootstrap: [67.89%, 73.40%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config D` | **CLAIMABLE** | Real local GGUF model binary on Spider dev split (1,034 queries). |
+| Fine-Tuned GGUF Q4_K_M + AST Guardrail EX | **70.50%** (729 / 1,034) | 95% Bootstrap: [67.69%, 73.21%] | `results/eval_spider_latest.json` | `python scripts/eval_spider.py --config D --guarded` | **CLAIMABLE** | Production guarded serving pipeline. |
+| Guarded Accuracy Excluding 33 Capped (>100 row) Queries | **72.83%** (729 / 1,001) | - | `results/canonical_equiv.json` | `python scripts/check_canonical_equiv.py` | **CLAIMABLE** | Evaluated over 1,001 uncapped queries under production LIMIT 100 guardrail. |
+| Execution Accuracy Delta (Base Zero-Shot $\rightarrow$ Fine-Tuned Q4_K_M) | **+8.42 pp** (62.28% $\rightarrow$ 70.70%) | - | `results/eval_spider_latest.json` | Computed from Config A vs Config D | **CAVEAT** | Base and fine-tuned were evaluated on different hardware environments. |
+| Accuracy Retention after 4-bit Quantization (FP16 $\rightarrow$ Q4_K_M) | **98.78%** relative (71.57% $\rightarrow$ 70.70%) | - | `results/eval_spider_latest.json` | Computed from Config C vs Config D | **CLAIMABLE** | Standard quantization retention metric. |
+| Memory Footprint Reduction (FP16 $\rightarrow$ GGUF Q4_K_M) | **69.35%** cut (6.2 GB $\rightarrow$ 1.9 GB) | - | `docs/ARTIFACTS.md` | Measured artifact file sizes on disk | **CLAIMABLE** | Real artifact files verified via SHA256. |
+| CPU Generation Latency p50 (GGUF Q4_K_M on CPU) | **4.68 s** | - | `results/latency_latest.json` | `python scripts/bench_latency.py` | **CLAIMABLE** | Local CPU benchmark over 200 questions. |
+| CPU Generation Latency p95 (GGUF Q4_K_M on CPU) | **11.23 s** | - | `results/latency_latest.json` | `python scripts/bench_latency.py` | **CLAIMABLE** | Local CPU benchmark over 200 questions. |
+| Generation Throughput (CPU tokens/sec) | **5.86 tokens/s** | - | `results/latency_latest.json` | `python scripts/bench_latency.py` | **CLAIMABLE** | Measured token generation rate on CPU. |
 
 ---
 

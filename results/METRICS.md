@@ -89,14 +89,15 @@
 
 ## 5. Phase 3 Ablation: Self-Correction and Voting (Configs E, F, G)
 
-> **Provenance**: Kaggle notebook `notebook6f1ee3abad`, GPU T4 x2, 2026-10-18T22:14:39 UTC, runtime 35,618.8 s. Backend: `transformers`, model: `Qwen/Qwen2.5-Coder-3B-Instruct` (base model). All results from `results/ablation_latest.json`. Multi-seed seed sweep crashed with CUDA OOM during F seed 42; D seeds 42/101/2024 completed on 300-subset.
+> **Status**: **UNVERIFIED, harness suspect**.
+> **Provenance**: Kaggle notebook `notebook6f1ee3abad`, GPU T4 x2, 2026-10-18T22:14:39 UTC, runtime 35,618.8 s. Backend: `transformers`, model: `Qwen/Qwen2.5-Coder-3B-Instruct` (base model). All results from `results/ablation_latest.json`. Per-question final SQL was not saved to disk, so question-level flips cannot be verified. The ablation is marked UNVERIFIED, harness suspect pending Phase 3b re-run with per-question logging and non-zero differing SQL assertions. Never report as "no gain".
 
 | Metric Name | Value | Definition | Script & Command | Evidence File | Date |
 |---|---|---|---|---|---|
 | **Config D Baseline EX (Base Greedy)** | **62.28% (644 / 1034)** | Base model, greedy, guarded, n=1034, seed=42 | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
-| **Config E EX (Self-Correction)** | **62.28% (644 / 1034)** | D + max-2-retry self-correction on exec errors, n=1034, seed=42 | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
-| **Config F EX (Voting N=5)** | **62.28% (644 / 1034)** | D + consensus voting N=5 at temp 0.3–0.7, n=1034, seed=42 | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
-| **Config G EX (Both)** | **62.28% (644 / 1034)** | D + self-correction + voting, n=1034, seed=42 | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
+| **Config E EX (Self-Correction)** | **62.28% (644 / 1034)** | D + max-2-retry self-correction (UNVERIFIED, harness suspect) | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
+| **Config F EX (Voting N=5)** | **62.28% (644 / 1034)** | D + consensus voting N=5 (UNVERIFIED, harness suspect) | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
+| **Config G EX (Both)** | **62.28% (644 / 1034)** | D + self-correction + voting (UNVERIFIED, harness suspect) | `python scripts/run_phase3_kaggle.py --backend transformers` | `results/ablation_latest.json` | 2026-10-18 |
 | **Config E Calls/Question** | **1.13×** | avg_model_calls on 1034 dev (self-correction triggered on ~13% of questions) | `results/ablation_latest.json` | `results/ablation_latest.json` | 2026-10-18 |
 | **Config F Calls/Question** | **5.0×** | avg_model_calls on 1034 dev (voting N=5 confirmed) | `results/ablation_latest.json` | `results/ablation_latest.json` | 2026-10-18 |
 | **Config G Calls/Question** | **5.63×** | avg_model_calls on 1034 dev (voting + self-correction combined) | `results/ablation_latest.json` | `results/ablation_latest.json` | 2026-10-18 |
@@ -105,5 +106,5 @@
 | **Config G p95 Latency** | **56.47 s** | 95th percentile per-question latency (D baseline: 4.61 s = +1125%) | `results/ablation_latest.json` | `results/ablation_latest.json` | 2026-10-18 |
 | **D Seed Stability (300-subset)** | **60.67% across seeds 42/101/2024** | Multi-seed EX on stratified 300-subset confirming D is deterministic | `results/ablation_latest.json` | `results/ablation_latest.json` | 2026-10-18 |
 | **Phase 3 Unit Tests Pass** | **6 / 6** | All 6 tests in test_phase3_service.py pass | `python -m pytest tests/test_phase3_service.py -v` | `tests/test_phase3_service.py` | 2026-10-19 |
-| **EX Gain vs D** | **0 pp for all of E, F, G** | No improvement on base model — systematic errors unrecoverable by re-sampling. Documented per R9 in docs/LIMITATIONS.md. Fine-tuned model run pending. | — | `results/ablation_latest.json` | 2026-10-18 |
+| **EX Gain vs D** | **UNVERIFIED (Harness Suspect)** | Base model run parity at 62.28% with p=1.0 flagged as suspect harness; re-run required per docs/PHASE3B.md | — | `results/ablation_latest.json` | 2026-10-18 |
 

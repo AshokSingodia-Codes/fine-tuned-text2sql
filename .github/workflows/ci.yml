@@ -62,4 +62,12 @@ jobs:
       - name: Build Docker Demo Image
         run: |
           docker build -t text2sql-assistant:test .
+      - name: Run Container Smoke Test
+        run: |
+          docker run -d --name test-container -p 7860:7860 -e MODEL_BACKEND=mock text2sql-assistant:test
+          sleep 5
+          docker logs test-container
+          curl -f http://localhost:7860/healthz || exit 1
+          curl -f http://localhost:7860/ready || exit 1
+          docker stop test-container
 

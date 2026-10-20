@@ -39,13 +39,27 @@ class DatabaseRegistry:
         return dbs
 
     def get_db_path(self, db_id: str) -> Optional[Path]:
-        p = self.db_base_dir / f"{db_id}.sqlite"
-        if p.exists():
+        # Path traversal guard: db_id must be safe identifier without directory separators or traversal
+        if not db_id or ".." in db_id or "/" in db_id or "\\" in db_id:
+            return None
+
+        # Enforce demo profile allowlist if configured (demo: chinook_1 only)
+        import os
+
+        if os.getenv("APP_PROFILE", "").lower() == "demo":
+            allowed_demo_dbs = os.getenv("DEMO_DB_ALLOWLIST", "chinook_1").split(",")
+            if db_id not in [d.strip() for d in allowed_demo_dbs if d.strip()]:
+                return None
+
+        p = (self.db_base_dir / f"{db_id}.sqlite").resolve()
+        base_resolved = self.db_base_dir.resolve()
+
+        if p.exists() and base_resolved in p.parents:
             return p
 
         # Check subdirectories
-        p_sub = self.db_base_dir / db_id / f"{db_id}.sqlite"
-        if p_sub.exists():
+        p_sub = (self.db_base_dir / db_id / f"{db_id}.sqlite").resolve()
+        if p_sub.exists() and base_resolved in p_sub.parents:
             return p_sub
         return None
 
