@@ -12,7 +12,15 @@ services:
         value: mock
       - key: APP_PROFILE
         value: demo
+      # Demo allowlist: only expose a curated set of databases publicly
+      # Prevents exposing all 166 Spider DBs in the live demo
+      - key: DEMO_DB_ALLOWLIST
+        value: "concert_singer,student_assessment,pets_1,chinook_1"
       - key: DISABLE_AUTH
         value: "true"
       - key: PYTHONPATH
         value: .
+      # Uploaded DBs persist inside db/uploads/ in the repo
+      # This dir is gittracked (with .gitkeep) so it survives Render deploys
+      - key: DB_DIR
+        value: data/raw/spider/database

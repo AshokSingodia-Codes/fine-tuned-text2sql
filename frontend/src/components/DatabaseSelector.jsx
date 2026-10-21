@@ -1,142 +1,308 @@
-import React, { useEffect, useState } from 'react';
-import { Database, Code2, Layers, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Database, Code2, Layers, CheckCircle2, Upload, FileText,
+  X, AlertCircle, Search, Trash2, HardDrive, Tag,
+} from 'lucide-react';
 import axios from 'axios';
 
-export default function DatabaseSelector({ selectedDb, setSelectedDb, includeSamples, setIncludeSamples, enableConsensus, setEnableConsensus }) {
-  const [databases, setDatabases] = useState([]);
-  const [schemaDdl, setSchemaDdl] = useState('');
+/* global __API_BASE__ */
+const API_BASE = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : '';
+
+export default function DatabaseSelector({
+  selectedDb, setSelectedDb,
+  includeSamples, setIncludeSamples,
+  enableConsensus, setEnableConsensus,
+}) {
+  const [databases, setDatabases]         = useState([]);
+  const [schemaDdl, setSchemaDdl]         = useState('');
   const [showSchemaModal, setShowSchemaModal] = useState(false);
   const [loadingSchema, setLoadingSchema] = useState(false);
+  const [uploadState, setUploadState]     = useState('idle'); // idle|uploading|success|error
+  const [uploadMsg, setUploadMsg]         = useState('');
+  const [dragOver, setDragOver]           = useState(false);
+  const [searchTerm, setSearchTerm]       = useState('');
+  const [deletingId, setDeletingId]       = useState(null);
+  const fileRef = useRef(null);
 
-  useEffect(() => {
-    const fetchDbs = async () => {
-      try {
-        const res = await axios.get('/v1/databases');
-        if (res.data && res.data.databases) {
-          setDatabases(res.data.databases);
-          if (res.data.databases.length > 0 && !selectedDb) {
-            setSelectedDb(res.data.databases[0].db_id);
-          }
-        }
-      } catch {
-        // Fallback default databases
-        setDatabases([
-          { db_id: 'concert_singer', table_count: 4, tables: ['stadium', 'singer', 'concert', 'singer_in_concert'] },
-          { db_id: 'student_assessment', table_count: 3, tables: ['courses', 'students', 'student_course_registrations'] },
-          { db_id: 'pets_1', table_count: 3, tables: ['student', 'has_pet', 'pets'] }
-        ]);
+  /* ── fetch DB list ──────────────────────────────────────────── */
+  const fetchDbs = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/v1/databases`);
+      if (res.data?.databases?.length > 0) {
+        setDatabases(res.data.databases);
+        if (!selectedDb) setSelectedDb(res.data.databases[0].db_id);
       }
-    };
-    fetchDbs();
-  }, []);
+    } catch {
+      setDatabases([
+        { db_id: 'concert_singer',    table_count: 4, source: 'builtin' },
+        { db_id: 'student_assessment',table_count: 3, source: 'builtin' },
+        { db_id: 'pets_1',            table_count: 3, source: 'builtin' },
+      ]);
+    }
+  };
 
+  useEffect(() => { fetchDbs(); }, []);
+
+  /* ── schema DDL modal ───────────────────────────────────────── */
   const handleFetchSchema = async (dbId) => {
     setLoadingSchema(true);
     setShowSchemaModal(true);
     try {
-      const res = await axios.get(`/v1/databases/${dbId}/schema?include_samples=${includeSamples}`);
+      const res = await axios.get(`${API_BASE}/v1/databases/${dbId}/schema?include_samples=${includeSamples}`);
       setSchemaDdl(res.data.schema_ddl || 'No schema DDL returned.');
     } catch (err) {
-      setSchemaDdl(`Error loading schema DDL: ${err.message}`);
+      setSchemaDdl(`Error: ${err.message}`);
     } finally {
       setLoadingSchema(false);
     }
   };
 
+  /* ── upload ─────────────────────────────────────────────────── */
+  const handleUpload = async (file) => {
+    if (!file) return;
+    if (!file.name.endsWith('.sqlite') && !file.name.endsWith('.db')) {
+      setUploadState('error');
+      setUploadMsg('Only .sqlite or .db files are supported.');
+      return;
+    }
+    setUploadState('uploading');
+    setUploadMsg('');
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const res = await axios.post(`${API_BASE}/v1/databases/upload`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const renamed = res.data.renamed ? ` (saved as "${res.data.db_id}")` : '';
+      const sizeKB  = (res.data.size_bytes / 1024).toFixed(1);
+      setUploadState('success');
+      setUploadMsg(`"${res.data.db_id}" uploaded — ${res.data.table_count} tables · ${sizeKB} KB${renamed}`);
+      await fetchDbs();
+      setSelectedDb(res.data.db_id);
+    } catch (err) {
+      setUploadState('error');
+      setUploadMsg(err.response?.data?.detail || err.message);
+    }
+  };
+
+  /* ── delete uploaded DB ─────────────────────────────────────── */
+  const handleDelete = async (dbId) => {
+    if (!window.confirm(`Delete "${dbId}"? This cannot be undone.`)) return;
+    setDeletingId(dbId);
+    try {
+      await axios.delete(`${API_BASE}/v1/databases/${dbId}`);
+      if (selectedDb === dbId) setSelectedDb(null);
+      await fetchDbs();
+    } catch (err) {
+      alert(err.response?.data?.detail || err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault(); setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleUpload(file);
+  };
+
+  /* ── filter ─────────────────────────────────────────────────── */
+  const filtered = databases.filter((db) =>
+    db.db_id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const showSearch = databases.length > 8;
+
+  /* ── size helper ─────────────────────────────────────────────── */
+  const fmtSize = (bytes) => {
+    if (!bytes) return '';
+    if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / 1_048_576).toFixed(1)} MB`;
+  };
+
   return (
-    <div className="glass-card rounded-2xl p-5 border border-slate-800/80">
+    <div className="card p-5 fade-in">
+      {/* ── Header ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Database className="w-5 h-5 text-indigo-400" />
-          <h2 className="text-base font-semibold text-slate-100">Target Database Schema</h2>
+        <div className="flex items-center gap-2">
+          <Database className="w-4 h-4 text-indigo-500" />
+          <h2 className="text-sm font-semibold text-slate-800">Target Database</h2>
+          <span className="pill pill-slate">{databases.length} available</span>
         </div>
-        <button
-          onClick={() => handleFetchSchema(selectedDb)}
-          className="flex items-center space-x-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-medium px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 transition-all hover:bg-indigo-500/20"
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>View Schema DDL</span>
-        </button>
+        {selectedDb && (
+          <button
+            onClick={() => handleFetchSchema(selectedDb)}
+            className="btn-secondary flex items-center gap-1.5 !py-1 !px-2.5 !text-xs"
+          >
+            <Code2 className="w-3.5 h-3.5 text-indigo-500" /> View Schema DDL
+          </button>
+        )}
       </div>
 
-      {/* Database Radio Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {databases.map((db) => {
-          const isSelected = selectedDb === db.db_id;
-          return (
+      {/* ── Search ──────────────────────────────────────────── */}
+      {showSearch && (
+        <div className="relative mb-3">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder={`Search ${databases.length} databases…`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="input-field !py-1.5 !pl-8 !text-xs"
+          />
+          {searchTerm && (
             <button
-              key={db.db_id}
-              onClick={() => setSelectedDb(db.db_id)}
-              className={`relative text-left p-3.5 rounded-xl border transition-all ${
-                isSelected
-                  ? 'bg-indigo-600/15 border-indigo-500/60 text-white glow-indigo'
-                  : 'bg-slate-900/50 border-slate-800/80 text-slate-300 hover:border-slate-700 hover:bg-slate-900/80'
-              }`}
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-xs font-mono font-semibold text-indigo-300 block mb-1">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── DB Cards Grid ───────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4 max-h-64 overflow-y-auto pr-1">
+        {filtered.length === 0 && (
+          <div className="col-span-4 text-center text-xs text-slate-400 py-6">
+            No databases match "{searchTerm}"
+          </div>
+        )}
+        {filtered.map((db) => {
+          const sel = selectedDb === db.db_id;
+          const isUploaded = db.source === 'uploaded';
+          return (
+            <div
+              key={db.db_id}
+              className={`relative group text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                sel
+                  ? 'bg-indigo-50 border-indigo-300 shadow-sm shadow-indigo-100'
+                  : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50'
+              }`}
+              onClick={() => setSelectedDb(db.db_id)}
+            >
+              <div className="flex items-start justify-between gap-1">
+                <div className="min-w-0">
+                  <span className={`text-xs font-semibold font-mono block truncate ${sel ? 'text-indigo-700' : 'text-slate-700'}`}>
                     {db.db_id}
                   </span>
-                  <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                    <Layers className="w-3 h-3 text-slate-500" /> {db.table_count || db.tables?.length || 0} Tables
+                  <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                    <Layers className="w-2.5 h-2.5 shrink-0" />
+                    {db.table_count} tables
+                    {db.size_bytes > 0 && (
+                      <span className="text-slate-300 ml-0.5">· {fmtSize(db.size_bytes)}</span>
+                    )}
                   </p>
                 </div>
-                {isSelected && <CheckCircle2 className="w-4 h-4 text-indigo-400" />}
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {sel && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />}
+                  {isUploaded && (
+                    <span className="text-[9px] px-1.5 py-0.5 bg-amber-50 text-amber-600 border border-amber-200 rounded-full font-semibold">
+                      uploaded
+                    </span>
+                  )}
+                </div>
               </div>
-            </button>
+
+              {/* Delete button — only for uploaded DBs */}
+              {isUploaded && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(db.db_id); }}
+                  disabled={deletingId === db.db_id}
+                  className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-50"
+                  title="Delete this uploaded database"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* Options */}
-      <div className="mt-4 pt-3 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-        <label className="flex items-center space-x-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={includeSamples}
-            onChange={(e) => setIncludeSamples(e.target.checked)}
-            className="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-900"
-          />
-          <span>Append sample rows in prompt DDL</span>
-        </label>
+      {/* ── Upload Zone ─────────────────────────────────────── */}
+      <div className="border-t border-slate-100 pt-4">
+        <p className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
+          <Upload className="w-3.5 h-3.5 text-indigo-500" />
+          Upload Your Own SQLite Database
+        </p>
 
-        <label className="flex items-center space-x-2 cursor-pointer select-none text-emerald-400 font-medium">
-          <input
-            type="checkbox"
-            checked={enableConsensus}
-            onChange={(e) => setEnableConsensus(e.target.checked)}
-            className="rounded border-slate-700 text-emerald-600 focus:ring-emerald-500 bg-slate-900"
-          />
-          <span>🏆 Majority Voting & Self-Correction (N=5 Candidates)</span>
-        </label>
+        <div
+          className={`upload-zone flex flex-col items-center justify-center py-5 px-4 text-center ${dragOver ? 'drag-over' : ''}`}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={onDrop}
+          onClick={() => fileRef.current?.click()}
+        >
+          {uploadState === 'uploading' ? (
+            <>
+              <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mb-2" />
+              <p className="text-sm font-medium text-indigo-600">Uploading…</p>
+            </>
+          ) : (
+            <>
+              <HardDrive className="w-6 h-6 text-indigo-400 mb-2" />
+              <p className="text-sm font-medium text-slate-600">Drag & drop or click to browse</p>
+              <p className="text-xs text-slate-400 mt-1">.sqlite or .db · max 50 MB · read-only sandbox</p>
+            </>
+          )}
+          <input ref={fileRef} type="file" accept=".sqlite,.db" className="hidden"
+            onChange={(e) => handleUpload(e.target.files?.[0])} />
+        </div>
 
-        <span className="text-[11px] text-slate-500 font-mono">SQLite Read-Only Sandbox</span>
+        {uploadState === 'success' && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> {uploadMsg}
+          </div>
+        )}
+        {uploadState === 'error' && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {uploadMsg}
+          </div>
+        )}
+
+        <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
+          <span className="text-amber-500">⚠</span>
+          All queries run in a read-only sandbox. DROP / INSERT / UPDATE are always blocked.
+        </p>
       </div>
 
-      {/* Schema DDL Modal */}
+      {/* ── Options ─────────────────────────────────────────── */}
+      <div className="border-t border-slate-100 pt-3 mt-3 flex flex-wrap gap-4 text-xs text-slate-600">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input type="checkbox" checked={includeSamples}
+            onChange={(e) => setIncludeSamples(e.target.checked)}
+            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-400" />
+          Include sample rows in schema prompt
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer select-none text-indigo-700 font-medium">
+          <input type="checkbox" checked={enableConsensus}
+            onChange={(e) => setEnableConsensus(e.target.checked)}
+            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-400" />
+          🏆 Majority Voting & Self-Correction (N=5)
+        </label>
+        <span className="ml-auto text-[11px] text-slate-400">SQLite · Read-Only Sandbox</span>
+      </div>
+
+      {/* ── Schema DDL Modal ─────────────────────────────────── */}
       {showSchemaModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel max-w-2xl w-full rounded-2xl border border-slate-700/80 shadow-2xl p-6 overflow-hidden flex flex-col max-h-[80vh]">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-lg font-bold text-white">Schema DDL: <span className="font-mono text-indigo-300">{selectedDb}</span></h3>
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-indigo-500" />
+                <h3 className="font-semibold text-slate-800">Schema DDL —
+                  <span className="font-mono text-indigo-600 ml-1">{selectedDb}</span>
+                </h3>
               </div>
-              <button
-                onClick={() => setShowSchemaModal(false)}
-                className="text-slate-400 hover:text-white px-3 py-1 rounded-lg bg-slate-800 text-xs font-semibold"
-              >
-                Close ✕
+              <button onClick={() => setShowSchemaModal(false)}
+                className="btn-secondary !py-1 !px-2.5 flex items-center gap-1">
+                <X className="w-3.5 h-3.5" /> Close
               </button>
             </div>
-
-            <div className="flex-1 overflow-y-auto my-4 font-mono text-xs text-emerald-400 bg-slate-950/80 p-4 rounded-xl border border-slate-800/80 leading-relaxed">
-              {loadingSchema ? (
-                <div className="text-slate-400 text-center py-8">Extracting table DDL schema...</div>
-              ) : (
-                <pre>{schemaDdl}</pre>
-              )}
+            <div className="flex-1 overflow-y-auto p-5">
+              {loadingSchema
+                ? <div className="text-center text-slate-400 py-8 text-sm">Loading schema…</div>
+                : <pre className="code-block text-xs">{schemaDdl}</pre>}
             </div>
           </div>
         </div>
