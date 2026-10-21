@@ -9,6 +9,12 @@ import MetricsDashboard from './components/MetricsDashboard';
 import { MessageSquare, ShieldAlert, BarChart3 } from 'lucide-react';
 import axios from 'axios';
 
+// __API_BASE__ is injected at build time via vite.config.js define.
+// In local dev (proxy mode) it is '' (same origin).
+// On Netlify it is set to the Render backend URL via VITE_API_BASE_URL env var.
+/* global __API_BASE__ */
+const API_BASE = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : '';
+
 export default function App() {
   const [selectedDb, setSelectedDb] = useState('concert_singer');
   const [includeSamples, setIncludeSamples] = useState(false);
@@ -23,7 +29,7 @@ export default function App() {
     setQueryResult(null);
 
     try {
-      const res = await axios.post('/v1/query', {
+      const res = await axios.post(`${API_BASE}/v1/query`, {
         db_id: selectedDb,
         question: question,
         include_sample_rows: includeSamples,
