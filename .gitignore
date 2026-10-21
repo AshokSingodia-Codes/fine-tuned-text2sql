@@ -1,6 +1,6 @@
 # Data, model weights, and heavy artifacts
-data/
-models/
+/data/
+/models/
 third_party/
 *.gguf
 *.safetensors
