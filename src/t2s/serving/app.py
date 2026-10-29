@@ -155,6 +155,7 @@ def list_databases() -> Dict[str, Any]:
 def get_database_info(db_id: str) -> Dict[str, Any]:
     """Return detailed info for a database: tables + row count per table + size."""
     import sqlite3 as _sqlite3
+
     db_path = service.db_registry.get_db_path(db_id)
     if not db_path:
         raise HTTPException(status_code=404, detail=f"Database '{db_id}' not found.")
@@ -178,7 +179,9 @@ def get_database_info(db_id: str) -> Dict[str, Any]:
             "table_count": len(tables),
             "tables": tables,
             "size_bytes": size_bytes,
-            "size_human": f"{size_bytes / 1024:.1f} KB" if size_bytes < 1_048_576 else f"{size_bytes / 1_048_576:.1f} MB",
+            "size_human": f"{size_bytes / 1024:.1f} KB"
+            if size_bytes < 1_048_576
+            else f"{size_bytes / 1_048_576:.1f} MB",
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -217,13 +220,14 @@ async def upload_database(file: UploadFile = File(...)) -> Dict[str, Any]:
     - db_id sanitised to alphanumeric + underscore only
     - Runs in the same read-only sandbox as built-in databases
     """
-    MAX_BYTES = 50 * 1024 * 1024  # 50 MB
+    max_bytes = 50 * 1024 * 1024  # 50 MB
     fname = file.filename or ""
     if not (fname.endswith(".sqlite") or fname.endswith(".db")):
         raise HTTPException(status_code=400, detail="Only .sqlite or .db files are accepted.")
 
     # Sanitise db_id from filename
     import re
+
     stem = Path(fname).stem
     db_id_base = re.sub(r"[^a-zA-Z0-9_]", "_", stem)[:60] or "uploaded_db"
 
@@ -235,12 +239,15 @@ async def upload_database(file: UploadFile = File(...)) -> Dict[str, Any]:
         db_id = f"{db_id_base}_v{counter}"
         counter += 1
         if counter > 99:
-            raise HTTPException(status_code=409, detail=f"Too many versions of '{db_id_base}'. Delete old ones first.")
+            raise HTTPException(
+                status_code=409,
+                detail=f"Too many versions of '{db_id_base}'. Delete old ones first.",
+            )
 
     dest = (_UPLOAD_DIR / f"{db_id}.sqlite").resolve()
 
     # Validate SQLite magic bytes before writing
-    _SQLITE_MAGIC = b"SQLite format 3\x00"
+    sqlite_magic = b"SQLite format 3\x00"
 
     # Stream & size-check
     total = 0
@@ -250,13 +257,13 @@ async def upload_database(file: UploadFile = File(...)) -> Dict[str, Any]:
             if first_chunk is None:
                 first_chunk = chunk
             total += len(chunk)
-            if total > MAX_BYTES:
+            if total > max_bytes:
                 dest.unlink(missing_ok=True)
                 raise HTTPException(status_code=413, detail="File exceeds 50 MB limit.")
             f.write(chunk)
 
     # Verify it's a real SQLite file
-    if first_chunk is None or not first_chunk[:16].startswith(_SQLITE_MAGIC[:15]):
+    if first_chunk is None or not first_chunk[:16].startswith(sqlite_magic[:15]):
         dest.unlink(missing_ok=True)
         raise HTTPException(status_code=400, detail="File is not a valid SQLite3 database.")
 
@@ -277,6 +284,7 @@ async def upload_database(file: UploadFile = File(...)) -> Dict[str, Any]:
 def delete_database(db_id: str) -> Dict[str, Any]:
     """Delete a user-uploaded database. Built-in Spider databases cannot be deleted."""
     import re
+
     if not re.match(r"^[a-zA-Z0-9_]+$", db_id):
         raise HTTPException(status_code=400, detail="Invalid db_id format.")
 

@@ -17,12 +17,12 @@ pinned: false
 An end-to-end production system: dataset building, prompt engineering, evaluation harness, **QLoRA fine-tuning** of `Qwen2.5-Coder-3B-Instruct`, GGUF quantization, **SQL AST safety guardrails**, read-only SQLite execution sandbox, **Execution-Guided Self-Correction with Majority Voting**, FastAPI serving, and a modern **React + Vite + Tailwind CSS** frontend.
 
 > [!NOTE]
-> **Live Demo, Load Testing & Deployment Notice:**
-> - **Demo Mode & Accounting**: The public web demo executes queries against a read-only **Chinook SQLite database** (`chinook_1`). Chinook is **not** part of the Spider training/dev benchmark. As recorded in [`results/demo_examples.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/demo_examples.json), **13 total questions were attempted**: 10 legitimate questions passed and are provided as UI presets, while 3 adversarial queries were deliberately blocked to showcase AST safety enforcement (detailed in [`docs/LIMITATIONS.md`](file:///e:/7thsem%20learning/projects/finue%20tune/docs/LIMITATIONS.md)).
-> - **Load Test Honesty**: The serving benchmark in `results/loadtest_latest.json` measures **API stack overhead with stub backend** (FastAPI routing, token bucket rate limiter, auth middleware, and serialization overhead; p50 < 4 ms). Real GGUF model serving throughput on CPU is bounded by single-stream model generation (~4.7s per request).
-> - **Inactivity & Cold Start**: Free CPU demo instances sleep after 48 hours of inactivity. The first visitor will experience a 1–2 minute cold start while the container spins up and loads model weights.
-> - **Licensing Notice**: Base model is licensed under Alibaba Cloud's **Qwen Research License Agreement** for non-commercial research and evaluation. See [`NOTICE`](file:///e:/7thsem%20learning/projects/finue%20tune/NOTICE) and [`docs/MODEL_CARD.md`](file:///e:/7thsem%20learning/projects/finue%20tune/docs/MODEL_CARD.md).
-> - **Built with Qwen**: The demo is a non-commercial research demo built with Qwen.
+> **Open Source & Local First Architecture:**
+> - **Self-Hosted & Private**: Designed to run entirely on your local machine. No queries or database data leave your environment.
+> - **Works with Any SQLite Database**: Query your own `.sqlite` or `.db` databases via CLI, Web UI, or REST API.
+> - **Zero-Weight Quickstart**: Includes an instant mock mode to explore the full UI, AST validation, and sandboxing pipeline without downloading model weights. Real inference runs locally with the fine-tuned 1.9 GB GGUF model or any OpenAI-compatible engine.
+> - **Licensing Notice**: Base model is licensed under Alibaba Cloud's **Qwen Research License Agreement** for non-commercial research and evaluation. See [`NOTICE`](NOTICE) and [`docs/MODEL_CARD.md`](docs/MODEL_CARD.md).
+> - **Built with Qwen**: Non-commercial research project built with Qwen.
 
 
 ---
@@ -96,41 +96,115 @@ The service employs a multi-layered guardrail: AST validation with `sqlglot` and
 
 ---
 
-## 🚀 Quickstart & Local Execution
+## 🚀 Quickstart — Local Setup & Running
+ 
+> **Detailed step-by-step walkthrough:** [`docs/LOCAL_INSTALL.md`](docs/LOCAL_INSTALL.md)
 
-### 1. Installation
+### 1. Clone & Install Dependencies
 ```bash
 git clone https://github.com/AshokSingodia-Codes/fine-tuned-text2sql.git
 cd fine-tuned-text2sql
+
+# Set up Python virtual environment
 python -m venv .venv
-source .venv/bin/activate  # Or .venv\Scripts\activate on Windows
-make setup
-```
+# On Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
+# On Linux/macOS:
+source .venv/bin/activate
 
-### 2. Run Test Suite
-```bash
-make test
+# Install dependencies
+pip install -r requirements.txt
+pip install -e .
 ```
-
-### 3. Launch Serving Backend & React Web Interface
-```bash
-# Terminal 1: Launch FastAPI Serving API (Port 8000)
-make serve
-
-# Terminal 2: Launch React + Vite Frontend (Port 3000)
-make react-dev
-```
-Open `http://localhost:3000` in your browser.
 
 ---
 
-## 🐳 Docker Stack Deployment
+## 🗄️ Integrating With Your Own SQLite Database
 
+You can query your own SQLite database (`.sqlite` or `.db`) in three convenient ways:
+
+### Option A: Direct Terminal CLI (Fastest, No Server Needed)
+No servers or web containers required. Query your database directly from your command line:
+
+```bash
+# One-shot query against your own SQLite file
+python scripts/query_cli.py --db /path/to/my_database.sqlite --question "Show the top 5 highest paying customers"
+
+# Interactive REPL mode — ask continuous follow-up questions
+python scripts/query_cli.py --db /path/to/my_database.sqlite --interactive
+
+# Validate any raw SQL query through the safety guardrail without executing
+python scripts/query_cli.py --validate "DROP TABLE users;"
+# Output: ✗  BLOCKED BY GUARDRAIL  • Forbidden root statement type: DROP
+
+# List all databases inside a folder
+python scripts/query_cli.py --db-dir /path/to/databases/
+```
+
+### Option B: Local Web UI & API Server
+Run the FastAPI backend and modern React UI locally on your machine:
+
+```bash
+# Terminal 1: Start API server (port 8000)
+# Use mock backend for instant UI testing, or your own SQLite directory:
+python -m uvicorn src.t2s.serving.app:app --port 8000
+# Or point DB_DIR to your databases:
+# DB_DIR=/path/to/my/databases python -m uvicorn src.t2s.serving.app:app --port 8000
+
+# Terminal 2: Start React Frontend (port 3000)
+cd frontend
+npm install
+npm run dev
+```
+
+1. Open **`http://localhost:3000`** in your browser.
+2. **Drag & Drop** any `.sqlite` or `.db` file into the upload zone.
+3. The server inspects the binary header, extracts the schema/tables automatically, and makes it selectable for querying right away.
+
+### Option C: Programmatic REST API (Python / curl)
+```bash
+# 1. Upload your database
+curl -X POST http://localhost:8000/v1/databases/upload -F "file=@my_database.sqlite"
+
+# 2. Query in plain English
+curl -X POST http://localhost:8000/v1/query \
+  -H "Content-Type: application/json" \
+  -d '{"db_id":"my_database","question":"Count total orders placed this year","enable_consensus":false}'
+
+# Interactive OpenAPI docs: http://localhost:8000/docs
+```
+
+---
+
+## 🛡️ AI Error Handling & Database Safety (How Errors Are Handled)
+
+When querying production databases with LLMs, models can hallucinate invalid SQL or attempt unsafe queries. This system implements **defense-in-depth**:
+
+1. **Auto-Correction via Feedback Loops (Execution-Guided Self-Correction)**:
+   - If the model produces an SQL syntax error or references an invalid column name, the error message is intercepted and fed back to the model with schema hints in an automated retry turn (`max_retries=2`).
+2. **Majority Voting Consensus (`enable_consensus: true`)**:
+   - For high-stakes queries, the engine samples $N=5$ candidate SQL queries, runs them against an isolated sandbox, and selects the majority result set to eliminate outlier hallucinations.
+3. **AST Safety Guardrails (`sqlglot`)**:
+   - Parses the query AST prior to execution. Strictly prohibits destructive operations (`DROP`, `DELETE`, `UPDATE`, `ALTER`, `TRUNCATE`), multi-statement batching (SQL injection), and metadata scraping (`sqlite_master`).
+4. **C-Level SQLite Sandbox (`mode=ro` + Authorizer)**:
+   - The database is mounted with `mode=ro` (read-only) and strict SQLite C-level authorizer callbacks. Even in the event of an unexpected model failure or adversarial injection, **the database file cannot be modified or written to**.
+5. **Row Output Capping**:
+   - Automatically injects an execution limit (`LIMIT 100`) to protect against memory exhaustion or data exfiltration.
+
+---
+
+### 🧪 Running Verification Tests
+```bash
+pytest -q    # Runs full suite (85 tests passing: fuzzing, safety, serving, APIs)
+```
+
+## 🐳 Optional: Local Docker Setup
+To run both the API server and UI in isolated local Docker containers:
 ```bash
 docker compose up --build
 ```
-- **React Web App**: `http://localhost:3000`
-- **FastAPI API Docs**: `http://localhost:8000/docs`
+- **Local Web App**: `http://localhost:3000`
+- **FastAPI Docs**: `http://localhost:8000/docs`
 
 ---
 

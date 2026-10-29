@@ -6,91 +6,88 @@ export default function ResultTable({ columns, rows, rowCount, truncated }) {
 
   if (!columns || columns.length === 0) {
     return (
-      <div className="glass-card rounded-2xl p-8 text-center text-slate-400 border border-slate-800/80">
-        <AlertCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-        <p className="text-sm">Query returned no rows or column schema available.</p>
+      <div className="card p-10 text-center fade-in">
+        <AlertCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        <p className="text-sm text-slate-400">Query returned no rows.</p>
       </div>
     );
   }
 
-  const filteredRows = rows.filter((row) =>
-    row.some((val) => String(val).toLowerCase().includes(filter.toLowerCase()))
-  );
+  const filteredRows = filter
+    ? rows.filter((row) => row.some((v) => String(v).toLowerCase().includes(filter.toLowerCase())))
+    : rows;
 
   const exportCSV = () => {
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [columns.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'text2sql_results.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const csv = [columns.join(','), ...rows.map((r) => r.map((v) => `"${v}"`).join(','))].join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'text2sql_results.csv';
+    a.click();
   };
 
   return (
-    <div className="glass-card rounded-2xl p-5 border border-slate-800/80 space-y-4">
-      {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center space-x-2">
-          <TableIcon className="w-5 h-5 text-indigo-400" />
-          <h3 className="text-base font-semibold text-slate-100">Query Results</h3>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
-            {rowCount} Rows {truncated && '(Truncated to Max Limit)'}
+    <div className="card p-5 fade-in">
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <TableIcon className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-sm font-semibold text-slate-800">Query Results</h3>
+          <span className="pill pill-slate">
+            {rowCount ?? filteredRows.length} rows
+            {truncated && ' (capped at 100)'}
           </span>
         </div>
-
-        <div className="flex items-center space-x-3">
-          {/* Search Filter */}
+        <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Filter results..."
+              placeholder="Filter results…"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-slate-700"
             />
           </div>
-
           <button
             onClick={exportCSV}
-            className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium border border-slate-700 transition-colors"
+            className="btn-secondary flex items-center gap-1.5 !py-1.5 !px-3 !text-xs"
           >
-            <Download className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Export CSV</span>
+            <Download className="w-3.5 h-3.5 text-indigo-500" />
+            Export CSV
           </button>
         </div>
       </div>
 
-      {/* Table Data Grid */}
-      <div className="overflow-x-auto rounded-xl border border-slate-800/80 max-h-96">
-        <table className="w-full text-left text-xs text-slate-200">
-          <thead className="bg-slate-900/90 text-slate-400 font-mono border-b border-slate-800 uppercase tracking-wider sticky top-0 backdrop-blur-md">
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-slate-200 max-h-96">
+        <table className="w-full text-left data-table">
+          <thead>
             <tr>
-              {columns.map((col, idx) => (
-                <th key={idx} className="px-4 py-3 font-semibold">
-                  {col}
-                </th>
+              {columns.map((col, i) => (
+                <th key={i}>{col}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/50 bg-slate-950/40">
-            {filteredRows.map((row, rIdx) => (
-              <tr key={rIdx} className="hover:bg-slate-900/60 transition-colors">
-                {row.map((cell, cIdx) => (
-                  <td key={cIdx} className="px-4 py-2.5 font-mono text-slate-300">
-                    {cell === null ? (
-                      <span className="text-slate-600 italic">NULL</span>
-                    ) : (
-                      String(cell)
-                    )}
-                  </td>
-                ))}
+          <tbody>
+            {filteredRows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="text-center py-6 text-slate-400 text-sm !font-sans">
+                  No rows match your filter.
+                </td>
               </tr>
-            ))}
+            ) : (
+              filteredRows.map((row, ri) => (
+                <tr key={ri}>
+                  {row.map((cell, ci) => (
+                    <td key={ci}>
+                      {cell === null
+                        ? <span className="text-slate-300 italic text-xs">NULL</span>
+                        : String(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

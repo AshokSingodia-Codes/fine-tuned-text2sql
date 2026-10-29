@@ -26,7 +26,6 @@ Usage examples
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -36,7 +35,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 def _build_service(db_path: str, backend: str, model_path: str):
     """Build the Text2SQLService pointing at a single sqlite file."""
-    from src.t2s.serving.dbs import DatabaseRegistry
     from src.t2s.serving.service import Text2SQLService
 
     db_file = Path(db_path).resolve()
@@ -85,25 +83,34 @@ def _print_result(result: dict, json_out: bool = False) -> None:
         print("  [Self-corrected]", end="")
     print()
 
-    print(f"\n  Generated SQL:\n  {'-'*60}")
+    print(f"\n  Generated SQL:\n  {'-' * 60}")
     for line in (sql or "-- No SQL generated").splitlines():
         print(f"  {line}")
 
     if not allowed and reasons:
-        print(f"\n  Block reason(s):")
+        print("\n  Block reason(s):")
         for r in reasons:
             print(f"    - {r}")
 
     if allowed and columns:
         print(f"\n  Results ({result.get('row_count', len(rows))} rows):")
-        col_w = [max(len(str(c)), max((len(str(r[i])) for r in rows), default=0)) for i, c in enumerate(columns)]
+        col_w = [
+            max(len(str(c)), max((len(str(r[i])) for r in rows), default=0))
+            for i, c in enumerate(columns)
+        ]
         header = "  | " + " | ".join(str(c).ljust(col_w[i]) for i, c in enumerate(columns)) + " |"
         sep = "  +" + "+".join("-" * (w + 2) for w in col_w) + "+"
         print(sep)
         print(header)
         print(sep)
         for row in rows[:50]:
-            print("  | " + " | ".join(str(v if v is not None else "NULL").ljust(col_w[i]) for i, v in enumerate(row)) + " |")
+            print(
+                "  | "
+                + " | ".join(
+                    str(v if v is not None else "NULL").ljust(col_w[i]) for i, v in enumerate(row)
+                )
+                + " |"
+            )
         print(sep)
         if result.get("row_count", 0) > 50:
             print(f"  ... (showing 50 of {result['row_count']} rows)")
@@ -161,40 +168,65 @@ def main() -> None:
 
     # Database source
     db_group = parser.add_mutually_exclusive_group()
-    db_group.add_argument("--db", metavar="FILE.sqlite",
-                          help="Path to a SQLite database file")
-    db_group.add_argument("--db-dir", metavar="DIR",
-                          help="Directory containing .sqlite files (use with --db-id)")
+    db_group.add_argument("--db", metavar="FILE.sqlite", help="Path to a SQLite database file")
+    db_group.add_argument(
+        "--db-dir", metavar="DIR", help="Directory containing .sqlite files (use with --db-id)"
+    )
 
-    parser.add_argument("--db-id", metavar="NAME",
-                        help="Database ID when using --db-dir (filename without extension)")
+    parser.add_argument(
+        "--db-id",
+        metavar="NAME",
+        help="Database ID when using --db-dir (filename without extension)",
+    )
 
     # Query / mode
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--question", "-q", metavar="TEXT",
-                      help="Natural language question to convert to SQL and execute")
-    mode.add_argument("--interactive", "-i", action="store_true",
-                      help="Start an interactive REPL session")
-    mode.add_argument("--validate", metavar="SQL",
-                      help="Validate a raw SQL string through the safety guardrail (no model needed)")
+    mode.add_argument(
+        "--question",
+        "-q",
+        metavar="TEXT",
+        help="Natural language question to convert to SQL and execute",
+    )
+    mode.add_argument(
+        "--interactive", "-i", action="store_true", help="Start an interactive REPL session"
+    )
+    mode.add_argument(
+        "--validate",
+        metavar="SQL",
+        help="Validate a raw SQL string through the safety guardrail (no model needed)",
+    )
 
     # Model backend
-    parser.add_argument("--backend", default="mock",
-                        choices=["mock", "llama_cpp", "openai_compat"],
-                        help="Inference backend (default: mock — no model required)")
-    parser.add_argument("--model", default="models/Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf",
-                        metavar="PATH",
-                        help="Path to model weights (GGUF for llama_cpp backend)")
+    parser.add_argument(
+        "--backend",
+        default="mock",
+        choices=["mock", "llama_cpp", "openai_compat"],
+        help="Inference backend (default: mock — no model required)",
+    )
+    parser.add_argument(
+        "--model",
+        default="models/Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf",
+        metavar="PATH",
+        help="Path to model weights (GGUF for llama_cpp backend)",
+    )
 
     # Options
-    parser.add_argument("--no-consensus", action="store_true",
-                        help="Disable majority voting (faster, less accurate)")
-    parser.add_argument("--n-samples", type=int, default=5,
-                        help="Number of SQL candidates for voting (default: 5)")
-    parser.add_argument("--json", action="store_true",
-                        help="Output raw JSON result (machine-readable)")
-    parser.add_argument("--list-tables", action="store_true",
-                        help="List all tables and row counts in the database (no query)")
+    parser.add_argument(
+        "--no-consensus",
+        action="store_true",
+        help="Disable majority voting (faster, less accurate)",
+    )
+    parser.add_argument(
+        "--n-samples", type=int, default=5, help="Number of SQL candidates for voting (default: 5)"
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="Output raw JSON result (machine-readable)"
+    )
+    parser.add_argument(
+        "--list-tables",
+        action="store_true",
+        help="List all tables and row counts in the database (no query)",
+    )
 
     args = parser.parse_args()
 
@@ -208,7 +240,7 @@ def main() -> None:
         db_dir = Path(args.db_dir)
         if not args.db_id:
             # List available databases (flat + nested spider-style)
-            flat  = sorted(p.stem for p in db_dir.glob("*.sqlite"))
+            flat = sorted(p.stem for p in db_dir.glob("*.sqlite"))
             nested = sorted(p.parent.name for p in db_dir.glob("*/*.sqlite"))
             all_dbs = sorted(set(flat + nested))
             if not all_dbs:
@@ -217,7 +249,7 @@ def main() -> None:
             print(f"\n  Available databases in {db_dir} ({len(all_dbs)} total):")
             for d in all_dbs:
                 print(f"    - {d}")
-            print(f"\n  Re-run with --db-id <name> to select one.\n")
+            print("\n  Re-run with --db-id <name> to select one.\n")
             return
         db_path = str(Path(args.db_dir) / f"{args.db_id}.sqlite")
         # Also check nested spider-style
@@ -237,12 +269,14 @@ def main() -> None:
     # -- List tables mode -----------------------------------------
     if args.list_tables:
         import sqlite3 as _sq
-        db_path_obj = Path(args.db if args.db else
-                           str(Path(args.db_dir) / args.db_id / f"{args.db_id}.sqlite"))
+
+        db_path_obj = Path(
+            args.db if args.db else str(Path(args.db_dir) / args.db_id / f"{args.db_id}.sqlite")
+        )
         if not db_path_obj.exists():
             db_path_obj = Path(args.db_dir) / f"{args.db_id}.sqlite"
         print(f"\n  Tables in [{db_id}]  ({db_path_obj.stat().st_size // 1024} KB)")
-        print(f"  {'-'*48}")
+        print(f"  {'-' * 48}")
         try:
             conn = _sq.connect(str(db_path_obj))
             c = conn.cursor()

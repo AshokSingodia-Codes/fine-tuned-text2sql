@@ -6,12 +6,11 @@ import VerdictBanner from './components/VerdictBanner';
 import ResultTable from './components/ResultTable';
 import RedTeamLab from './components/RedTeamLab';
 import MetricsDashboard from './components/MetricsDashboard';
-import { MessageSquare, ShieldAlert, BarChart3 } from 'lucide-react';
+import { MessageSquare, ShieldAlert, BarChart3, Github } from 'lucide-react';
 import axios from 'axios';
 
-// __API_BASE__ is injected at build time via vite.config.js define.
-// In local dev (proxy mode) it is '' (same origin).
-// On Netlify it is set to the Render backend URL via VITE_API_BASE_URL env var.
+// __API_BASE__ is injected at Vite build time via vite.config.js define.
+// Empty string in local dev (uses proxy). Set VITE_API_BASE_URL on Netlify.
 /* global __API_BASE__ */
 const API_BASE = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : '';
 
@@ -19,19 +18,17 @@ export default function App() {
   const [selectedDb, setSelectedDb] = useState('concert_singer');
   const [includeSamples, setIncludeSamples] = useState(false);
   const [enableConsensus, setEnableConsensus] = useState(true);
-  const [activeTab, setActiveTab] = useState('workspace'); // 'workspace' | 'redteam' | 'metrics'
-  
+  const [activeTab, setActiveTab] = useState('workspace');
   const [loading, setLoading] = useState(false);
   const [queryResult, setQueryResult] = useState(null);
 
   const handleExecuteQuery = async (question) => {
     setLoading(true);
     setQueryResult(null);
-
     try {
       const res = await axios.post(`${API_BASE}/v1/query`, {
         db_id: selectedDb,
-        question: question,
+        question,
         include_sample_rows: includeSamples,
         enable_consensus: enableConsensus,
         n_samples: 5,
@@ -51,53 +48,46 @@ export default function App() {
     }
   };
 
+  const tabs = [
+    { id: 'workspace', label: 'Text-to-SQL Workspace', icon: MessageSquare, theme: 'active-indigo' },
+    { id: 'redteam',   label: 'Security Red-Team Lab', icon: ShieldAlert,   theme: 'active-rose' },
+    { id: 'metrics',   label: 'Model Metrics',         icon: BarChart3,     theme: 'active-teal' },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0F17]">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Navigation Tabs */}
-        <div className="flex items-center space-x-2 border-b border-slate-800 pb-3">
-          <button
-            onClick={() => setActiveTab('workspace')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              activeTab === 'workspace'
-                ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/40 glow-indigo'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>Text-to-SQL Workspace</span>
-          </button>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-          <button
-            onClick={() => setActiveTab('redteam')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              activeTab === 'redteam'
-                ? 'bg-rose-600/20 text-rose-400 border border-rose-500/40 glow-rose'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>Red-Team Security Lab</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('metrics')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              activeTab === 'metrics'
-                ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 glow-emerald'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Model Performance Metrics</span>
-          </button>
+        {/* ── Info banner ───────────────────────────────── */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-xs text-blue-700 flex items-start gap-2">
+          <span className="text-base mt-0.5">ℹ️</span>
+          <span>
+            <strong>Demo:</strong> Queries run against read-only SQLite databases.
+            Upload your own <code className="bg-blue-100 px-1 rounded">.sqlite</code> file below to query your own data.
+            DROP / INSERT / UPDATE are always blocked by the AST guardrail.
+          </span>
         </div>
 
-        {/* Tab Content */}
+        {/* ── Nav tabs ─────────────────────────────── */}
+        <div className="flex items-center gap-1.5 border-b border-slate-200 pb-3">
+          {tabs.map(({ id, label, icon: Icon, theme }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`nav-tab ${activeTab === id ? theme : ''}`}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{label.split(' ')[0]}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* ── Tab content ─────────────────────────────── */}
         {activeTab === 'workspace' && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <DatabaseSelector
               selectedDb={selectedDb}
               setSelectedDb={setSelectedDb}
@@ -106,15 +96,13 @@ export default function App() {
               enableConsensus={enableConsensus}
               setEnableConsensus={setEnableConsensus}
             />
-
             <QueryWorkspace
               selectedDb={selectedDb}
               onExecute={handleExecuteQuery}
               loading={loading}
             />
-
             {queryResult && (
-              <div className="space-y-6 animate-fadeIn">
+              <div className="space-y-5">
                 <VerdictBanner result={queryResult} />
                 {queryResult.allowed && (
                   <ResultTable
@@ -129,14 +117,29 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'redteam' && <RedTeamLab />}
-
-        {activeTab === 'metrics' && <MetricsDashboard />}
+        {activeTab === 'redteam'  && <RedTeamLab />}
+        {activeTab === 'metrics'  && <MetricsDashboard />}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 font-mono">
-        Guarded Text-to-SQL Assistant • Built with Qwen • Fine-Tuned QLoRA Qwen2.5-Coder-3B • FastAPI & React • Non-commercial research demo
+      {/* ── Footer ─────────────────────────────────── */}
+      <footer className="bg-white border-t border-slate-200 py-4 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+          <span>
+            Text-to-SQL Assistant · QLoRA fine-tuned Qwen2.5-Coder-3B ·
+            <strong className="text-slate-500"> Non-commercial research demo</strong>
+          </span>
+          <div className="flex items-center gap-3">
+            <span>Built with Qwen · FastAPI · React · sqlglot</span>
+            <a
+              href="https://github.com/AshokSingodia-Codes/fine-tuned-text2sql"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium"
+            >
+              <Github className="w-3.5 h-3.5" /> Source Code
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );

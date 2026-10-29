@@ -7,8 +7,9 @@ from pathlib import Path
 
 import requests
 
-
-HF_SPIDER_URL = "https://huggingface.co/datasets/HAL-9001/spider-databases/resolve/main/spider_data.zip"
+HF_SPIDER_URL = (
+    "https://huggingface.co/datasets/HAL-9001/spider-databases/resolve/main/spider_data.zip"
+)
 SPIDER_GDRIVE_ID = "1_ackp_xPqzzzp7bFlv8ySARr82q2a4p8"
 
 

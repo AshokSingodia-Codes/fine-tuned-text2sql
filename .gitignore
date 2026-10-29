@@ -1,6 +1,8 @@
 # Data, model weights, and heavy artifacts
 /data/
 /models/
+db/uploads/*
+!db/uploads/.gitkeep
 third_party/
 *.gguf
 *.safetensors

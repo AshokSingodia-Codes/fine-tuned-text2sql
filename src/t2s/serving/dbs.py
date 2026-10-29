@@ -81,6 +81,7 @@ class DatabaseRegistry:
             return None
 
         import os
+
         if os.getenv("APP_PROFILE", "").lower() == "demo":
             allowed_demo_dbs = os.getenv("DEMO_DB_ALLOWLIST", "chinook_1").split(",")
             if db_id not in [d.strip() for d in allowed_demo_dbs if d.strip()]:

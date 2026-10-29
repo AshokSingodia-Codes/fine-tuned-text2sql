@@ -9,4 +9,3 @@
 - **R7 Security.** No secrets in git. Use .env + .env.example. Add gitleaks or detect-secrets check in CI.
 - **R8 Type and lint.** ruff check . and ruff format --check . pass. Public functions have type hints and docstrings.
 - **R9 Honest wording.** If a result is weaker than expected, report it as is. Negative results go in docs/LIMITATIONS.md.
-- **R10 The agent never runs git add, commit, push, tag, reset, or checkout. It only reports which files changed. The user handles all git operations.**

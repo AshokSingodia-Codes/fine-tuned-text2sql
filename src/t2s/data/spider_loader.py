@@ -79,7 +79,6 @@ def validate_dataset(
     spider_train_path = raw_path / "train_spider.json"
     others_train_path = raw_path / "train_others.json"
     dev_path = raw_path / "dev.json"
-    tables_path = raw_path / "tables.json"
     db_dir = raw_path / "database"
 
     # Load train and dev examples
