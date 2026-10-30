@@ -142,11 +142,15 @@ def _validate_mode(sql: str) -> None:
 
 
 def _interactive_mode(svc, db_id: str, consensus: bool, n_samples: int) -> None:
-    print(f"\n  Text-to-SQL Interactive REPL  [db: {db_id}]")
-    print("  Type your question in plain English. Type 'exit' or Ctrl-C to quit.\n")
+    print("\n  ============================================================")
+    print(f"  🤖 Text-to-SQL Interactive Session  [Database: {db_id}]")
+    print("  ============================================================")
+    print("  • Type your question in plain English")
+    print("  • Try asking: 'How many rows are in the database?' or 'Show top 5 records'")
+    print("  • Type 'exit', 'quit', or Ctrl-C to leave\n")
     while True:
         try:
-            question = input("  > ").strip()
+            question = input(f"  [{db_id}] > ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\n  Goodbye.")
             break
@@ -235,6 +239,15 @@ def main() -> None:
         _validate_mode(args.validate)
         return
 
+    # Auto-detect backend if default 'mock' was left untouched
+    backend_to_use = args.backend
+    model_path = args.model
+    if backend_to_use == "mock":
+        default_model = Path("models/Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf")
+        if default_model.exists():
+            backend_to_use = "llama_cpp"
+            model_path = str(default_model)
+
     # -- Resolve database -----------------------------------------
     if args.db_dir:
         db_dir = Path(args.db_dir)
@@ -255,14 +268,59 @@ def main() -> None:
         # Also check nested spider-style
         if not Path(db_path).exists():
             db_path = str(Path(args.db_dir) / args.db_id / f"{args.db_id}.sqlite")
-        svc, db_id = _build_service(db_path, args.backend, args.model)
+        svc, db_id = _build_service(db_path, backend_to_use, model_path)
         db_id = args.db_id
     elif args.db:
-        svc, db_id = _build_service(args.db, args.backend, args.model)
+        svc, db_id = _build_service(args.db, backend_to_use, model_path)
     else:
-        parser.print_help()
-        print("\n[ERROR] Provide --db <file> or --db-dir <dir>\n", file=sys.stderr)
-        sys.exit(1)
+        # Auto-discovery & interactive database picker
+        discovered = []
+        root_dir = Path(__file__).resolve().parent.parent
+        search_dirs = [root_dir / "db" / "seeds", root_dir / "db" / "uploads", root_dir]
+        seen_paths = set()
+        for sdir in search_dirs:
+            if sdir.exists():
+                for ext in ("*.sqlite", "*.db"):
+                    for p in sorted(sdir.glob(ext)):
+                        rp = p.resolve()
+                        if rp not in seen_paths and not p.name.startswith("scratch_"):
+                            seen_paths.add(rp)
+                            discovered.append(p)
+
+        if not discovered:
+            print("\n  [INFO] No SQLite database found.")
+            print("  Provide a database file with: --db /path/to/database.sqlite")
+            print("  Or place a .sqlite file in the project folder.\n")
+            sys.exit(1)
+
+        if len(discovered) == 1:
+            chosen_path = discovered[0]
+            print(f"\n  [Database] Using auto-detected database: {chosen_path.name}")
+        else:
+            print(f"\n  Found {len(discovered)} SQLite databases:")
+            for idx, p in enumerate(discovered, 1):
+                try:
+                    rel_p = p.relative_to(root_dir)
+                except ValueError:
+                    rel_p = p
+                print(f"    [{idx}] {p.name} ({rel_p})")
+            print()
+            while True:
+                choice = input(f"  Select database (1-{len(discovered)}) [default: 1]: ").strip()
+                if not choice:
+                    chosen_path = discovered[0]
+                    break
+                if choice.isdigit() and 1 <= int(choice) <= len(discovered):
+                    chosen_path = discovered[int(choice) - 1]
+                    break
+                print(
+                    f"  Invalid choice '{choice}'. Please enter a number between 1 and {len(discovered)}."
+                )
+
+        svc, db_id = _build_service(str(chosen_path), backend_to_use, model_path)
+        # If user did not specify question or flags, default to interactive
+        if not args.question and not args.list_tables:
+            args.interactive = True
 
     consensus = not args.no_consensus
 

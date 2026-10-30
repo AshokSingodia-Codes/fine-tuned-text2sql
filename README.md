@@ -117,6 +117,17 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+### 2. Launch Interactively (Zero Arguments Needed)
+You can launch the all-in-one interactive menu directly from the root of the repository:
+```bash
+python run.py
+```
+This interactive console lets you:
+- **[1] Query Databases in Terminal**: Automatically detects all `.sqlite`/`.db` files, presents a numbered picker, and starts an interactive conversation session.
+- **[2] Launch Web UI**: Starts the local FastAPI + React serving environment.
+- **[3] Validate SQL**: Tests any raw SQL against the AST security guardrail.
+- **[4] Run Verification Tests**: Runs the complete test suite.
+
 ---
 
 ## 🗄️ Integrating With Your Own SQLite Database
@@ -127,17 +138,17 @@ You can query your own SQLite database (`.sqlite` or `.db`) in three convenient 
 No servers or web containers required. Query your database directly from your command line:
 
 ```bash
-# One-shot query against your own SQLite file
+# Interactive REPL with auto-database picker (scans folder & lets you pick with 1 key):
+python scripts/query_cli.py
+
+# One-shot query against a specific SQLite file:
 python scripts/query_cli.py --db /path/to/my_database.sqlite --question "Show the top 5 highest paying customers"
 
-# Interactive REPL mode — ask continuous follow-up questions
-python scripts/query_cli.py --db /path/to/my_database.sqlite --interactive
-
-# Validate any raw SQL query through the safety guardrail without executing
+# Validate any raw SQL query through the safety guardrail without executing:
 python scripts/query_cli.py --validate "DROP TABLE users;"
 # Output: ✗  BLOCKED BY GUARDRAIL  • Forbidden root statement type: DROP
 
-# List all databases inside a folder
+# List all databases inside a folder:
 python scripts/query_cli.py --db-dir /path/to/databases/
 ```
 
