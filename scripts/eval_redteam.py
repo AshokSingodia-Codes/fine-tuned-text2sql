@@ -47,6 +47,9 @@ def compute_wilson_ci(k: int, n: int, confidence: float = 0.95) -> Tuple[float, 
 
 
 def get_git_commit_hash() -> str:
+    env_sha = os.environ.get("COMMIT_SHA")
+    if env_sha:
+        return env_sha.strip()
     try:
         res = subprocess.run(
             ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
