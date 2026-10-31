@@ -24,14 +24,14 @@ from typing import List
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
-def compute_sha256(filepath: Path) -> str:
-    h = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        data = f.read().replace(b"\r\n", b"\n")
-        h.update(data)
-    # Also support CRLF hash for backwards compatibility
-    h_crlf = hashlib.sha256(filepath.read_bytes()).hexdigest()
-    return h.hexdigest(), h_crlf
+def compute_sha256(filepath: Path):
+    raw = filepath.read_bytes()
+    h_raw = hashlib.sha256(raw).hexdigest()
+    lf = raw.replace(b"\r\n", b"\n")
+    h_lf = hashlib.sha256(lf).hexdigest()
+    crlf = lf.replace(b"\n", b"\r\n")
+    h_crlf = hashlib.sha256(crlf).hexdigest()
+    return h_lf, h_crlf, h_raw
 
 
 def compute_current_policy_sha256() -> str:
@@ -72,10 +72,10 @@ def check_phase2() -> bool:
     else:
         with open(sha_v2_file, "r", encoding="utf-8") as f:
             expected_sha = f.read().strip()
-        computed_sha, computed_sha_crlf = compute_sha256(ds_v2)
-        if expected_sha not in (computed_sha, computed_sha_crlf):
+        valid_shas = compute_sha256(ds_v2)
+        if expected_sha not in valid_shas:
             failures.append(
-                f"Check 1 FAIL: heldout_v2 SHA-256 mismatch ({computed_sha} != {expected_sha})."
+                f"Check 1 FAIL: heldout_v2 SHA-256 mismatch ({valid_shas[0]} != {expected_sha})."
             )
         else:
             with open(ds_v2, "r", encoding="utf-8") as f:
