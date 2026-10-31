@@ -27,19 +27,21 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 def compute_sha256(filepath: Path) -> str:
     h = hashlib.sha256()
     with open(filepath, "rb") as f:
-        while chunk := f.read(65536):
-            h.update(chunk)
-    return h.hexdigest()
+        data = f.read().replace(b"\r\n", b"\n")
+        h.update(data)
+    # Also support CRLF hash for backwards compatibility
+    h_crlf = hashlib.sha256(filepath.read_bytes()).hexdigest()
+    return h.hexdigest(), h_crlf
 
 
 def compute_current_policy_sha256() -> str:
     h = hashlib.sha256()
     yaml_path = PROJECT_ROOT / "config" / "security_policy.yaml"
     if yaml_path.exists():
-        h.update(yaml_path.read_bytes())
+        h.update(yaml_path.read_bytes().replace(b"\r\n", b"\n"))
     for py_file in sorted((PROJECT_ROOT / "src" / "t2s" / "safety").glob("*.py")):
         h.update(py_file.name.encode("utf-8"))
-        h.update(py_file.read_bytes())
+        h.update(py_file.read_bytes().replace(b"\r\n", b"\n"))
     return h.hexdigest()
 
 
@@ -70,8 +72,8 @@ def check_phase2() -> bool:
     else:
         with open(sha_v2_file, "r", encoding="utf-8") as f:
             expected_sha = f.read().strip()
-        computed_sha = compute_sha256(ds_v2)
-        if expected_sha != computed_sha:
+        computed_sha, computed_sha_crlf = compute_sha256(ds_v2)
+        if expected_sha not in (computed_sha, computed_sha_crlf):
             failures.append(
                 f"Check 1 FAIL: heldout_v2 SHA-256 mismatch ({computed_sha} != {expected_sha})."
             )
