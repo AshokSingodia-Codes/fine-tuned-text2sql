@@ -6,6 +6,7 @@ import sqlite3
 import time
 from pathlib import Path
 
+import sqlglot
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -139,8 +140,11 @@ def test_validator_fuzz_invariants(query: str):
 
         # Invariant 5: Allowed output is exactly one statement
         clean_rewritten = rewritten.rstrip(";").strip()
-        # Must not contain multiple statements
-        assert ";" not in clean_rewritten, "Allowed rewritten SQL must contain only one statement"
+        # Must parse to exactly one statement
+        parsed_rewritten = [s for s in sqlglot.parse(clean_rewritten, read="sqlite") if s is not None]
+        assert len(parsed_rewritten) == 1, (
+            f"Allowed rewritten SQL must contain only one statement: {rewritten}"
+        )
         # Must be SELECT or WITH
         upper_start = clean_rewritten.strip().upper()
         assert upper_start.startswith("SELECT") or upper_start.startswith("WITH"), (

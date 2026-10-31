@@ -6,7 +6,7 @@ import VerdictBanner from './components/VerdictBanner';
 import ResultTable from './components/ResultTable';
 import RedTeamLab from './components/RedTeamLab';
 import MetricsDashboard from './components/MetricsDashboard';
-import { MessageSquare, ShieldAlert, BarChart3, Github } from 'lucide-react';
+import { MessageSquare, ShieldAlert, BarChart3, Code } from 'lucide-react';
 import axios from 'axios';
 
 // __API_BASE__ is injected at Vite build time via vite.config.js define.
@@ -136,7 +136,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium"
             >
-              <Github className="w-3.5 h-3.5" /> Source Code
+              <Code className="w-3.5 h-3.5" /> Source Code
             </a>
           </div>
         </div>
