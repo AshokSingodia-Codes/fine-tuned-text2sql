@@ -137,17 +137,17 @@ python scripts/query_cli.py \
 By default the system uses a `mock` backend. For real natural language → SQL conversion, download the GGUF model:
 
 ```bash
-# Download the quantized model (~1.9 GB)
-pip install huggingface_hub
-python -c "
-from huggingface_hub import hf_hub_download
-hf_hub_download(
-    repo_id='AshokSingodia-Codes/fine-tuned-text2sql-adapter',
-    filename='Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf',
-    local_dir='models/'
-)
-print('Model downloaded to models/')
-"
+# [NOT PUBLISHED / TODO: When published to Hugging Face Hub]
+# pip install huggingface_hub
+# python -c "
+# from huggingface_hub import hf_hub_download
+# hf_hub_download(
+#     repo_id='<HF_USERNAME>/fine-tuned-text2sql-adapter',
+#     filename='Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf',
+#     local_dir='models/'
+# )
+# print('Model downloaded to models/')
+# "
 
 # Then run with the real model
 python scripts/query_cli.py \

@@ -12,7 +12,7 @@ class QueryRequest(BaseModel):
         default=False, description="Whether to include sample rows in schema prompt"
     )
     enable_consensus: bool = Field(
-        default=True, description="Enable Execution-Guided Self-Correction with Majority Voting"
+        default=False, description="Enable Execution-Guided Self-Correction with Majority Voting"
     )
     n_samples: int = Field(
         default=5, ge=1, le=10, description="Number of candidate queries to generate for voting"

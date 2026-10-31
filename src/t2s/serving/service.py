@@ -50,7 +50,7 @@ class Text2SQLService:
         db_id: str,
         question: str,
         include_sample_rows: bool = False,
-        enable_consensus: bool = True,
+        enable_consensus: bool = False,
         n_samples: int = 5,
     ) -> Dict[str, Any]:
         if enable_consensus and n_samples > 1:

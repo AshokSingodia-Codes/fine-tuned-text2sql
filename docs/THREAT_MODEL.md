@@ -95,21 +95,21 @@ The Text-to-SQL system translates natural language user questions into executabl
 
 ## 5. Defense-in-Depth Empirical Evidence
 
-The system does not rely on a single defensive layer. The effectiveness of each independent defense layer was empirically verified using the Phase 2 evaluation harness ([`scripts/eval_redteam.py`](file:///e:/7thsem%20learning/projects/finue%20tune/scripts/eval_redteam.py)):
+The system does not rely on a single defensive layer. The effectiveness of each independent defense layer was empirically verified using the Phase 2 evaluation harness ([`scripts/eval_redteam.py`](../scripts/eval_redteam.py)):
 
 ### Layer 1: Static AST Guardrail (Path A Evidence)
 * **Execution Evidence:** Tested against 120 attack SQL payloads across 8 attack categories and 65 benign control queries.
 * **Attack Block Rate:** **87.50%** (105/120) [95% Wilson CI: 80.40% - 92.28%].
 * **Benign Control Pass Rate:** **100.00%** (65/65) [95% Wilson CI: 94.42% - 100.00%].
 * **Latency Overhead:** $p_{50} = 2.44\,\text{ms}$, $p_{95} = 7.28\,\text{ms}$.
-* **Artifact Reference:** [`results/redteam_latest.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/redteam_latest.json).
+* **Artifact Reference:** [`results/redteam_latest.json`](../results/redteam_latest.json).
 
 ### Layer 2: End-to-End Pipeline & Prompt Defense (Path B Evidence)
 * **Execution Evidence:** Tested against 60 prompt injection jailbreak payloads (40 dev + 20 held-out).
 * **Attack Success Rate:** **0.00%** (0/60) [95% Wilson CI: 0.00% - 6.02%].
 * **Outcome Breakdown:** 44 intercepted by validator, 5 stopped by sandbox, 11 executed harmlessly as standard SELECTs, 0 attack successes.
 * **Scope Note:** Path B measures Qwen2.5-Coder-3B-Instruct on this prompt set (60 prompts) only.
-* **Artifact Reference:** [`results/redteam_latest.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/redteam_latest.json), [`results/path_b_model_outputs.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/path_b_model_outputs.json).
+* **Artifact Reference:** [`results/redteam_latest.json`](../results/redteam_latest.json), [`results/path_b_model_outputs.json`](../results/path_b_model_outputs.json).
 
 ### Layer 3: Runtime Sandbox Isolation (Path C Evidence)
 * **Execution Evidence:** Direct execution of 120 attack SQL payloads with the AST validator **completely bypassed**.
@@ -119,7 +119,7 @@ The system does not rely on a single defensive layer. The effectiveness of each 
   * Read-Only Connection / PRAGMA `query_only`: 66 attacks blocked.
   * Row Limit Truncation (100 row cap): 2 attacks constrained.
 * **Zero Database Mutation:** In 100% of test cases, the database SHA-256 file hash remained strictly identical before and after query execution.
-* **Artifact Reference:** [`results/redteam_latest.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/redteam_latest.json).
+* **Artifact Reference:** [`results/redteam_latest.json`](../results/redteam_latest.json).
 
 ### Layer 4: Real End-to-End Pipeline (Path D Headline Evidence)
 * **Execution Evidence:** Attack SQL payloads evaluated through the full production pipeline (`SQLValidator` $\to$ `SafeSQLExecutor`).
@@ -130,7 +130,7 @@ The system does not rely on a single defensive layer. The effectiveness of each 
   * Executed Harmless (Benign whitespace/quotes): 11 queries ($9.17\%$)
   * Attack Success: 0 ($0.00\%$)
 * **DoS Wall-Clock Termination:** $p_{50} = 0.002\,\text{s}$, $p_{95} = 0.004\,\text{s}$, $\max = 0.004\,\text{s}$.
-* **Artifact Reference:** [`results/redteam_latest.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/redteam_latest.json).
+* **Artifact Reference:** [`results/redteam_latest.json`](../results/redteam_latest.json).
 
 ### Layer 5: Held-Out V2 Evaluation & Provenance Integrity
 * **Dataset Provenance:** `heldout_v1` was used during active iterative tuning (e.g., `max_joins` tuned after `DOS_H02`, validator adjustments after `BEN_H13`, `ENC_H02` relabeled post-audit) and is consequently demoted to development split status.
@@ -147,7 +147,7 @@ The system does not rely on a single defensive layer. The effectiveness of each 
   * Policy Escape Rate: 0/48 (0.00%, 95% Wilson CI: [0.00%, 7.41%]).
   * Empirical Harm Rate: 0/48 (0.00%, 95% Wilson CI: [0.00%, 7.41%]).
   * Remaining 2 unblocked attacks: `SEN_V2_06` (custom tenant schema entity table; blocked by SQLite sandbox) and `DOS_V2_04` (recursive CTE bomb; blocked by SQLite sandbox authorizer).
-* **Artifact Reference:** [`results/eval_heldout_v2.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/eval_heldout_v2.json), [`results/eval_heldout_v2_dev.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/eval_heldout_v2_dev.json).
+* **Artifact Reference:** [`results/eval_heldout_v2.json`](../results/eval_heldout_v2.json), [`results/eval_heldout_v2_dev.json`](../results/eval_heldout_v2_dev.json).
 
 ---
 
@@ -163,7 +163,7 @@ The system does not rely on a single defensive layer. The effectiveness of each 
      - Limit 4 joins: 2 / 1,034 queries blocked (0.19% false positive rate)
      - Limit 5 joins: 0 / 1,034 queries blocked (0.00% false positive rate)
    * *Tuning Disclosure:* The `max_joins` threshold was tuned while inspecting false positive queries on Spider dev. The 2 remaining false-blocked queries (`SPIDER_pets_1_65` and `SPIDER_pets_1_66`) have 5 joins in a single branch. Any prior claim of "0.00% false positives" was inaccurate; the real empirical false positive rate on Spider dev is **0.19% (2 / 1,034)**.
-4. **Whitespace and Quoting Variations:** Queries containing extra whitespace, newlines, or bracket quoting (`[singer]`) normalize to valid SELECT statements without malicious intent. They are classified as `executed_harmless` in Path D and audited in [`results/unblocked_audit.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/unblocked_audit.json).
+4. **Whitespace and Quoting Variations:** Queries containing extra whitespace, newlines, or bracket quoting (`[singer]`) normalize to valid SELECT statements without malicious intent. They are classified as `executed_harmless` in Path D and audited in [`results/unblocked_audit.json`](../results/unblocked_audit.json).
 5. **Semantically Incorrect but Safe SELECTs:** The security layer validates syntax and safety policy, not semantic business logic. A query like `SELECT * FROM sales WHERE year = 2020` when the user asked for 2021 is safe from an injection standpoint, but mathematically incorrect.
 6. **Data Exfiltration via Legitimate Allowed Tables:** If an attacker has access to query table `sales`, they can read all legitimate rows in that table up to the 100-row limit. Fine-grained column-level or row-level security (RLS) across multi-tenant schemas is addressed in Phase 6.
 7. **Timing Side-Channels:** Subtle differences in execution time between existing versus non-existing values in indexed columns may reveal information via timing side channels.

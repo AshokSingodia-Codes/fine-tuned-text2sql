@@ -70,4 +70,4 @@ The Phase 3b runner does **not** reimplement model inference, self-correction, o
 - `from src.t2s.safety.validator import SQLValidator`
 - `from src.t2s.safety.executor import SafeSQLExecutor`
 
-See [`scripts/make_eval_bundle.py`](file:///e:/7thsem%20learning/projects/finue%20tune/scripts/make_eval_bundle.py) and [`notebooks/run_phase3b_eval.ipynb`](file:///e:/7thsem%20learning/projects/finue%20tune/notebooks/run_phase3b_eval.ipynb).
+See [`scripts/make_eval_bundle.py`](../scripts/make_eval_bundle.py) and [`notebooks/run_phase3b_eval.ipynb`](../notebooks/run_phase3b_eval.ipynb).

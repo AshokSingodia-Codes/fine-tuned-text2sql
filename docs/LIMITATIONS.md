@@ -9,7 +9,7 @@
 ## 1. Security & Validation Limitations
 
 ### 1.1 False-Blocked Legitimate Queries (Empirical Audit)
-As documented in [`results/false_blocks.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/false_blocks.json), evaluating 1,110 legitimate queries (1,034 Spider dev queries + 76 benign controls) yielded **7 blocked queries** (overall legitimate pass rate: **99.37% (1,103 / 1,110)**; pass rate on Spider dev alone: **99.81% (1,032 / 1,034)**).
+As documented in [`results/false_blocks.json`](../results/false_blocks.json), evaluating 1,110 legitimate queries (1,034 Spider dev queries + 76 benign controls) yielded **7 blocked queries** (overall legitimate pass rate: **99.37% (1,103 / 1,110)**; pass rate on Spider dev alone: **99.81% (1,032 / 1,034)**).
 
 | Query ID | SQL Snippet | Engine / Reason | Classification | Root Cause / Note |
 |---|---|---|---|---|
@@ -23,7 +23,7 @@ As documented in [`results/false_blocks.json`](file:///e:/7thsem%20learning/proj
 
 > **Classification Definition**:
 > - **(a) Documented limit**: Intended security threshold (e.g., recursive CTE block or max join ceiling).
-> - **(b) Unexpected false block**: Allowlist gap due to internal parser AST key normalizations. Under the active **Policy FREEZE**, these have been logged into [`results/policy_changes.md`](file:///e:/7thsem%20learning/projects/finue%20tune/results/policy_changes.md) as proposals for v4, without modifying frozen safety code.
+> - **(b) Unexpected false block**: Allowlist gap due to internal parser AST key normalizations. Under the active **Policy FREEZE**, these have been logged into [`results/policy_changes.md`](../results/policy_changes.md) as proposals for v4, without modifying frozen safety code.
 
 ---
 
@@ -44,7 +44,7 @@ As documented in [`results/false_blocks.json`](file:///e:/7thsem%20learning/proj
 ### 2.1 Ablation Parity & Zero-Shot Self-Correction (BASE+greedy, BASE+SC, BASE+V, BASE+SC+V)
 > [!WARNING]
 > **Kaggle Run Status: UNVERIFIED, harness suspect.**
-> The preliminary ablation run on Kaggle GPU (`results/ablation_latest.json`) did not record per-question generated SQL predictions to disk, and the generator backend lacked stochastic sampling arguments (`temperature=0.7`, `do_sample=True`), causing candidate outputs to evaluate deterministically. Consequently, these metrics cannot be taken as evidence that self-correction or voting yields no gain. The evaluation harness has been patched with regression tests (`tests/test_ablation_scoring_regression.py`), and a re-evaluation on the fine-tuned model is specified in [`docs/PHASE3B.md`](file:///e:/7thsem%20learning/projects/finue%20tune/docs/PHASE3B.md).
+> The preliminary ablation run on Kaggle GPU (`results/ablation_latest.json`) did not record per-question generated SQL predictions to disk, and the generator backend lacked stochastic sampling arguments (`temperature=0.7`, `do_sample=True`), causing candidate outputs to evaluate deterministically. Consequently, these metrics cannot be taken as evidence that self-correction or voting yields no gain. The evaluation harness has been patched with regression tests (`tests/test_ablation_scoring_regression.py`), and a re-evaluation on the fine-tuned model is specified in [`docs/PHASE3B.md`](../docs/PHASE3B.md).
 
 - Recorded preliminary metrics across 1,034 Spider dev queries (Base Model `Qwen/Qwen2.5-Coder-3B-Instruct`):
   - **BASE+greedy**: EX = `62.28%` (644/1034), 95% CI [59.28%, 65.09%], mean lat = 2.21s, p95 = 4.61s.
@@ -64,7 +64,7 @@ As documented in [`results/false_blocks.json`](file:///e:/7thsem%20learning/proj
 - Consequently, predicted queries with `LIMIT 100` are flagged as execution mismatches against uncapped ground truth. Accuracies are reported both over all 1,034 queries and over the 1,001 uncapped queries.
 
 ### 2.3 Interactive Web Demo Examples & Guardrail Intercepts
-- In accordance with X4 demo accounting recorded in [`results/demo_examples.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/demo_examples.json):
+- In accordance with X4 demo accounting recorded in [`results/demo_examples.json`](../results/demo_examples.json):
   - **Total Questions Attempted**: 13 questions evaluated against the read-only Chinook SQLite database (`chinook_1`).
   - **Passing Examples (10)**: 10 legitimate analytical questions passed validation and execution, and are loaded as preset queries in the web interface.
   - **Blocked / Failure Examples (3)**: 3 queries were deliberately attempted and blocked to showcase the AST and sandbox guardrails:

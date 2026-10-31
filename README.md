@@ -1,13 +1,3 @@
----
-title: Fine-Tuned Text-to-SQL Assistant
-emoji: 🛡️
-colorFrom: indigo
-colorTo: blue
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
 
 [![CI](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions/workflows/ci.yml/badge.svg)](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions)
@@ -49,19 +39,25 @@ flowchart TD
 
 ## 📊 Comprehensive Evaluation & Benchmark Results
 
-All evaluation numbers are produced empirically by automated code scripts and verified against `results/` artifacts (Rule R1).
+All evaluation numbers are produced empirically by automated code scripts and verified against `results/` artifacts (empirical results).
 
 ### 1. Model Systems Comparison (Spider Dev Split, $n=1,034$)
 
-| System / Configuration | Model Format & Size | Execution Accuracy (Spider Dev, n=1,034) | 95% Bootstrap CI | Latency p50 | Latency p95 | Serving Hardware |
+| System / Configuration | Model Format & Size | Execution Accuracy (Spider Dev, n=1,034) | 95% Bootstrap CI | Latency p50 | Latency p95 | Serving Hardware & Evidence File |
 |---|---|---|---|---|---|---|
-| **Base Model (Zero-Shot)** | FP16 (6.2 GB) | **62.28%** (644 / 1,034) | [59.38%, 65.18%] | 2.16 s | 5.82 s | Linux GPU (Cloud) |
-| **Base Model (3-Shot)** | FP16 (6.2 GB) | **66.15%** (684 / 1,034) | [63.25%, 68.96%] | 2.23 s | 6.01 s | Linux GPU (Cloud) |
-| **Fine-Tuned Adapter (Merged)** | FP16 (6.2 GB) | **71.57%** (740 / 1,034) | [68.86%, 74.27%] | 2.19 s | 5.91 s | Linux GPU (Cloud) |
-| **Fine-Tuned Quantized (GGUF Q4_K_M)** | GGUF Q4_K_M (1.9 GB) | **70.70%** (731 / 1,034) | [67.89%, 73.40%] | 4.68 s | 11.23 s | Local CPU (4 cores, 31.4 GB RAM) |
-| **Fine-Tuned Quantized + AST Guardrail** | GGUF Q4_K_M (1.9 GB) | **70.50%** (729 / 1,034) | [67.69%, 73.21%] | 4.71 s | 11.31 s | Local CPU (4 cores, 31.4 GB RAM) |
+| **Config A: Base Zero-Shot (no guardrail)** | FP16 (6.2 GB) | **62.28%** (644 / 1,034) | [59.38%, 65.18%] | 2.16 s | 5.82 s | Linux GPU (
+esults/eval_spider_latest.json) |
+| **Config B: Base 3-Shot (no guardrail)** | FP16 (6.2 GB) | **66.15%** (684 / 1,034) | [63.25%, 68.96%] | 2.23 s | 6.01 s | Linux GPU (
+esults/eval_spider_latest.json) |
+| **Config C: Merged Fine-Tuned (no guardrail)** | FP16 (6.2 GB) | **71.57%** (740 / 1,034) | [68.86%, 74.27%] | 2.19 s | 5.91 s | Linux GPU (
+esults/eval_spider_latest.json) |
+| **Config D: Fine-Tuned GGUF Q4_K_M (no guardrail)** | GGUF Q4_K_M (1.9 GB) | **70.70%** (731 / 1,034) | [67.89%, 73.40%] | 4.68 s | 11.23 s | Linux CPU (2 physical cores, 31.35 GB RAM, CUDA host; 
+esults/eval_spider_latest.json, 
+esults/latency_latest.json) |
+| **Config D + Guardrail: GGUF Q4_K_M + AST Guardrail** | GGUF Q4_K_M (1.9 GB) | **70.50%** (729 / 1,034) | [67.69%, 73.21%] | 4.71 s | 11.31 s | Linux CPU (2 physical cores, 31.35 GB RAM, CUDA host; 
+esults/false_blocks.json) |
 
-> *Note on Row Capping*: 33 of 1,034 Spider dev queries produce gold result sets exceeding 100 rows. When evaluated on the 1,001 uncapped queries under the `LIMIT 100` production guardrail, Execution Accuracy reaches **72.83%** (729 / 1,001) as recorded in [`results/canonical_equiv.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/canonical_equiv.json).
+> *Note on Row Capping*: 33 of 1,034 Spider dev queries produce gold result sets exceeding 100 rows. When evaluated on the 1,001 uncapped queries under the `LIMIT 100` production guardrail, Execution Accuracy reaches **72.83%** (729 / 1,001) as recorded in [`results/canonical_equiv.json`](results/canonical_equiv.json).
 
 > *Note on Hyperparameter Validation Losses*: Hyperparameter validation loss ablations are omitted until full multi-run evaluation logs are provided. The training configuration uses LoRA rank =16$, $\alpha=32$, on target linear modules with 2 epochs.
 
@@ -208,7 +204,7 @@ docker compose up --build
 
 ## 🗺️ Scope & Roadmap (What Was Built vs Not Built)
 
-### Implemented in Production (MVP Scope)
+### Implemented Core Capabilities
 - [x] Parameter-efficient QLoRA fine-tuning of `Qwen2.5-Coder-3B-Instruct`
 - [x] 4-bit GGUF quantization (Q4_K_M) with local CPU serving
 - [x] Multi-layer AST guardrails (`sqlglot`) and read-only SQLite sandboxing
@@ -218,7 +214,7 @@ docker compose up --build
 
 ### Explicitly Out-of-Scope (Deferred Architectural Extensions)
 - **Multi-Database Dialects (PostgreSQL, MySQL)**: Deferred in MVP path; currently specialized for SQLite execution.
-- **Enterprise Warehouses (Snowflake, BigQuery, Redshift, Databricks)**: Strict non-goal (Rule R6); excluded to maintain lightweight standalone operation.
+- **Enterprise Warehouses (Snowflake, BigQuery, Redshift, Databricks)**: Strict non-goal (out of project scope); excluded to maintain lightweight standalone operation.
 - **Enterprise Identity & Auth (SSO, SAML, Okta)**: Replaced by lightweight API token authentication.
 - **Orchestration (Kubernetes)**: Excluded in favor of single-node Docker Compose and Hugging Face Space container deployment.
 

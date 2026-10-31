@@ -44,7 +44,7 @@ This produces `kaggle_bundle.zip` (~304 MB) in the repository root. It includes:
 ## Step 3: Create & Configure Kaggle Notebook
 
 1. In Kaggle, click **Create** $\rightarrow$ **New Notebook**.
-2. Click **File** $\rightarrow$ **Import Notebook** $\rightarrow$ upload [`notebooks/run_phase1_kaggle.ipynb`](file:///e:/7thsem%20learning/projects/finue%20tune/notebooks/run_phase1_kaggle.ipynb).
+2. Click **File** $\rightarrow$ **Import Notebook** $\rightarrow$ upload [`notebooks/run_phase1_kaggle.ipynb`](../notebooks/run_phase1_kaggle.ipynb).
 3. In the right-hand **Notebook Settings** panel:
    - **Accelerator**: Select **GPU T4 x 2** (preferred) or **GPU P100**.
    - **Internet**: Toggle to **Internet on** *(Note: Kaggle requires phone number verification once to enable Internet access)*.

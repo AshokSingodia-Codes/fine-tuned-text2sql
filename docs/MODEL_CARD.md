@@ -79,7 +79,8 @@ Evaluated against multi-path adversarial red-team suites (`results/redteam_lates
 
 ## 5. Deployment Instructions
 
-### Adapter Loading (PyTorch / Transformers)
+### Adapter Loading (PyTorch / Transformers) - [NOT PUBLISHED / TODO]
+*(Note: Adapter weights have not been uploaded to Hugging Face Model Hub. When published, load via:)*
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -87,7 +88,7 @@ from peft import PeftModel
 base_model_name = "Qwen/Qwen2.5-Coder-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(base_model_name)
 base_model = AutoModelForCausalLM.from_pretrained(base_model_name, device_map="auto")
-model = PeftModel.from_pretrained(base_model, "AshokSingodia-Codes/fine-tuned-text2sql-adapter")
+# model = PeftModel.from_pretrained(base_model, "<HF_USERNAME>/fine-tuned-text2sql-adapter")
 ```
 
 ### Private GGUF Serving

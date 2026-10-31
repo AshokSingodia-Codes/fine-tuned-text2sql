@@ -7,7 +7,7 @@
 ## Proposed Changes for Policy V4 (Pending V3 Evaluation)
 
 ### Proposal 1: sqlglot AST Function Normalization Map (Allowlist Gap Fixes)
-- **Problem:** Five benign queries (`BEN_D26`, `BEN_H22`, `BEN_D37`, `BEN_H20`, `BEN_H12`) in [`results/false_blocks.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/false_blocks.json) were blocked by the static AST validator because `sqlglot` normalizes SQL function names into internal dialect-neutral expressions:
+- **Problem:** Five benign queries (`BEN_D26`, `BEN_H22`, `BEN_D37`, `BEN_H20`, `BEN_H12`) in [`results/false_blocks.json`](../results/false_blocks.json) were blocked by the static AST validator because `sqlglot` normalizes SQL function names into internal dialect-neutral expressions:
   - `strftime(...)` $\to$ `exp.TimeToStr` / `timetostr` and `tsordstotimestamp`
   - `ROW_NUMBER()` $\to$ `rownumber` (no underscore)
   - `DENSE_RANK()` $\to$ `denserank` (no underscore)
