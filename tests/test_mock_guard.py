@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 def test_mock_backend_limit_rejection() -> None:
     """Full run without limit or limit > 20 with mock backend must fail."""
@@ -31,6 +33,9 @@ def test_mock_backend_limit_rejection() -> None:
 
 def test_mock_backend_smoke_output_directory(tmp_path: Path) -> None:
     """Mock runs with limit <= 20 must write to results/smoke/ and print MOCK RUN warning."""
+    dev_json = Path("data/raw/spider/dev.json")
+    if not dev_json.exists():
+        pytest.skip("Spider dev dataset not found at data/raw/spider/dev.json (no raw data in clean checkout)")
     latest_file = Path("results/eval_spider_latest.json")
     existed_before = latest_file.exists()
     mtime_before = latest_file.stat().st_mtime if existed_before else None
