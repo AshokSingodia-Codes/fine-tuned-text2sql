@@ -45,21 +45,19 @@ All evaluation numbers are produced empirically by automated code scripts and ve
 
 | System / Configuration | Model Format & Size | Execution Accuracy (Spider Dev, n=1,034) | 95% Bootstrap CI | Latency p50 | Latency p95 | Serving Hardware & Evidence File |
 |---|---|---|---|---|---|---|
-| **Config A: Base Zero-Shot (no guardrail)** | FP16 (6.2 GB) | **62.28%** (644 / 1,034) | [59.38%, 65.18%] | 2.16 s | 5.82 s | Linux GPU (
-esults/eval_spider_latest.json) |
-| **Config B: Base 3-Shot (no guardrail)** | FP16 (6.2 GB) | **66.15%** (684 / 1,034) | [63.25%, 68.96%] | 2.23 s | 6.01 s | Linux GPU (
-esults/eval_spider_latest.json) |
-| **Config C: Merged Fine-Tuned (no guardrail)** | FP16 (6.2 GB) | **71.57%** (740 / 1,034) | [68.86%, 74.27%] | 2.19 s | 5.91 s | Linux GPU (
-esults/eval_spider_latest.json) |
-| **Config D: Fine-Tuned GGUF Q4_K_M (no guardrail)** | GGUF Q4_K_M (1.9 GB) | **70.70%** (731 / 1,034) | [67.89%, 73.40%] | 4.68 s | 11.23 s | Linux CPU (2 physical cores, 31.35 GB RAM, CUDA host; 
-esults/eval_spider_latest.json, 
-esults/latency_latest.json) |
-| **Config D + Guardrail: GGUF Q4_K_M + AST Guardrail** | GGUF Q4_K_M (1.9 GB) | **70.50%** (729 / 1,034) | [67.69%, 73.21%] | 4.71 s | 11.31 s | Linux CPU (2 physical cores, 31.35 GB RAM, CUDA host; 
-esults/false_blocks.json) |
+| **Config A: Base Zero-Shot (no guardrail)** | FP16 (6.2 GB) | **62.28%** (644 / 1,034) | [59.38%, 65.18%] | 2.16 s | 5.82 s | Linux GPU (results/eval_spider_latest.json) |
+| **Config B: Base 3-Shot (no guardrail)** | FP16 (6.2 GB) | **66.15%** (684 / 1,034) | [63.25%, 68.96%] | 2.23 s | 6.01 s | Linux GPU (results/eval_spider_latest.json) |
+| **Config C: Merged Fine-Tuned (no guardrail)** | FP16 (6.2 GB) | **71.57%** (740 / 1,034) | [68.86%, 74.27%] | 2.19 s | 5.91 s | Linux GPU (results/eval_spider_latest.json) |
+| **Config D: Fine-Tuned GGUF Q4_K_M (no guardrail)** | GGUF Q4_K_M (1.9 GB) | **70.70%** (731 / 1,034) | [67.89%, 73.40%] | 4.68 s | 11.23 s | Linux CPU (2 physical cores, 31.35 GB RAM, CUDA host; results/eval_spider_latest.json, results/latency_latest.json) |
+| **Config D + Guardrail: GGUF Q4_K_M + AST Guardrail** | GGUF Q4_K_M (1.9 GB) | **70.50%** (729 / 1,034) | [67.69%, 73.21%] | 4.71 s | 11.31 s | Linux CPU (2 physical cores, 31.35 GB RAM, CUDA host; results/false_blocks.json) |
 
 > *Note on Row Capping*: 33 of 1,034 Spider dev queries produce gold result sets exceeding 100 rows. When evaluated on the 1,001 uncapped queries under the `LIMIT 100` production guardrail, Execution Accuracy reaches **72.83%** (729 / 1,001) as recorded in [`results/canonical_equiv.json`](results/canonical_equiv.json).
 
 > *Note on Hyperparameter Validation Losses*: Hyperparameter validation loss ablations are omitted until full multi-run evaluation logs are provided. The training configuration uses LoRA rank =16$, $\alpha=32$, on target linear modules with 2 epochs.
+
+> [!NOTE]
+> **Self-Correction and Majority Voting Status:**
+> Execution-guided self-correction and majority voting consensus algorithms are fully implemented in the engine, but accuracy uplifts on the fine-tuned model are **not evaluated** pending Phase 3b execution on cloud GPU (specified in [docs/PHASE3B.md](docs/PHASE3B.md)). Both mechanisms remain **disabled by default** across the CLI (--consensus flag required), the serving service (enable_consensus: false), and the React web UI.
 
 ---
 

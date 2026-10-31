@@ -17,7 +17,7 @@ const API_BASE = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : '';
 export default function App() {
   const [selectedDb, setSelectedDb] = useState('concert_singer');
   const [includeSamples, setIncludeSamples] = useState(false);
-  const [enableConsensus, setEnableConsensus] = useState(true);
+  const [enableConsensus, setEnableConsensus] = useState(false);
   const [activeTab, setActiveTab] = useState('workspace');
   const [loading, setLoading] = useState(false);
   const [queryResult, setQueryResult] = useState(null);

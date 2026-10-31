@@ -216,9 +216,9 @@ def main() -> None:
 
     # Options
     parser.add_argument(
-        "--no-consensus",
+        "--consensus",
         action="store_true",
-        help="Disable majority voting (faster, less accurate)",
+        help="Enable majority voting consensus (default: disabled)",
     )
     parser.add_argument(
         "--n-samples", type=int, default=5, help="Number of SQL candidates for voting (default: 5)"
@@ -322,7 +322,7 @@ def main() -> None:
         if not args.question and not args.list_tables:
             args.interactive = True
 
-    consensus = not args.no_consensus
+    consensus = bool(args.consensus)
 
     # -- List tables mode -----------------------------------------
     if args.list_tables:

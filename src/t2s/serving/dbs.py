@@ -40,31 +40,29 @@ class DatabaseRegistry:
         }
 
     def list_databases(self) -> List[Dict[str, Any]]:
-        if not self.db_base_dir.exists():
-            return []
-
         seen_dbs = set()
         dbs = []
 
-        # Check nested subdirectories (e.g. data/raw/spider/database/<db_id>/<db_id>.sqlite)
-        for p in sorted(self.db_base_dir.glob("*/*.sqlite")):
-            db_id = p.parent.name
-            if db_id not in seen_dbs:
-                info = self.get_db_info(db_id)
-                if info is not None:
-                    seen_dbs.add(db_id)
-                    dbs.append(info)
+        if self.db_base_dir.exists():
+            # Check nested subdirectories (e.g. data/raw/spider/database/<db_id>/<db_id>.sqlite)
+            for p in sorted(self.db_base_dir.glob("*/*.sqlite")):
+                db_id = p.parent.name
+                if db_id not in seen_dbs:
+                    info = self.get_db_info(db_id)
+                    if info is not None:
+                        seen_dbs.add(db_id)
+                        dbs.append(info)
 
-        # Check flat files (e.g. data/raw/spider/database/<db_id>.sqlite)
-        for p in sorted(self.db_base_dir.glob("*.sqlite")):
-            db_id = p.stem
-            if db_id not in seen_dbs:
-                info = self.get_db_info(db_id)
-                if info is not None:
-                    seen_dbs.add(db_id)
-                    dbs.append(info)
+            # Check flat files (e.g. data/raw/spider/database/<db_id>.sqlite)
+            for p in sorted(self.db_base_dir.glob("*.sqlite")):
+                db_id = p.stem
+                if db_id not in seen_dbs:
+                    info = self.get_db_info(db_id)
+                    if info is not None:
+                        seen_dbs.add(db_id)
+                        dbs.append(info)
 
-        # Include user-uploaded databases
+        # Check user-uploaded databases
         for upload_dir in self._upload_dirs:
             for p in sorted(upload_dir.glob("*.sqlite")):
                 db_id = p.stem
@@ -72,6 +70,21 @@ class DatabaseRegistry:
                     info = self.get_db_info_from_path(str(p), db_id)
                     seen_dbs.add(db_id)
                     dbs.append(info)
+
+        # Fallback to committed seed databases in db/seeds/ if not found
+        seeds_dir = Path("db/seeds")
+        if seeds_dir.exists():
+            for p in sorted(seeds_dir.glob("*.sqlite")):
+                db_id = p.stem
+                # Support chinook_1 alias for chinook.sqlite
+                alias_ids = [db_id]
+                if db_id == "chinook":
+                    alias_ids.append("chinook_1")
+                for aid in alias_ids:
+                    if aid not in seen_dbs:
+                        info = self.get_db_info_from_path(str(p), aid)
+                        seen_dbs.add(aid)
+                        dbs.append(info)
 
         return dbs
 
@@ -105,6 +118,17 @@ class DatabaseRegistry:
             pu = (upload_dir / f"{db_id}.sqlite").resolve()
             if pu.exists() and upload_dir.resolve() in pu.parents:
                 return pu
+
+        # Fallback to committed seed databases in db/seeds/
+        seeds_dir = Path("db/seeds")
+        if seeds_dir.exists():
+            ps = (seeds_dir / f"{db_id}.sqlite").resolve()
+            if ps.exists() and seeds_dir.resolve() in ps.parents:
+                return ps
+            if db_id == "chinook_1":
+                ps_chinook = (seeds_dir / "chinook.sqlite").resolve()
+                if ps_chinook.exists() and seeds_dir.resolve() in ps_chinook.parents:
+                    return ps_chinook
         return None
 
     def get_db_info(self, db_id: str) -> Optional[Dict[str, Any]]:
