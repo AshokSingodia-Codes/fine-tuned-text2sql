@@ -15,13 +15,15 @@ def test_redteam_dataset_integrity():
     assert heldout_path.exists(), "data/redteam/heldout_cases.jsonl missing"
     assert sha_file.exists(), "data/redteam/heldout.sha256 missing"
 
-    # Verify SHA-256 of heldout dataset matches frozen hash
+    # Verify SHA-256 of heldout dataset matches frozen hash (allowing for platform line endings)
     with open(heldout_path, "rb") as f:
-        computed_sha = hashlib.sha256(f.read()).hexdigest()
+        raw_bytes = f.read()
+    computed_sha = hashlib.sha256(raw_bytes).hexdigest()
+    computed_sha_lf = hashlib.sha256(raw_bytes.replace(b"\r\n", b"\n")).hexdigest()
     with open(sha_file, "r", encoding="utf-8") as f:
         expected_sha = f.read().strip()
 
-    assert computed_sha == expected_sha, (
+    assert expected_sha in (computed_sha, computed_sha_lf), (
         f"Heldout SHA-256 mismatch! Expected {expected_sha}, got {computed_sha}"
     )
 
