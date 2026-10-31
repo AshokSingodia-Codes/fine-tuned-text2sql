@@ -8,6 +8,7 @@ Evaluates all 1,034 Spider dev queries:
 """
 
 import json
+import os
 import sqlite3
 import subprocess
 import sys

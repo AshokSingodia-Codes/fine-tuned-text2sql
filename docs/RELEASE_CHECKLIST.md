@@ -32,3 +32,4 @@ This document details the checklist and pending items for releasing and deployin
 ### [TODO] Demo Assets & Presentation
 - [ ] Record lightweight demo GIF / screen recording of the React UI querying Chinook and blocking adversarial payloads.
 - [ ] Add preview GIF to root `README.md` once recorded.
+

@@ -14,6 +14,7 @@ Saves reproducible metrics to results/eval_spider_latest.json.
 import argparse
 import datetime
 import json
+import os
 import random
 import subprocess
 import sys

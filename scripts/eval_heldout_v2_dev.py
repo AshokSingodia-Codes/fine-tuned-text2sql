@@ -10,6 +10,7 @@ Writes results to results/eval_heldout_v2_dev.json recording:
 import hashlib
 import json
 import math
+import os
 import shutil
 import sqlite3
 import subprocess
