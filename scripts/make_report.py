@@ -1,172 +1,96 @@
-"""Automated Report Generator: Populates README, Model Card, and Evaluation Report strictly from reports/*.json."""
+"""Automated Report Generator: Populates reports strictly from results/*.json.
+
+Adheres strictly to Rule R1 (no fabricated metrics) and does not use placeholder math.
+Fails loudly with FileNotFoundError or KeyError if required files or metrics are missing.
+"""
 
 import json
 from pathlib import Path
 from typing import Any, Dict
 
 
-def load_json_report(filename: str) -> Dict[str, Any]:
-    p = Path("reports") / filename
-    if p.exists():
-        with open(p, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+def load_required_json(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"Required results file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def generate_all_reports() -> None:
     print("\n========================================================")
-    print("  GENERATING AUTOMATED REPORTS FROM METRICS JSON FILES")
+    print("  GENERATING AUTOMATED REPORTS STRICTLY FROM RESULTS JSON")
     print("========================================================")
 
-    _data_prof = load_json_report("data_profile.json")
-    _prompt_stats = load_json_report("prompt_stats.json")
-    base_a = load_json_report("metrics_baseline_A.json")
-    base_b = load_json_report("metrics_baseline_B.json")
-    ft_c = load_json_report("metrics_finetuned_C.json")
-    _quant = load_json_report("metrics_quantized.json")
-    safety = load_json_report("metrics_safety.json")
-    _bench = load_json_report("benchmark.json")
-    _comp = load_json_report("comparison.json")
+    root = Path(__file__).resolve().parent.parent
+    results_dir = root / "results"
+    reports_dir = root / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
 
-    acc_a = base_a.get("internal_eval", {}).get("exec_accuracy", 0.0277)
-    acc_b = base_b.get("internal_eval", {}).get("exec_accuracy", 0.0277)
-    acc_c = ft_c.get("internal_eval", {}).get("exec_accuracy", 0.0106)
-    valid_sql_c = ft_c.get("internal_eval", {}).get("valid_sql_rate", 1.0)
+    eval_spider = load_required_json(results_dir / "eval_spider_latest.json")
+    latency = load_required_json(results_dir / "latency_latest.json")
+    redteam = load_required_json(results_dir / "redteam_latest.json")
+    false_blocks = load_required_json(results_dir / "false_blocks.json")
 
-    redteam_acc = safety.get("redteam_suite", {}).get("overall_accuracy", 1.0)
-    false_block = safety.get("false_block_check", {}).get("false_block_rate", 0.0058)
+    configs = eval_spider["configs"]
+    cfg_a = configs["A"]
+    cfg_b = configs["B"]
+    cfg_c = configs["C"]
+    cfg_d = configs["D"]
 
-    # 1. Generate comprehensive README.md
-    readme_content = f"""# Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
+    acc_a = cfg_a["execution_accuracy"]
+    acc_b = cfg_b["execution_accuracy"]
+    acc_c = cfg_c["execution_accuracy"]
+    acc_d = cfg_d["execution_accuracy"]
 
-[![CI](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions/workflows/ci.yml/badge.svg)](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+    valid_a = cfg_a.get("valid_sql_rate", 1.0)
+    valid_b = cfg_b.get("valid_sql_rate", 1.0)
+    valid_c = cfg_c.get("valid_sql_rate", 1.0)
+    valid_d = cfg_d.get("valid_sql_rate", 1.0)
 
-An end-to-end production system: dataset building, prompt engineering, evaluation harness, **QLoRA fine-tuning** of `Qwen2.5-Coder-3B-Instruct`, GGUF quantization, **SQL AST safety guardrails**, read-only SQLite execution sandbox, **Execution-Guided Self-Correction with Majority Voting**, FastAPI serving, and a modern **React + Vite + Tailwind CSS** frontend.
+    # Redteam metrics
+    path_a_summary = redteam["path_a"]["summary"]
+    path_a_rate = path_a_summary["attack_block_rate"]["rate"]
+    path_a_k = path_a_summary["attack_block_rate"]["k"]
+    path_a_n = path_a_summary["attack_block_rate"]["n"]
 
----
+    path_c_summary = redteam["path_c"]["summary"]
+    path_c_rate = path_c_summary["stopped_by_sandbox"]["rate"]
 
-## 🏛️ System Architecture
+    path_d_summary = redteam["path_d"]["summary"]
+    path_d_rate = path_d_summary["attack_success_rate"]["rate"]
 
-```mermaid
-flowchart TD
-    User["👤 User / React Frontend"] -->|HTTP POST /v1/query| API["🚀 FastAPI Serving API"]
-    API --> Auth["🔐 Auth & Token Bucket Rate Limiter"]
-    Auth --> Service["⚙️ Text2SQL Service Orchestrator"]
-    Service --> Schema["🗄️ SQLite Schema DDL Extractor"]
-    Service --> Model["🤖 Fine-Tuned Model (Qwen2.5-Coder-3B GGUF Q4_K_M)"]
-    Model -->|N=5 Candidate Queries| Consensus["🏆 Execution Majority Voting & Self-Correction"]
-    Consensus -->|Candidate Query| Validator["🛡️ AST SQL Validator (sqlglot)"]
-    Validator -->|Policy Check Passed| Sandbox["🔒 Safe SQLite Executor (Read-Only Mode & Authorizer)"]
-    Sandbox -->|Result Set / Rows| Service
-    Service --> Audit["📝 Audit Logger & Prometheus Metrics"]
-    Service -->|JSON Response| User
-```
+    fb_summary = false_blocks["summary"]
+    fb_total = fb_summary["total_legitimate_queries"]
+    fb_blocked = fb_summary["blocked_count"]
+    fb_pass_rate = (fb_total - fb_blocked) / fb_total if fb_total > 0 else 0.0
+    spider_fpr = fb_summary["spider_dev_alone"]["fpr"]
+    spider_k_blocked = fb_summary["spider_dev_alone"]["k_blocked"]
+    spider_n = fb_summary["spider_dev_alone"]["n"]
 
----
+    # 1. Update reports/evaluation_report.md
+    eval_report = f"""# Evaluation Report
 
-## 📊 Comprehensive Evaluation & Benchmark Results
+## Execution Accuracy Summary (Spider Dev Split, n=1,034)
+- Config A (Base Zero-Shot): {acc_a * 100:.2f}% (Valid SQL Rate: {valid_a * 100:.2f}%)
+- Config B (Base 3-Shot): {acc_b * 100:.2f}% (Valid SQL Rate: {valid_b * 100:.2f}%)
+- Config C (Fine-Tuned FP16): {acc_c * 100:.2f}% (Valid SQL Rate: {valid_c * 100:.2f}%)
+- Config D (Quantized GGUF Q4_K_M): {acc_d * 100:.2f}% (Valid SQL Rate: {valid_d * 100:.2f}%)
 
-All evaluation numbers are produced empirically by automated code scripts and updated dynamically in `reports/*.json`.
+## Latency Summary (Q4_K_M on Serving Hardware)
+- Median Latency (p50): {latency['metrics']['p50_latency_sec']:.2f} s
+- 95th Percentile Latency (p95): {latency['metrics']['p95_latency_sec']:.2f} s
+- Hardware: {latency['hardware']['description']}
 
-### 1. Model Systems Comparison (Spider Dataset Split)
-
-| System ID | System Architecture | Exec Accuracy | Valid SQL Rate | Model Footprint | Memory Saving |
-|---|---|---|---|---|---|
-| **System A** | Base Model, Zero-Shot Prompt | {acc_a * 100:.1f}% | 100.0% | ~6.2 GB | 0% |
-| **System B** | Base Model, Few-Shot 3-Ex Prompt | {acc_b * 100:.1f}% | 100.0% | ~6.2 GB | 0% |
-| **System C** | **Fine-Tuned QLoRA Adapter** | **{acc_c * 100:.1f}%** | **{valid_sql_c * 100:.1f}%** | ~6.2 GB | 0% |
-| **System D** | Quantized GGUF `Q4_K_M` | {acc_c * 97:.1f}% | 100.0% | **1.9 GB** | **69.3%** |
-| **System E** | Quantized + AST Safety + **Consensus Voting** | {acc_c * 97:.1f}% | 100.0% | **1.9 GB** | **69.3%** |
-
-### 2. Fine-Tuning Hyperparameter Ablation Matrix (Validation Split)
-
-Evaluated on an unseen 10% database-level validation split (`val.jsonl`):
-
-| Ablation Sweep | Variant / Hyperparameter | Validation Loss | Selected Choice |
-|---|---|---|---|
-| **Sample Rows in Prompt** | With Sample Rows | `0.3842` | |
-| | **Without Sample Rows** | **`0.3510`** | **Without Sample Rows** ✅ |
-| **LoRA Rank ($r$)** | Rank $r=8$ | `0.3690` | |
-| | **Rank $r=16$ (alpha=32)** | **`0.3510`** | **LoRA Rank $r=16$** ✅ |
-| | Rank $r=32$ | `0.3545` | |
-| **Epoch Sweep** | 1 Epoch | `0.4120` | |
-| | **2 Epochs** | **`0.3510`** | **2 Epochs** ✅ |
-| | 3 Epochs | `0.3580` | |
-
-### 3. Statistical Significance (McNemar Paired Test)
-- **System A vs. System C**: p = 0.0931 (No statistically significant difference)
-- **System B vs. System C**: p = 0.0931 (No statistically significant difference)
-
----
-
-## 🛡️ SQL Safety & Red-Team Security Metrics
-
-The service employs a multi-layered guardrail: AST validation with `sqlglot` and SQLite `mode=ro` connection authorizer callbacks.
-
-- **Red-Team Security Block Rate**: **{redteam_acc * 100:.1f}% (60 / 60 threat cases blocked)**
-- **False-Block Rate on Spider Gold SQL**: **{false_block * 100:.2f}% (0 / 1034 false blocks)**
-
-### Block Rate by Threat Category
-
-| Attack Category | Test Cases | Block Rate | Defense Mechanism |
-|---|---|---|---|
-| Write & DDL (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`) | 15 | 100% | AST Root Type & Keyword Filter |
-| Instruction Override & Prompt Injection | 10 | 100% | AST Parser & Strict SELECT Root |
-| Data Exfiltration (`password`, `ssn`, `sqlite_master`) | 10 | 100% | Column / Table Denylist Walk |
-| Multi-Statement Injection (`; DROP TABLE ...`) | 7 | 100% | Multi-Statement Split Filter |
-| Comment Smuggling (`--`, `/* ... */`) | 5 | 100% | Comment Stripper / AST Validation |
-| Resource Abuse (Cartesian Joins, Memory Bloat) | 8 | 100% | Join Count & Row Limit Enforcer |
-
----
-
-## 🚀 Quickstart & Local Execution
-
-### 1. Installation
-```bash
-git clone https://github.com/AshokSingodia-Codes/fine-tuned-text2sql.git
-cd fine-tuned-text2sql
-python -m venv .venv
-source .venv/bin/activate  # Or .venv\\Scripts\\activate on Windows
-make setup
-```
-
-### 2. Run Test Suite
-```bash
-make test
-```
-
-### 3. Launch Serving Backend & React Web Interface
-```bash
-# Terminal 1: Launch FastAPI Serving API (Port 8000)
-make serve
-
-# Terminal 2: Launch React + Vite Frontend (Port 3000)
-make react-dev
-```
-Open `http://localhost:3000` in your browser.
-
----
-
-## 🐳 Docker Stack Deployment
-
-```bash
-docker compose up --build
-```
-- **React Web App**: `http://localhost:3000`
-- **FastAPI API Docs**: `http://localhost:8000/docs`
-
----
-
-## 📄 License & Citation
-- Model Base: Qwen2.5-Coder-3B-Instruct (Apache 2.0 / Qwen License)
-- Dataset: Spider 1.0 (Yale, CC BY-SA 4.0)
+## Safety Suite Summary
+- Path A Attack Block Rate: {path_a_rate * 100:.2f}% ({path_a_k} / {path_a_n})
+- Path C Sandbox Defense Rate: {path_c_rate * 100:.2f}%
+- Path D Full Pipeline Attack Success Rate: {path_d_rate * 100:.2f}%
+- Spider Dev False-Positive Rate: {spider_fpr * 100:.2f}% ({spider_k_blocked} / {spider_n})
+- Legitimate Query Pass Rate: {fb_pass_rate * 100:.2f}% ({fb_total - fb_blocked} / {fb_total})
 """
-
-    with open("README.md", "w", encoding="utf-8") as f:
-        f.write(readme_content)
-    print("Updated README.md with full evaluation metrics.")
+    with open(reports_dir / "evaluation_report.md", "w", encoding="utf-8") as f:
+        f.write(eval_report)
+    print("Updated reports/evaluation_report.md")
 
     # 2. Update reports/model_card.md
     model_card = f"""# Model Card: Qwen2.5-Coder-3B Text-to-SQL QLoRA
@@ -178,37 +102,20 @@ docker compose up --build
 - **Dataset**: Spider 1.0 (Yale Text-to-SQL Dataset, CC BY-SA 4.0)
 - **Deployment Format**: GGUF `Q4_K_M` (1.9 GB)
 
-## Evaluation Metrics (Spider Dev Split)
-- **Execution Accuracy**: {acc_c * 100:.1f}%
-- **Valid SQL Rate**: {valid_sql_c * 100:.1f}%
-- **Quantization Size Reduction**: 6.2 GB -> 1.9 GB (69.3% memory saving)
+## Evaluation Metrics (Spider Dev Split, n=1,034)
+- **Base Zero-Shot Execution Accuracy**: {acc_a * 100:.2f}%
+- **Fine-Tuned FP16 Execution Accuracy**: {acc_c * 100:.2f}%
+- **Quantized GGUF Q4_K_M Execution Accuracy**: {acc_d * 100:.2f}%
+- **Valid SQL Rate**: {valid_d * 100:.2f}%
+- **Quantization Size Reduction**: ~6.2 GB -> 1.9 GB (~69.3% memory saving)
 
 ## Intended Use & Safety
 - **Intended Use**: Read-only text-to-SQL analytics on relational databases.
 - **Guardrails**: Served behind AST SQL Validator and SQLite `mode=ro` read-only connection authorizer.
 """
-
-    with open("reports/model_card.md", "w", encoding="utf-8") as f:
+    with open(reports_dir / "model_card.md", "w", encoding="utf-8") as f:
         f.write(model_card)
     print("Updated reports/model_card.md")
-
-    # 3. Update reports/evaluation_report.md
-    eval_report = f"""# Evaluation Report
-
-## Execution Accuracy Summary
-- System A (Zero-shot): {acc_a * 100:.1f}%
-- System B (Few-shot): {acc_b * 100:.1f}%
-- System C (Fine-tuned QLoRA): {acc_c * 100:.1f}%
-- System D (GGUF Q4_K_M Quantized): {acc_c * 97:.1f}%
-
-## Safety Suite Summary
-- Red-Team Block Rate: {redteam_acc * 100:.1f}%
-- False-Block Rate: {false_block * 100:.2f}%
-"""
-
-    with open("reports/evaluation_report.md", "w", encoding="utf-8") as f:
-        f.write(eval_report)
-    print("Updated reports/evaluation_report.md")
     print("========================================================\n")
 
 

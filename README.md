@@ -63,20 +63,7 @@ All evaluation numbers are produced empirically by automated code scripts and ve
 
 > *Note on Row Capping*: 33 of 1,034 Spider dev queries produce gold result sets exceeding 100 rows. When evaluated on the 1,001 uncapped queries under the `LIMIT 100` production guardrail, Execution Accuracy reaches **72.83%** (729 / 1,001) as recorded in [`results/canonical_equiv.json`](file:///e:/7thsem%20learning/projects/finue%20tune/results/canonical_equiv.json).
 
-### 2. Fine-Tuning Hyperparameter Ablation Matrix (Validation Split)
-
-Evaluated on an unseen 10% database-level validation split (`val.jsonl`):
-
-| Ablation Sweep | Variant / Hyperparameter | Validation Loss | Selected Choice |
-|---|---|---|---|
-| **Sample Rows in Prompt** | With Sample Rows | `0.3842` | |
-| | **Without Sample Rows** | **`0.3510`** | **Without Sample Rows** ✅ |
-| **LoRA Rank ($r$)** | Rank $r=8$ | `0.3690` | |
-| | **Rank $r=16$ (alpha=32)** | **`0.3510`** | **LoRA Rank $r=16$** ✅ |
-| | Rank $r=32$ | `0.3545` | |
-| **Epoch Sweep** | 1 Epoch | `0.4120` | |
-| | **2 Epochs** | **`0.3510`** | **2 Epochs** ✅ |
-| | 3 Epochs | `0.3580` | |
+> *Note on Hyperparameter Validation Losses*: Hyperparameter validation loss ablations are omitted until full multi-run evaluation logs are provided. The training configuration uses LoRA rank =16$, $\alpha=32$, on target linear modules with 2 epochs.
 
 ---
 

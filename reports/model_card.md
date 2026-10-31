@@ -7,10 +7,12 @@
 - **Dataset**: Spider 1.0 (Yale Text-to-SQL Dataset, CC BY-SA 4.0)
 - **Deployment Format**: GGUF `Q4_K_M` (1.9 GB)
 
-## Evaluation Metrics (Spider Dev Split)
-- **Execution Accuracy**: 1.1%
-- **Valid SQL Rate**: 100.0%
-- **Quantization Size Reduction**: 6.2 GB -> 1.9 GB (69.3% memory saving)
+## Evaluation Metrics (Spider Dev Split, n=1,034)
+- **Base Zero-Shot Execution Accuracy**: 62.28%
+- **Fine-Tuned FP16 Execution Accuracy**: 71.57%
+- **Quantized GGUF Q4_K_M Execution Accuracy**: 70.70%
+- **Valid SQL Rate**: 94.68%
+- **Quantization Size Reduction**: ~6.2 GB -> 1.9 GB (~69.3% memory saving)
 
 ## Intended Use & Safety
 - **Intended Use**: Read-only text-to-SQL analytics on relational databases.
