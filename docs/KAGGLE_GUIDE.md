@@ -35,7 +35,7 @@ This produces `kaggle_bundle.zip` (~304 MB) in the repository root. It includes:
 
 1. Go to [kaggle.com](https://www.kaggle.com/) and sign in.
 2. Click **Create** (top left) $\rightarrow$ **New Dataset**.
-3. Drag & drop `kaggle_bundle.zip` (or browse to `e:\7thsem learning\projects\finue tune\kaggle_bundle.zip`).
+3. Drag & drop `kaggle_bundle.zip` (located in the repository root).
 4. Set the Dataset title to `t2s-kaggle-bundle` (or any name you like).
 5. Click **Create**. Kaggle processes the upload in ~30–60 seconds.
 
