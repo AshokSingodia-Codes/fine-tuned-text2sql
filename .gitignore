@@ -1,5 +1,6 @@
 # Data, model weights, and heavy artifacts
-/data/
+/data/*
+!/data/redteam/
 /models/
 db/uploads/*
 !db/uploads/.gitkeep
