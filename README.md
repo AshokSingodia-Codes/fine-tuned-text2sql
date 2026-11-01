@@ -1,6 +1,7 @@
 # Fine-Tuned Text-to-SQL Assistant (QLoRA) with Safe LLM Serving
 
 [![CI](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions/workflows/ci.yml/badge.svg)](https://github.com/AshokSingodia-Codes/fine-tuned-text2sql/actions)
+[![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model%20Hub-yellow.svg)](https://huggingface.co/Ashoksainibadu/fine-tuned-text2sql)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -8,6 +9,7 @@ An end-to-end production system: dataset building, prompt engineering, evaluatio
 
 > [!NOTE]
 > **Open Source & Local First Architecture:**
+> - **Model Hub**: Weights published and verified on Hugging Face at [Ashoksainibadu/fine-tuned-text2sql](https://huggingface.co/Ashoksainibadu/fine-tuned-text2sql) (1.93 GB GGUF Q4_K_M).
 > - **Self-Hosted & Private**: Designed to run entirely on your local machine. No queries or database data leave your environment.
 > - **Works with Any SQLite Database**: Query your own `.sqlite` or `.db` databases via CLI, Web UI, or REST API.
 > - **Zero-Weight Quickstart**: Includes an instant mock mode to explore the full UI, AST validation, and sandboxing pipeline without downloading model weights. Real inference runs locally with the fine-tuned 1.9 GB GGUF model or any OpenAI-compatible engine.
