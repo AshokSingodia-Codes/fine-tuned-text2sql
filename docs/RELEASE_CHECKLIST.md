@@ -1,5 +1,8 @@
 # Release & Deployment Checklist
 
+**Phase 8 Status:** PARTIAL: model published on Hugging Face Hub; live Space not running (cpu-basic quota 0 on this account); local Docker unverified (docker not installed on host).
+
+
 This document details the checklist and pending items for releasing and deploying the **Fine-Tuned Text-to-SQL Assistant**.
 
 ## 1. Local & Containerized Status

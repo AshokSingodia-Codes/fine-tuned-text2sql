@@ -57,6 +57,7 @@ Every metric claimed on a resume, technical report, portfolio document, or blog 
 | Serving Stack Overhead p50 (Stub Backend, Concurrency 1) | **3.89 ms** | **CLAIMABLE** | `results/loadtest_latest.json` | `python scripts/loadtest.py --backend stub` | Serving framework latency with stub generation. |
 | Serving Stack Overhead p95 (Stub Backend, Concurrency 4) | **6.75 ms** | **CLAIMABLE** | `results/loadtest_latest.json` | `python scripts/loadtest.py --backend stub` | Queueing and dispatch latency under concurrent load. |
 | Interactive Demo Preset Accounting | **13 attempted, 10 passed, 3 blocked** | **CLAIMABLE** | `results/demo_examples.json` | Inspect `results/demo_examples.json` | Preset queries in interactive demo. |
+| Public Live Demo | **Not Running** | **NOT YET** | docs/RELEASE_CHECKLIST.md | curl https://ashoksainibadu-text2sql-assistant.hf.space/healthz | Hugging Face Space blocked by cpu-basic quota. |
 
 ---
 

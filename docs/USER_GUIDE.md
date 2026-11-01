@@ -202,8 +202,8 @@ The repository includes a production multi-stage `Dockerfile` compatible with st
 ### Running via Docker Locally
 ```bash
 # Build and run container
-docker build -t text2sql-assistant:latest .
-docker run -p 7860:7860 -e MODEL_BACKEND=mock text2sql-assistant:latest
+docker build -t fine-tuned-text2sql:latest .
+docker run -p 7860:7860 -e MODEL_BACKEND=mock fine-tuned-text2sql:latest
 ```
 
 ### Deploying to Hugging Face Spaces
