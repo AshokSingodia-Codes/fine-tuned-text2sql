@@ -118,3 +118,6 @@ $body = @{
 
 Invoke-RestMethod -Uri http://127.0.0.1:8000/v1/query -Method Post -ContentType "application/json" -Body $body
 ```
+
+
+> Note: CI workflow includes a container build and /healthz and /ready smoke test; CI has not been confirmed green yet.

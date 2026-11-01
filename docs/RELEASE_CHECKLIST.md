@@ -9,7 +9,7 @@ This document details the checklist and pending items for releasing and deployin
 - [x] QLoRA adapter training & checkpoint artifacts saved in `models/qlora_adapter`.
 - [x] GGUF conversion script `scripts/export_gguf.py` verified locally.
 - [x] Multi-layer AST safety guardrails (`sqlglot`) and read-only SQLite sandboxing implemented and tested.
-- [x] Local FastAPI backend and React frontend production Dockerfile and `docker-compose.yml` verified.
+- [x] Local FastAPI backend and React frontend production Dockerfile and `docker-compose.yml` created (CI workflow includes a container build and /healthz and /ready smoke test; CI has not been confirmed green yet).
 - [x] All 85 unit and integration tests passing (`pytest tests/`).
 
 ---
