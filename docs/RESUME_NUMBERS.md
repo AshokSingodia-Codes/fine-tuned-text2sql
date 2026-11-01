@@ -18,8 +18,8 @@ Every metric claimed on a resume, technical report, portfolio document, or blog 
 | Execution Accuracy Delta (Base Zero-Shot $\rightarrow$ Fine-Tuned Q4_K_M) | **+8.42 pp** (62.28% $\rightarrow$ 70.70%) | **CAVEAT** | `results/eval_spider_latest.json` | Computed from Config A vs Config D | Base and fine-tuned were evaluated on different hardware environments. |
 | Accuracy Retention after 4-bit Quantization (FP16 $\rightarrow$ Q4_K_M) | **98.78%** relative (71.57% $\rightarrow$ 70.70%) | **CLAIMABLE** | `results/eval_spider_latest.json` | Computed from Config C vs Config D | Standard quantization retention metric. |
 | Memory Footprint Reduction (FP16 $\rightarrow$ GGUF Q4_K_M) | **69.35%** cut (6.2 GB $\rightarrow$ 1.9 GB) | **CLAIMABLE** | `docs/ARTIFACTS.md` | Measured artifact file sizes on disk | Real artifact files verified via SHA256. |
-| CPU Generation Latency p50 (GGUF Q4_K_M on CPU) | **4.68 s** | **CLAIMABLE** | `results/latency_latest.json` | `python scripts/bench_latency.py` | Local CPU benchmark over 200 questions. |
-| CPU Generation Latency p95 (GGUF Q4_K_M on CPU) | **11.23 s** | **CLAIMABLE** | `results/latency_latest.json` | `python scripts/bench_latency.py` | Local CPU benchmark over 200 questions. |
+| CPU Generation Latency p50 (GGUF Q4_K_M on CPU) | **4.68 s** | **CAVEAT** | `results/latency_latest.json` | `python scripts/bench_latency.py` | Benchmark conditions: n=200 questions, Linux x86_64, 2 physical / 4 logical cores, 31.35 GB RAM, n_ctx=2048, max_tokens=256, llama_cpp backend. Interactive latency on a loaded machine can be much higher (ad hoc 47-52s observed during doc testing). |
+| CPU Generation Latency p95 (GGUF Q4_K_M on CPU) | **11.23 s** | **CAVEAT** | `results/latency_latest.json` | `python scripts/bench_latency.py` | Benchmark conditions: n=200 questions, Linux x86_64, 2 physical / 4 logical cores, 31.35 GB RAM, n_ctx=2048, max_tokens=256, llama_cpp backend. Interactive latency on a loaded machine can be much higher. |
 | Generation Throughput (CPU tokens/sec) | **5.86 tokens/s** | **CLAIMABLE** | `results/latency_latest.json` | `python scripts/bench_latency.py` | Measured token generation rate on CPU. |
 
 ---
@@ -28,10 +28,9 @@ Every metric claimed on a resume, technical report, portfolio document, or blog 
 
 | Metric Description | Exact Value | Status | Evidence File | Exact Reproduction Command | Reason / Provenance Caveat |
 |---|---|---|---|---|---|
-| Path A Static AST Attack Block Rate (Raw) | **87.50%** (105 / 120) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | Direct red-team evaluation across 120 attack vectors. |
-| Path A Static AST Attack Block Rate (Adjusted) | **96.33%** (105 / 109) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | Adjusted for out-of-scope dialect exploits. |
-| Path C SQLite Read-Only Sandbox Defense Rate | **100.00%** (120 / 120) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | Read-only SQLite URI and authorizer hooks. |
-| Path D Full Pipeline Attack Success Rate | **0.00%** (0 / 120) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | End-to-end layered defense neutralizing all attacks. |
+| Path A Static AST Attack Block Rate | **97.25%** (106 / 109) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | Direct red-team evaluation across 109 adversarial attack cases (dev: 68/70 = 97.14%, held-out: 38/39 = 97.44%). |
+| Path C SQLite Read-Only Sandbox Defense Rate | **92.66%** (101 / 109) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | Read-only SQLite URI and authorizer hooks across 109 attack cases (24 authorizer, 75 syntax/readonly, 2 row limit). |
+| Path D Full Pipeline Attack Success Rate | **0.00%** (0 / 109) | **CLAIMABLE** | `results/redteam_latest.json` | `python scripts/eval_redteam.py` | End-to-end layered defense neutralizing all attacks (106 validator blocked, 2 sandbox blocked, 1 harmless SELECT). |
 | Path B End-to-End Prompt Injection Attack Success | **0.00%** (0 / 60) | **CLAIMABLE** | `results/path_b_protocol_results.json` | `python scripts/run_path_b_protocol.py` | Model-in-the-loop prompt injection evaluations. |
 | False Positive Rate on Spider Dev Gold Queries | **0.19%** (2 / 1,034) | **CLAIMABLE** | `results/false_blocks.json` | `python scripts/audit_false_positives.py` | Benign queries incorrectly blocked. |
 | Legitimate Query Pass Rate (Spider Dev + 76 Benign Controls) | **99.37%** (1,103 / 1,110) | **CLAIMABLE** | `results/false_blocks.json` | `python scripts/audit_false_positives.py` | Benign query pass rate across gold dev and controls. |

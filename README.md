@@ -250,7 +250,7 @@ docker run -p 8000:7860 -e MODEL_BACKEND=mock fine-tuned-text2sql:latest
 > [!NOTE]
 > **Container Verification Status:**
 > Docker execution is **not verified on the author's local Windows machine** because Docker is not installed on this host (`docker : The term 'docker' is not recognized`).
-> Container build and startup smoke-testing is verified in automated **GitHub Actions CI** (`.github/workflows/ci.yml`), which builds the multi-stage image, launches the container with `MODEL_BACKEND=mock`, probes `GET /healthz` and `GET /ready`, and asserts exit code 0.
+> CI workflow includes a container build and /healthz and /ready smoke test; CI has not been confirmed green yet.
 
 ---
 
@@ -267,10 +267,9 @@ docker run -p 8000:7860 -e MODEL_BACKEND=mock fine-tuned-text2sql:latest
    Change the port via environment variable: `$env:PORT="8080"` and run `uvicorn src.t2s.serving.app:app --port 8080`.
 4. **Read-Only Filesystem / Permission Fallback**:  
    The application writes ephemeral temp files only to `/tmp` (or OS temp directory) to support non-root container sandboxes.
-5. **Slow First Request Latency (Empirical Measurements)**:  
-   *Hardware tested: Windows 11 AMD64, Intel 10-core CPU, 7.7 GB RAM.*
-   - **First Request (Cold Model Load)**: **47.66 seconds** total latency (`inference_ms: 47,373 ms`, `schema_fetch_ms: 46 ms`). The model binary is read into memory and KV cache allocated on first invocation.
-   - **Subsequent Queries (Warm Inference)**: **51.81 seconds** total latency (`inference_ms: 51,458 ms`) on CPU generation for complex joins.
+5. **Latency on CPU (Benchmark vs Ad Hoc Testing)**:  
+   - **Benchmark ($n=200$, Linux x86_64, 2 physical / 4 logical cores, 31.35 GB RAM, `results/latency_latest.json`)**: Median latency **p50 is 4.68 s**, 95th percentile **p95 is 11.23 s**, and generation throughput is **5.86 tokens/s** (conditions: `n_ctx=2048`, `max_tokens=256`, schema DDL + question prompt, real GGUF model via `llama_cpp`).
+   - **Ad Hoc Single Runs on Loaded Host**: Ad hoc single runs during documentation testing took about 47 to 52 s on the same machine while other processes were running; not a benchmark. Interactive latency on a loaded machine can be much higher than standalone benchmark runs.
 6. **Git Line Ending (`CRLF` vs `LF`) Test Failures**:  
    If running tests on Windows, Git may convert `LF` to `CRLF`, altering test file hashes. Run:
    ```bash
@@ -296,19 +295,19 @@ All evaluation numbers are produced empirically by automated evaluation scripts 
 ### Security Guardrails & Red-Teaming Results
 | Evaluation Path / Security Metric | Empirical Value | 95% Wilson CI | Defense Mechanism & Evidence |
 |---|---|---|---|
-| **Path A Static AST Block Rate (Raw)** | **87.50% (105 / 120)** | [80.40%, 92.28%] | AST Root Type, Forbidden Op, Join Count (`results/redteam_latest.json`) |
-| **Path C Sandbox Defense Rate** | **100.00% (120 / 120)** | [96.90%, 100.00%] | Read-Only Authorizer & PRAGMA Defensive (`results/redteam_latest.json`) |
-| **Path D Full Pipeline Attack Success** | **0.00% (0 / 120)** | [0.00%, 3.10%] | Multi-Layer Defense in Depth (`results/redteam_latest.json`) |
-| **Path B End-to-End Prompt Injection Success** | **0.00% (0 / 60)** | [0.00%, 6.02%] | Greedy & Stochastic Temperature 0.7 (`results/path_b_protocol_results.json`) |
+| **Path A Static AST Block Rate** | **97.25% (106 / 109)** | [92.22%, 99.06%] | AST Root Type, Forbidden Op, Join Count (`results/redteam_latest.json`) |
+| **Path C Sandbox Defense Rate** | **92.66% (101 / 109)** | [86.18%, 96.23%] | Read-Only Authorizer & PRAGMA Defensive (`results/redteam_latest.json`) |
+| **Path D Full Pipeline Attack Success** | **0.00% (0 / 109)** | [0.00%, 3.40%] | Multi-Layer Defense in Depth (`results/redteam_latest.json`) |
+| **Path B End-to-End Prompt Injection Success** | **0.00% (0 / 60)** | [0.00%, 6.02%] | Prompt injection evaluation over 60 attacks (`results/redteam_latest.json`) |
 | **Spider Dev False-Positive Rate (FPR)** | **0.19% (2 / 1,034)** | [0.05%, 0.70%] | AST Join Count Ceiling (5 > 4) (`results/false_blocks.json`) |
-| **Legitimate Query Pass Rate** | **99.37% (1,103 / 1,110)** | [98.70%, 99.69%] | Spider dev (1,034) + 76 benign controls (`results/false_blocks.json`) |
+| **Legitimate Query Pass Rate** | **99.37% (1103 / 1110)** | [98.70%, 99.69%] | Spider dev (1,034) + 76 benign controls (`results/false_blocks.json`) |
 
 ---
 
 ## 10. Security Model & Known Limitations
 
 ### Defense-in-Depth Security Model
-- **No Claims of Absolute Security**: No software system is 100% secure. On custom red-team evaluation suites, the static AST validator blocked **87.50% (105 / 120)** of raw injection patterns, while the underlying SQLite read-only sandbox blocked 100% of state-mutating queries.
+- **No Claims of Absolute Security**: No software system is 100% secure. On custom red-team evaluation suites, the static AST validator blocked **97.25% (106 / 109)** of adversarial SQL attacks on a custom red-team suite (109 direct SQL attacks across dev and held-out splits), while the underlying SQLite read-only sandbox stopped 92.66% (101 / 109) and the full pipeline allowed 0.00% (0 / 109) attack success.
 - **Layer 1: AST Parsing**: Validates SQL grammar prior to execution, preventing statement stacking and DDL operations.
 - **Layer 2: Read-Only Authorizer**: Mounts databases via SQLite C-level read-only URI hooks, neutralizing bypasses that escape parser AST inspection.
 
