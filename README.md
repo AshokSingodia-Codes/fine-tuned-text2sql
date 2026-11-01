@@ -250,7 +250,7 @@ docker run -p 8000:7860 -e MODEL_BACKEND=mock fine-tuned-text2sql:latest
 > [!NOTE]
 > **Container Verification Status:**
 > Docker execution is **not verified on the author's local Windows machine** because Docker is not installed on this host (`docker : The term 'docker' is not recognized`).
-> CI workflow includes a container build and /healthz and /ready smoke test; CI has not been confirmed green yet.
+> CI workflow includes a container build and /healthz and /ready smoke test; CI green.
 
 ---
 
