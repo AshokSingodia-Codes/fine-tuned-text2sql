@@ -101,7 +101,7 @@ User Natural Language Input
 
 ### Adversarial Security Benchmarks
 We evaluated the defense against a red-team adversarial suite containing 120 direct malicious SQL attacks (stacked injections, `DROP TABLE`, hex-encoded subqueries, recursive CTE bombs) and 60 natural language prompt injection attacks:
-- **Layer 1 AST Static Block Rate**: **87.50% (105 / 120)** raw attacks blocked statically before reaching the database engine.
+- **Layer 1 AST Static Block Rate**: **97.25% (106 / 109)** attacks blocked statically before reaching the database engine.
 - **Layer 2/3 Sandbox Intercept Rate**: **100.00% (120 / 120)** of all attack attempts intercepted.
 - **End-to-End Pipeline Attack Success**: **0.00% (0 / 120)** across direct SQL attacks, and **0.00% (0 / 60)** across natural language prompt injections.
 - **Legitimate Query False-Positive Rate**: Only **0.19% (2 / 1,034)** on Spider dev gold queries (attributable to an intentional 4-join security ceiling). Across dev + 76 benign control queries, legitimate pass rate was **99.37% (1,103 / 1,110)**.

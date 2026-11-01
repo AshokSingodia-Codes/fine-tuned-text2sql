@@ -1,12 +1,15 @@
 # Release & Deployment Checklist
 
+**Phase 8 Status:** PARTIAL: model published on Hugging Face Hub; live Space not running (cpu-basic quota 0 on this account); local Docker unverified (docker not installed on host).
+
+
 This document details the checklist and pending items for releasing and deploying the **Fine-Tuned Text-to-SQL Assistant**.
 
 ## 1. Local & Containerized Status
 - [x] QLoRA adapter training & checkpoint artifacts saved in `models/qlora_adapter`.
 - [x] GGUF conversion script `scripts/export_gguf.py` verified locally.
 - [x] Multi-layer AST safety guardrails (`sqlglot`) and read-only SQLite sandboxing implemented and tested.
-- [x] Local FastAPI backend and React frontend production Dockerfile and `docker-compose.yml` verified.
+- [x] Local FastAPI backend and React frontend production Dockerfile and `docker-compose.yml` created (CI workflow includes a container build and /healthz and /ready smoke test; CI has not been confirmed green yet).
 - [x] All 85 unit and integration tests passing (`pytest tests/`).
 
 ---
