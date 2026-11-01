@@ -1,5 +1,5 @@
 ---
-title: Fine-Tuned Text-to-SQL Assistant
+title: Text2sql Assistant
 emoji: 🛡️
 colorFrom: indigo
 colorTo: blue
@@ -10,5 +10,4 @@ pinned: false
 
 # Fine-Tuned Text-to-SQL Assistant (Hugging Face Space)
 
-[TODO] Deployment instructions and Space configuration for running the containerized assistant on Hugging Face Spaces.
-
+Serving fine-tuned Qwen2.5-Coder-3B QLoRA with static AST safety guardrails and SQLite execution sandbox.
