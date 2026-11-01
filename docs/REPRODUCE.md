@@ -63,12 +63,13 @@ Expected output:
 python scripts/eval_redteam.py
 ```
 Expected output:
-- **Path A Raw Block Rate**: `87.50% (105 / 120)`
-- **Path C Sandbox Defense Rate**: `100.00% (120 / 120)`
-- **Path D Full Pipeline Attack Success Rate**: `0.00% (0 / 120)`
+- **Path A Block Rate**: `97.25% (106 / 109)`
+- **Path C Sandbox Defense Rate**: `92.66% (101 / 109)`
+- **Path D Full Pipeline Attack Success Rate**: `0.00% (0 / 109)`
 
 ### Full Phase 2 Regression Gate Verification
 ```bash
 python scripts/check_phase2.py
 ```
 Checks dataset counts, Wilson 95% confidence intervals, and frozen policy SHA-256 hash (`682e3439354213f37b7645592a57b439a94f3d5073794fa86a349ca5761a8daa`).
+

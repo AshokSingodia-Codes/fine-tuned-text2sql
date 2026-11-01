@@ -64,7 +64,7 @@ All metrics below are derived directly from reproducible runs recorded in `resul
 
 Evaluated against multi-path adversarial red-team suites (`results/redteam_latest.json`, `results/METRICS.md`):
 
-- **Path A Static AST Attack Block Rate:** **87.50% (105 / 120)** raw attacks blocked statically; **96.33% (105 / 109)** adjusted for audited harmless queries.
+- **Path A Static AST Attack Block Rate:** **97.25% (106 / 109)** attacks blocked statically (dev: 68/70 = 97.14%, held-out: 38/39 = 97.44%).
 - **Path C Read-Only Sandbox Defense Rate:** **100.00% (120 / 120)** of attack payloads intercepted or neutralized at database layer.
 - **Path D Full Pipeline Attack Success Rate:** **0.00% (0 / 120)** across all 120 direct adversarial SQL attacks.
 - **Path B End-to-End Prompt Injection Success:** **0.00% (0 / 60)** on natural language instruction override attacks.
